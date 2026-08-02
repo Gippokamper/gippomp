@@ -10,7 +10,14 @@
  * Quyidagi qiymatlar shunga moslangan.
  */
 
+/*
+ * Ustunlar orasidagi oraliq. main.scss'da `.account-content { display: flex }`
+ * bo'lib, oraliqni eski `.account-side` ning `margin-right` i berardi. U sinf
+ * `.acc-profile` ga almashgach oraliq ham yo'qolgan edi.
+ */
 .account-content {
+  gap: 1.5rem;
+
   --acc-surface: #fff;
   --acc-text: #121b2d;
   --acc-muted: #6b7785;
@@ -43,6 +50,22 @@ body.dark .account-content {
   box-shadow: var(--acc-shadow);
   color: var(--acc-text);
   align-self: flex-start;
+
+  /* Eski `.account-side` dagi o'lchamlar — flex element sifatida u kontentga
+     qarab qisqarib ketmasin. `.account-main` esa calc(100% - 18.5rem) bilan
+     hisoblangan, ya'ni 17rem + 1.5rem oraliq. */
+  width: 17rem;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+}
+
+@media (max-width: 991.98px) {
+  .acc-profile {
+    width: 100%;
+    position: static;
+    margin-bottom: 1.5rem;
+  }
 }
 
 .acc-profile__top {
