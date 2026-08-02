@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------------------
+# Maxfiy ma'lumot — HECH QACHON repozitoriyga tushmasin
+# ---------------------------------------------------------------------------
+# .env ichida Payme/Click/Apelsin kalitlari, FCM server kaliti, SMS provayder
+# login/paroli va Laravel APP_KEY bor.
+.env
+.env.local
+.env.*.local
+*/.env
+*/.env.local
+*/.env.*.local
+
+# Baza dumplari — real foydalanuvchilar ma'lumoti (telefon, email, tug'ilgan
+# sana, to'lovlar tarixi). Ochiq repozitoriyga tushishi mumkin emas.
+*.sql
+*.sql.gz
+*.dump
+database/database.sqlite
+
+# Yuklangan media — real fayllar, git uchun emas
+/media/
+storage/app/public/*
+!storage/app/public/.gitkeep
+public/storage
+
+# ---------------------------------------------------------------------------
+# Bog'lanmalar va build natijalari
+# ---------------------------------------------------------------------------
+node_modules/
+vendor/
+build/
+dist/
+.pnp
+.pnp.js
+
+# ---------------------------------------------------------------------------
+# Laravel
+# ---------------------------------------------------------------------------
+storage/logs/*.log
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*.php
+!bootstrap/cache/.gitignore
+
+# ---------------------------------------------------------------------------
+# IDE / OS
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+__MACOSX/
+*.swp
+
+# ---------------------------------------------------------------------------
+# Test / log
+# ---------------------------------------------------------------------------
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
