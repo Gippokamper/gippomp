@@ -1,0 +1,115 @@
+/*
+ * To'lovlar ro'yxati.
+ *
+ * DIQQAT: loyihada ildiz shrifti o'zgaruvchan — `:root { font-size }` ekran
+ * kengligiga qarab 30px dan 10px gacha tushadi (main.scss). Ya'ni 1rem bu
+ * "bitta qator matn" o'lchovi, 16px emas. Shu sababli bu yerdagi qiymatlar
+ * mavjud dizayn shkalasiga moslangan: oddiy matn ~1rem, mayda matn ~0.8rem.
+ */
+
+.acc-pay {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.acc-pay__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  /* Ilgari .account-payment__item da padding:1rem + margin-bottom:1.5rem edi —
+     ildiz shrifti 30px bo'lgani uchun bu 30px va 45px degani, kartochkalar
+     ichida ozgina matn bilan juda siyrak ko'rinardi. */
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(18, 27, 45, 0.08);
+  border-radius: 0.4rem;
+  background: #fff;
+}
+
+body.dark .acc-pay__item {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: #1f2638;
+}
+
+.acc-pay__body {
+  min-width: 0;
+}
+
+.acc-pay__status {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgba(77, 175, 0, 0.12);
+  color: #4daf00;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+body.dark .acc-pay__status {
+  background: rgba(247, 159, 68, 0.14);
+  color: #f79f44;
+}
+
+.acc-pay__text {
+  margin: 0.25rem 0 0.15rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #121b2d;
+}
+
+body.dark .acc-pay__text {
+  color: #ddd;
+}
+
+.acc-pay__date {
+  font-size: 0.62rem;
+  color: #a3b2bd;
+}
+
+.acc-pay__amount {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #121b2d;
+}
+
+.acc-pay__amount span {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #a3b2bd;
+}
+
+body.dark .acc-pay__amount {
+  color: #ddd;
+}
+
+.acc-pay__empty {
+  padding: 2rem 1rem;
+  border: 1px dashed rgba(18, 27, 45, 0.12);
+  border-radius: 0.5rem;
+  color: #a3b2bd;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+body.dark .acc-pay__empty {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Qidiruv ---------- */
+
+/*
+ * Lupa ikonkasi `left: 0.75rem; width: 1rem` (main.scss) — ya'ni u
+ * 1.75rem gacha egallaydi. Padding ham rem'da bo'lishi shart, aks holda
+ * ildiz shrifti kattalashganda matn ikonka ustiga chiqadi.
+ */
+.acc-pay-search__input {
+  padding-left: 2.1rem !important;
+}

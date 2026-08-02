@@ -3,25 +3,27 @@
 # ---------------------------------------------------------------------------
 # .env ichida Payme/Click/Apelsin kalitlari, FCM server kaliti, SMS provayder
 # login/paroli va Laravel APP_KEY bor.
+# (Yo'lsiz naqsh git'da istalgan chuqurlikda ishlaydi.)
 .env
 .env.local
 .env.*.local
-*/.env
-*/.env.local
-*/.env.*.local
+!.env.example
+!.env.railway.example
 
 # Baza dumplari — real foydalanuvchilar ma'lumoti (telefon, email, tug'ilgan
-# sana, to'lovlar tarixi). Ochiq repozitoriyga tushishi mumkin emas.
+# sana, to'lovlar tarixi). Repozitoriy ochiq bo'lgani uchun bu ayniqsa muhim.
 *.sql
 *.sql.gz
 *.dump
-database/database.sqlite
+**/database/database.sqlite
 
-# Yuklangan media — real fayllar, git uchun emas
+# ---------------------------------------------------------------------------
+# Kontent (kod emas) — prod serverda bor, repoga kerak emas
+# ---------------------------------------------------------------------------
 /media/
-storage/app/public/*
-!storage/app/public/.gitkeep
-public/storage
+**/public/image/
+**/storage/app/public/*
+**/public/storage
 
 # ---------------------------------------------------------------------------
 # Bog'lanmalar va build natijalari
@@ -34,14 +36,17 @@ dist/
 .pnp.js
 
 # ---------------------------------------------------------------------------
-# Laravel
+# Laravel ish vaqti fayllari
 # ---------------------------------------------------------------------------
-storage/logs/*.log
-storage/framework/cache/*
-storage/framework/sessions/*
-storage/framework/views/*
-bootstrap/cache/*.php
-!bootstrap/cache/.gitignore
+# DIQQAT: `**/` shart. Yo'l ichida `/` bo'lgan naqsh .gitignore turgan
+# papkaga bog'lanadi, ya'ni `storage/logs/*.log` faqat ildizdagi storage'ga
+# tegardi va `gippokamp/storage/logs` ochiq qolardi (27 MB log).
+**/storage/logs/*.log
+**/storage/framework/cache/*
+**/storage/framework/sessions/*
+**/storage/framework/views/*
+**/storage/framework/testing/*
+**/bootstrap/cache/*.php
 
 # ---------------------------------------------------------------------------
 # IDE / OS
@@ -54,7 +59,7 @@ __MACOSX/
 *.swp
 
 # ---------------------------------------------------------------------------
-# Test / log
+# Log / coverage
 # ---------------------------------------------------------------------------
 coverage/
 npm-debug.log*

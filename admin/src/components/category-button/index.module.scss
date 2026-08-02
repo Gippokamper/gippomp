@@ -1,0 +1,87 @@
+.container {
+  display: flex;
+  width: 17.8125rem;
+  flex-direction: row;
+  padding: 1.25rem;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  border-radius: 0.625rem;
+  background: var(--white-cl, #fff);
+  color: var(--text-cl, #121b2d);
+  font-family: Gilroy;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+.container:hover {
+  display: flex;
+  width: 17.8125rem;
+  flex-direction: row;
+  padding: 1.25rem;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  border-radius: 0.625rem;
+  background: var(--main-color, linear-gradient(174deg, #399a48 0%, #aacc3a 100%));
+  color: var(--white-cl, #fff);
+  font-family: Gilroy;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+.container_active {
+  display: flex;
+  width: 17.8125rem;
+  flex-direction: row;
+  padding: 1.25rem;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  border-radius: 0.625rem;
+  background: var(--main-color, linear-gradient(174deg, #399a48 0%, #aacc3a 100%));
+  color: var(--white-cl, #fff);
+  font-family: Gilroy;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+.container_collapsed {
+  display: flex;
+  width: 4rem;
+  flex-direction: row;
+  padding: 1.25rem;
+  border-radius: 0.625rem;
+  background: var(--white-cl, #fff);
+  color: var(--text-cl, #121b2d);
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+.container_collapsed span {
+  display: none;
+}
+.container_collapsed_active {
+  display: flex;
+  width: 4rem;
+  flex-direction: row;
+  padding: 1.25rem;
+  border-radius: 0.625rem;
+  background: var(--main-color, linear-gradient(174deg, #399a48 0%, #aacc3a 100%));
+  color: var(--white-cl, #fff);
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+.container_collapsed_active span {
+  display: none;
+}

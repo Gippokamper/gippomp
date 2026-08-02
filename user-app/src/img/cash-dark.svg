@@ -1,0 +1,9 @@
+<svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M112.5 100H121.875C130.504 100 137.5 93.0044 137.5 84.375V40.625C137.5 31.9956 130.504 25 121.875 25H53.125C44.4956 25 37.5 31.9956 37.5 40.625V50" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="12.5" y="50" width="100" height="75" rx="2.5" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="62.5" cy="87.5" r="12.5" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M30.9375 87.5C30.9375 87.3274 31.0774 87.1875 31.25 87.1875C31.4226 87.1875 31.5625 87.3274 31.5625 87.5" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M31.5625 87.5C31.5625 87.6726 31.4226 87.8125 31.25 87.8125C31.0774 87.8125 30.9375 87.6726 30.9375 87.5" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M93.2813 87.5C93.2813 87.2411 93.4911 87.0312 93.75 87.0312C94.0089 87.0312 94.2187 87.2411 94.2187 87.5" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M94.2187 87.5C94.2187 87.7589 94.0089 87.9688 93.75 87.9688C93.4911 87.9688 93.2813 87.7589 93.2813 87.5" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

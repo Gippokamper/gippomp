@@ -1,0 +1,33 @@
+.container {
+  width: 100%;
+  height: 6.1875rem;
+  flex-shrink: 0;
+  border-radius: 0.625rem;
+  background: var(--black, #121b2d);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+}
+.container .text {
+  color: var(--white, #fff);
+  font-family: Gilroy;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+.container .button {
+  display: inline-flex;
+  padding: 1.125rem 3.875rem 1rem 3.9375rem;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.625rem;
+  background: #fff;
+  color: #000;
+  font-family: Gilroy;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}

@@ -1,0 +1,19 @@
+.container .label {
+  color: var(--extra, #a3b2bd);
+  font-family: Gilroy;
+  font-size: 1.125rem !important;
+  font-style: normal;
+  font-weight: 500 !important;
+  line-height: normal;
+  margin-bottom: 0.31rem !important;
+}
+.container .input {
+  display: flex;
+  width: 32.8125rem;
+  padding: 0.8125rem 1.25rem;
+  align-items: center;
+  border: none;
+  gap: 0.625rem;
+  border-radius: 0.625rem;
+  border: 1px solid #ccc;
+}

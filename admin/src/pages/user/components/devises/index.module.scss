@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  width: 100%;
+  padding: 1.875rem;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 0.9375rem 48.75rem;
+  flex-wrap: wrap;
+  border-radius: 0.75rem;
+  background: var(--white, #fff);
+  margin-top: 1.88rem;
+}
+.container .title {
+  color: var(--black, #121b2d);
+  font-family: Gilroy;
+  font-size: 1.25rem !important;
+  font-style: normal;
+  font-weight: 700 !important;
+  line-height: normal;
+}

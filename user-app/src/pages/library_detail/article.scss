@@ -1,0 +1,156 @@
+/*
+ * Maqola sahifasiga qo'shilgan elementlar: o'qish progressi, bo'lim
+ * tugmalari va "tepaga qaytish".
+ *
+ * Umumiy `.library-*` sinflari main.scss'da qoladi — ular boshqa sahifalar
+ * bilan ham bo'lishiladi.
+ */
+
+/* ---------- Sticky sarlavha uchun konteyner ---------- */
+
+/*
+ * `position: sticky` ning tayanch to'rtburchagi — scroll konteynerining
+ * scrollport'i, LEKIN u konteyner padding'i qadar ichkariga surilgan bo'ladi.
+ * `.content` da `padding-top: 2rem` bo'lgani uchun sarlavha paneli tepaga
+ * emas, tepadan 2rem pastga yopishib qolardi va uning ustidan bo'lim
+ * sarlavhalari o'tib ko'rinib turardi (bitta bo'lim panel ostida yo'qolardi).
+ *
+ * Shuning uchun maqola sahifasida tepa padding olib tashlanadi — panel
+ * konteynerning haqiqiy tepasiga yopishadi. Yon padding o'z joyida qoladi.
+ */
+.content--article {
+  padding-top: 0;
+}
+
+/* ---------- O'qish progressi ---------- */
+
+/* Sticky panelning (.library-head) pastki chekkasida yotadi. */
+.reading-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: transparent;
+  pointer-events: none;
+}
+
+.reading-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #399a48 0%, #aacc3a 100%);
+  transition: width 0.1s linear;
+}
+
+body.dark .reading-progress__bar {
+  background: linear-gradient(90deg, #f8b042 0%, #f79f44 100%);
+}
+
+/* ---------- Bo'lim tugmalari ---------- */
+
+.chapter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.8rem 1.5rem;
+}
+
+.chapter-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(18, 27, 45, 0.12);
+  border-radius: 0.4rem;
+  background: none;
+  color: #6b7785;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.chapter-actions__btn:hover {
+  color: #4daf00;
+  border-color: #4daf00;
+}
+
+.chapter-actions__btn:focus-visible {
+  outline: 2px solid #4daf00;
+  outline-offset: 2px;
+}
+
+body.dark .chapter-actions__btn {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #a3b2bd;
+}
+
+body.dark .chapter-actions__btn:hover {
+  color: #f79f44;
+  border-color: #f79f44;
+}
+
+body.dark .chapter-actions__btn:focus-visible {
+  outline-color: #f79f44;
+}
+
+/* ---------- Tepaga qaytish ---------- */
+
+.scroll-top {
+  position: fixed;
+  right: 2rem;
+  bottom: 2.5rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(174deg, #399a48 0%, #aacc3a 100%);
+  color: #fff;
+  box-shadow: 0 0.25rem 0.75rem rgba(18, 27, 45, 0.2);
+  cursor: pointer;
+}
+
+.scroll-top:focus-visible {
+  outline: 2px solid #121b2d;
+  outline-offset: 2px;
+}
+
+body.dark .scroll-top {
+  background: linear-gradient(133deg, #f8b042 0%, #f79f44 100%);
+}
+
+@media (max-width: 767.98px) {
+  .scroll-top {
+    right: 1rem;
+    bottom: 5.5rem;
+  }
+
+  .chapter-actions {
+    padding: 0.75rem 1rem 1.25rem;
+  }
+}
+
+/* ---------- Akkordeon sarlavhasi tugmaga aylandi ---------- */
+
+/*
+ * Tugmaning brauzer standartlarini eski <div> ko'rinishiga qaytaramiz.
+ * Bu yerda ataylab `border`, `background` va `padding` berilmagan — ular
+ * main.scss'dagi `.library-accordion__head` qoidasidan kelishi kerak
+ * (aks holda sarlavhalar orasidagi ajratuvchi chiziq yo'qolardi).
+ */
+.library-accordion__head {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.library-accordion__head:focus-visible {
+  outline: 2px solid #4daf00;
+  outline-offset: -2px;
+}

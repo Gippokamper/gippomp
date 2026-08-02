@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  width: "100%";
+  padding: 0.5rem;
+  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1rem 1rem;
+  flex-shrink: 0;
+  background: var(--main-color, linear-gradient(174deg, #399a48 0%, #aacc3a 100%));
+}
+.container button {
+  color: var(--white-cl, #fff) !important;
+}
+.container .title {
+  color: var(--white-cl, #fff);
+  font-family: Gilroy;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}

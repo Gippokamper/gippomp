@@ -1,0 +1,703 @@
+/* Apply a default padding if legacy cellpadding attribute is missing */
+/* Set default table styles if a table has a positive border attribute
+   and no inline css */
+/* Set default table styles if a table has a positive border attribute
+   and no inline css */
+/* Set default table styles if a table has a positive border attribute
+   and no inline css */
+figure {
+  display: table;
+  margin: 1rem auto;
+}
+
+figure figcaption {
+  color: #999;
+  display: block;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+hr {
+  border-color: #ccc;
+  border-style: solid;
+  border-width: 1px 0 0 0;
+}
+
+code {
+  background-color: #e8e8e8;
+  border-radius: 3px;
+  padding: 0.1rem 0.2rem;
+}
+
+.mce-content-body:not([dir=rtl]) blockquote {
+  border-left: 2px solid #ccc;
+  margin-left: 1.5rem;
+  padding-left: 1rem;
+}
+
+.mce-content-body[dir=rtl] blockquote {
+  border-right: 2px solid #ccc;
+  margin-right: 1.5rem;
+  padding-right: 1rem;
+}
+
+/* -------------------===================------------------------- */
+img,
+legend {
+  border: 0;
+}
+
+legend,
+td,
+th {
+  padding: 0;
+}
+
+html {
+  font-family: sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+
+audio,
+canvas,
+progress,
+video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+[hidden],
+template {
+  display: none;
+}
+
+a {
+  background-color: transparent;
+}
+
+a:active,
+a:hover {
+  outline: 0;
+}
+
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+
+b,
+optgroup,
+strong {
+  font-weight: 700;
+}
+
+dfn {
+  font-style: italic;
+}
+
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+mark {
+  background: #ff0;
+  color: #000;
+}
+
+small {
+  font-size: 80%;
+}
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.5em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+figure {
+  margin: 1em 40px;
+}
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+}
+
+pre,
+textarea {
+  overflow: auto;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+button {
+  overflow: visible;
+}
+
+button,
+select {
+  text-transform: none;
+}
+
+button,
+html input[type=button],
+input[type=reset],
+input[type=submit] {
+  -webkit-appearance: button;
+  cursor: pointer;
+}
+
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+input {
+  line-height: normal;
+}
+
+input[type=checkbox],
+input[type=radio] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+input[type=search] {
+  -webkit-appearance: textfield;
+  box-sizing: content-box;
+}
+
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+
+.closed svg {
+  transform: rotate(180deg);
+}
+
+#my-tooltip {
+  opacity: 1;
+  width: 500px !important;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  border-radius: 0.625rem;
+  display: flex;
+  padding: 1rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.3125rem;
+  flex-shrink: 0;
+  border-radius: 0.625rem;
+  color: #000;
+  background-color: #fff;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
+}
+
+.header-user,
+section {
+  animation: fade 0.5s ease-in-out;
+}
+
+img,
+.library-gallery,
+.account-popup,
+.stats-popup,
+.library-setting,
+.library-setting,
+.side-plan {
+  animation: fade 0.5s ease-in-out;
+}
+
+.side {
+  transition: all 0.5s ease-in-out;
+}
+
+.open-modal {
+  display: block;
+  max-width: 100dvh !important;
+  min-width: 100dvh !important;
+  animation: fade 0.5s ease-in-out;
+  z-index: 100;
+}
+
+.close-modal {
+  display: none;
+  max-width: 100dvh;
+  animation: fade 0.5s ease-in-out;
+}
+
+.fade-in {
+  animation: fade 0.5s ease-in-out;
+}
+
+.fade-out {
+  animation: fade-back 1s ease-in-out;
+  transition: all 1s ease-in-out;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-back {
+  from {
+    opacity: 1;
+    display: block;
+  }
+  to {
+    opacity: 0;
+    overflow: hidden;
+    display: none;
+  }
+}
+@keyframes fade-back {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* Ilgari `#tinymce` edi — u har bo'lim uchun takrorlanib, bitta hujjatda
+   bir nechta bir xil ID hosil qilardi. Endi sinf. */
+.dangerous {
+  transition: all 0.5s ease-in-out;
+}
+
+span {
+  line-height: 120% !important;
+  font-size: 1rem;
+}
+
+.dangerous {
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  line-height: 120% !important;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.dangerous ul {
+  display: block;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  margin-left: 0.3rem;
+  padding-inline-start: 1rem;
+  margin-block-start: 0.5rem;
+  margin-block-end: 1rem;
+  text-indent: 0rem;
+}
+.dangerous ul li {
+  display: list-item;
+  text-align: -webkit-match-parent;
+  margin-block-start: 0.1rem;
+  margin-block-end: 0.2rem;
+}
+.dangerous ul li ul {
+  padding-inline-start: 0.7rem;
+  text-indent: 0rem;
+  margin-block-start: 0.1rem;
+  margin-block-end: 0.2rem;
+}
+.dangerous span {
+  font-size: 1em;
+}
+.dangerous ol {
+  display: block;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 1rem;
+  margin-block-start: 0.5rem;
+  margin-block-end: 1rem;
+}
+.dangerous ol li {
+  display: list-item;
+  text-align: -webkit-match-parent;
+}
+.dangerous ol li ul {
+  padding-inline-start: 0.7rem;
+  text-indent: -0.3rem;
+  margin-block-start: 0.1rem;
+  margin-block-end: 0.2rem;
+}
+.dangerous ol {
+  display: block;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 1rem;
+  margin-block-start: 0.5rem;
+  margin-block-end: 1rem;
+  margin-left: 0.5rem;
+}
+.dangerous ol li {
+  display: list-item;
+  text-align: -webkit-match-parent;
+}
+.dangerous ol li ol {
+  padding-inline-start: 0.7rem;
+  text-indent: -0.3rem;
+  margin-block-start: 0.1rem;
+  margin-block-end: 0.2rem;
+}
+.dangerous span {
+  line-height: 120% !important;
+}
+.dangerous table {
+  overflow: scroll;
+}
+.dangerous::-webkit-scrollbar {
+  display: none;
+}
+.dangerous a {
+  cursor: pointer;
+}
+.dangerous a:hover {
+  color: #3b6fd7;
+  text-shadow: 0 0 0px #fff, 0 0 2px #fff, 0 0 5px #fff, 0 0 1px #3b6fd7, 0 0 1px #3b6fd7, 0 0 1px #3b6fd7, 0 0 1px #3b6fd7, 0 0 1px #3b6fd7;
+}
+.dangerous .table-wrapper {
+  max-width: 100% !important;
+  overflow-x: scroll !important;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.dangerous .table-wrapper table {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+.dangerous .table-wrapper table td {
+  padding: 1rem;
+}
+.dangerous .table-wrapper::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+.dangerous .table-wrapper::-webkit-scrollbar-track {
+  background: #ddd;
+}
+.dangerous .table-wrapper::-webkit-scrollbar-thumb {
+  background: #4daf00;
+}
+.dangerous .image-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  border: 2px solid #000;
+  object-fit: cover;
+}
+.dangerous .image-icon-small {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid #000;
+}
+
+/* ---------------------------------------------------------------------------
+ * "Qo'shimcha ma'lumot" va "Marker" rejimlari.
+ *
+ * Ilgari bu JS bilan qilinardi: WithTooltip har render'da
+ * document.getElementsByTagName('u') orqali BUTUN hujjatdagi <u> larni
+ * aylanib chiqib, har biriga inline style yozardi. Har bo'limning o'z nusxasi
+ * borligi uchun bu N bo'lim uchun N×N ish edi va #info elementining faqat
+ * birinchisiga ta'sir qilardi (getElementById bittasini qaytaradi).
+ *
+ * Endi holat konteynerdagi sinf bilan beriladi, qolganini CSS hal qiladi.
+ * --------------------------------------------------------------------------- */
+
+/* Ikkala rejim ham o'chiq: qo'shimcha matn yashirin. */
+.dangerous u {
+  display: none;
+}
+
+.dangerous.show-addinfo u {
+  display: inline;
+  border: none;
+  text-decoration: none;
+}
+
+.dangerous.show-marker u {
+  display: inline;
+  text-decoration: none;
+  border-bottom: 2px solid rgba(249, 194, 6, 1);
+}
+
+.dangerous.show-addinfo.show-marker u {
+  display: inline;
+  text-decoration: none;
+  border-bottom: 2px solid rgba(249, 194, 6, 1);
+}
+
+/* Test (quiz) rejimida qo'shimcha matn doim ko'rinadi. */
+.dangerous.is-quiz u {
+  display: inline;
+  border: none;
+  text-decoration: none;
+}
+
+.dangerous.is-quiz.show-marker u {
+  text-decoration: none;
+  border-bottom: 2px solid rgba(249, 194, 6, 1);
+}
+
+/*
+ * Ichida faqat qo'shimcha ma'lumot bo'lgan bloklar (prepare-html.ts belgilaydi).
+ * `<u>` ni yashirishning o'zi yetarli emas edi: `<li>` o'z markeri bilan
+ * qolib, matnsiz nuqta bo'lib ko'rinardi, bo'sh `<p>` esa keraksiz oraliq
+ * qoldirardi.
+ */
+.dangerous .addinfo-only {
+  display: none;
+}
+
+.dangerous.show-addinfo .addinfo-only,
+.dangerous.show-marker .addinfo-only,
+.dangerous.is-quiz .addinfo-only {
+  /* revert — brauzerning o'z qiymatiga qaytaradi: li uchun list-item,
+     p/div/ul uchun block. */
+  display: revert;
+}
+
+/* Rasm havolasi — ilgari rangi va kursori JS'da inline yozilardi. */
+.dangerous .photo-link {
+  color: red;
+  cursor: pointer;
+}
+
+/* Maqola HTML'ida id="info" bloklari bir nechta bo'lishi mumkin —
+   shuning uchun ID selektor emas, atribut selektori. */
+.dangerous [id='info'] {
+  display: none;
+  overflow: hidden;
+}
+
+.dangerous.show-addinfo [id='info'] {
+  display: block;
+}
+
+.MsoNormal {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.dark .table-wrapper {
+  overflow-x: auto !important;
+}
+.dark .table-wrapper::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+.dark .table-wrapper::-webkit-scrollbar-track {
+  background: #ddd;
+}
+.dark .table-wrapper::-webkit-scrollbar-thumb {
+  background: #4daf00;
+}
+.dark #my-tooltip {
+  display: flex;
+  padding: 1rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.3125rem;
+  flex-shrink: 0;
+  color: #ddd;
+  border-radius: 0.625rem;
+  background: var(--Extra, #161718);
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
+}
+.dark .dangerous {
+  line-height: 120%;
+  color: #ddd;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.dark .dangerous * {
+  background-color: transparent !important;
+}
+.dark .dangerous span {
+  color: #ddd !important;
+}
+.dark .dangerous li:has(> u) {
+  display: none !important;
+  /* styles to apply to the li tag */
+}
+.dark .dangerous::-webkit-scrollbar {
+  display: none;
+}
+.dark .dangerous a {
+  cursor: pointer;
+  color: #f7a542;
+}
+.dark .dangerous a:hover {
+  text-shadow: 0 0 0px #fff, 0 0 2px #fff, 0 0 5px #fff, 0 0 1px #f7a542, 0 0 1px #f7a542, 0 0 1px #f7a542, 0 0 1px #f7a542, 0 0 1px #f7a542;
+}
+.dark .dangerous .image-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  border: 2px solid #000;
+  object-fit: cover;
+}
+.dark .dangerous .image-icon-small {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid #000;
+}
+
+@media screen and (max-width: 480px) {
+  #my-tooltip {
+    width: 90% !important;
+  }
+  .dangerous ul li ul {
+    padding-inline-start: 0.7rem;
+    text-indent: 0rem;
+    margin-block-start: 0.1rem;
+    margin-block-end: 0.2rem;
+  }
+}
+.library-gallery__text {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.library-gallery__text::-webkit-scrollbar {
+  display: none;
+}
+
+#my-tooltip::-webkit-scrollbar {
+  display: none;
+}
+
+.header {
+  box-shadow: 0px 15px 10px -15px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.active_action {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.side-mini *,
+.side * {
+  transition: all 0.1s ease-in-out;
+}
+
+.tooltip-html {
+  transition: all 1s ease-in-out;
+}
+
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+.transform-to-left {
+  animation: example 0.5s ease-in-out;
+}
+
+@keyframes example {
+  from {
+    transform: translate(100%, 0);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+.disable-test-stats {
+  background: #a3b2bd !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+}

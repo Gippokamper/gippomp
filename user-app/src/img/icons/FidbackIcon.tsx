@@ -1,0 +1,21 @@
+import React, { SVGProps } from 'react'
+
+function FedBackIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg width={24} height={24} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+      <path
+        fillRule='evenodd'
+        clipRule='evenodd'
+        d='M10.5409 3.5H14.0364C17.8823 3.50001 21 6.61773 21 10.4636V10.5359C21 12.3828 20.2663 14.154 18.9604 15.4599C17.6545 16.7659 15.8832 17.4995 14.0364 17.4995H13.0131C13.0059 17.4995 13 17.5054 13 17.5126V19.775C13 20.031 12.8648 20.2679 12.6445 20.3982C12.4242 20.5285 12.1514 20.5327 11.9271 20.4094L6.90686 17.6483C4.49715 16.323 3 13.791 3 11.0409V11.0409C2.99999 9.0409 3.79447 7.12285 5.20866 5.70866C6.62284 4.29448 8.54089 3.5 10.5409 3.5Z'
+        stroke='currentColor'
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+      <path d='M9 9.5H15' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+      <path d='M9 12.5H11.4' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+    </svg>
+  )
+}
+
+export default FedBackIcon

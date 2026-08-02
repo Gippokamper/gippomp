@@ -1,0 +1,29 @@
+.container_title {
+  color: var(--extra, #a3b2bd);
+  font-family: Gilroy;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500 !important;
+  line-height: normal;
+  margin-bottom: 0.62rem;
+}
+.container_content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+.container_content_avatar {
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 3.125rem;
+}
+.container_content_text {
+  color: var(--black, #121b2d);
+  font-family: Gilroy;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 700 !important;
+  line-height: normal;
+}

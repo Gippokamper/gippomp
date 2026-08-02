@@ -1,0 +1,40 @@
+.container {
+  display: flex;
+  width: 22.4375rem;
+  padding: 3.125rem 3.875rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, #d5f37f 0%, #9de094 100%);
+}
+.container .title {
+  color: var(--black, #121b2d);
+  font-family: Gilroy;
+  font-size: 1.75rem !important;
+  font-style: normal;
+  font-weight: 600 !important;
+  line-height: normal;
+}
+.container .description {
+  color: var(--black, #121b2d);
+  font-family: Gilroy;
+  font-size: 1.5rem !important;
+  font-style: normal;
+  font-weight: 500 !important;
+  line-height: normal;
+}
+.container .button {
+  display: flex;
+  padding: 1.0625rem 4.5625rem;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 0.625rem;
+  background: linear-gradient(180deg, #fcff6d 0%, #ffe86d 100%);
+  color: var(--black, #121b2d);
+  font-family: Gilroy;
+  font-size: 1.25rem !important;
+  font-style: normal;
+  font-weight: 600 !important;
+  line-height: normal;
+}

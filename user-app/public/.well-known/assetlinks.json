@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.gippokamp_mobile",
+      "sha256_cert_fingerprints": [
+        "FF:C9:DB:F3:8D:DE:3D:CC:E0:49:8C:99:A5:3D:1B:EB:56:60:E9:64:3F:65:D6:DC:25:FB:61:41:20:04:50:62"
+      ]
+    }
+  }
+]

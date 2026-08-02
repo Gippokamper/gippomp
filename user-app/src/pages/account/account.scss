@@ -1,0 +1,243 @@
+/*
+ * Shaxsiy kabinet: chap ustundagi profil kartochkasi va o'ngdagi tablar.
+ * Sinflar `acc-` prefiksi bilan — eski `.account-side` / `.account-head`
+ * qoidalariga tegilmadi (ular main.scss'da qoladi).
+ *
+ * DIQQAT — o'lchov shkalasi: loyihada `:root { font-size }` ekran kengligiga
+ * qarab 30px dan 10px gacha o'zgaradi (main.scss:30 va media so'rovlar).
+ * Ya'ni 1rem = 16px EMAS, balki "bitta qator matn". Mavjud dizayn shkalasi:
+ * oddiy matn ~1rem, mayda matn ~0.8rem, bo'lim sarlavhasi 1.5rem.
+ * Quyidagi qiymatlar shunga moslangan.
+ */
+
+.account-content {
+  --acc-surface: #fff;
+  --acc-text: #121b2d;
+  --acc-muted: #6b7785;
+  --acc-accent: #4daf00;
+  --acc-grad: linear-gradient(174deg, #399a48 0%, #aacc3a 100%);
+  --acc-border: rgba(18, 27, 45, 0.1);
+  --acc-shadow: 0 1px 2px rgba(18, 27, 45, 0.06);
+}
+
+body.dark .account-content {
+  --acc-surface: #1f2638;
+  --acc-text: #ddd;
+  --acc-muted: #a3b2bd;
+  --acc-accent: #f79f44;
+  --acc-grad: linear-gradient(133deg, #f8b042 0%, #f79f44 100%);
+  --acc-border: rgba(255, 255, 255, 0.1);
+  --acc-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- Profil kartochkasi ---------- */
+
+.acc-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--acc-border);
+  border-radius: 0.5rem;
+  background: var(--acc-surface);
+  box-shadow: var(--acc-shadow);
+  color: var(--acc-text);
+  align-self: flex-start;
+}
+
+.acc-profile__top {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.acc-profile__avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--acc-border);
+}
+
+.acc-profile__ident {
+  min-width: 0;
+}
+
+.acc-profile__name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.acc-profile__role {
+  margin-top: 0.1rem;
+  font-size: 0.7rem;
+  color: var(--acc-muted);
+}
+
+/* ---------- Hamyon ---------- */
+
+.acc-profile__wallet {
+  padding: 0.75rem;
+  border-radius: 0.4rem;
+  background: var(--acc-grad);
+  color: #fff;
+}
+
+.acc-profile__wallet-label {
+  font-size: 0.68rem;
+  opacity: 0.9;
+}
+
+.acc-profile__wallet-value {
+  margin-top: 0.15rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.acc-profile__wallet-value span {
+  font-size: 0.62rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.acc-profile__topup {
+  width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  border: none;
+  border-radius: 0.3rem;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.acc-profile__topup:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.acc-profile__topup:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ---------- Ma'lumot ro'yxati ---------- */
+
+.acc-profile__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.acc-profile__fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.acc-profile__fact dt {
+  font-size: 0.65rem;
+  color: var(--acc-muted);
+}
+
+.acc-profile__fact dd {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.acc-profile__tariff {
+  display: block;
+}
+
+.acc-profile__muted {
+  color: var(--acc-muted);
+  font-weight: 400;
+}
+
+.acc-profile__ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Tablar ---------- */
+
+.acc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--acc-border);
+}
+
+.acc-tabs__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.8rem;
+  border: none;
+  background: none;
+  color: var(--acc-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.acc-tabs__btn svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.acc-tabs__btn:hover {
+  color: var(--acc-text);
+}
+
+.acc-tabs__btn.is-active {
+  color: var(--acc-accent);
+  font-weight: 600;
+}
+
+.acc-tabs__btn:focus-visible {
+  outline: 2px solid var(--acc-accent);
+  outline-offset: -2px;
+  border-radius: 0.3rem;
+}
+
+/* Faol tab ostidagi chiziq — tablar orasida siljib o'tadi (motion layoutId). */
+.acc-tabs__underline {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--acc-grad);
+}
+
+@media (max-width: 767.98px) {
+  .acc-tabs__btn {
+    padding: 0.65rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .acc-tabs__btn span {
+    display: none;
+  }
+
+  .acc-tabs__btn.is-active span {
+    display: inline;
+  }
+}

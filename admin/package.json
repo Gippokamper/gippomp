@@ -1,0 +1,55 @@
+{
+  "name": "gippokamp-admin",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/base": "^5.0.0-beta.40",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/material": "^5.15.20",
+    "@mui/system": "^5.15.20",
+    "@mui/x-date-pickers": "^6.20.2",
+    "@tanstack/react-table": "^8.17.3",
+    "@tanstack/react-virtual": "^3.5.1",
+    "@tanstack/match-sorter-utils": "^8.15.1",
+    "@tinymce/tinymce-react": "^4.3.2",
+    "axios": "^1.6.2",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.11",
+    "highlight-words": "^1.2.2",
+    "i18next": "^23.7.6",
+    "i18next-http-backend": "^2.4.2",
+    "material-react-table": "^1.15.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.4.1",
+    "react-i18next": "^13.5.0",
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.20.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^3.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.39",
+    "@types/react-dom": "^18.2.17",
+    "sass": "^1.69.5",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": ["react-app"]
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  }
+}

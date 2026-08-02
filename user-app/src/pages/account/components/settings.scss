@@ -1,0 +1,45 @@
+/*
+ * Sozlamalar tabi: <a> dan <button> ga o'tgan "ma'lumot" havolasi va
+ * Tariflar tabidan ko'chirilgan "Qurilmalar" bo'limi.
+ */
+
+/* Tugmaga aylandi — eski havola ko'rinishini saqlab qolamiz. */
+.account-settings__info {
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.acc-devices {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(18, 27, 45, 0.1);
+}
+
+body.dark .acc-devices {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.acc-devices__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #121b2d;
+}
+
+body.dark .acc-devices__title {
+  color: #ddd;
+}
+
+.acc-devices__hint {
+  margin: 0 0 0.7rem;
+  font-size: 0.7rem;
+  color: #6b7785;
+}
+
+body.dark .acc-devices__hint {
+  color: #a3b2bd;
+}
