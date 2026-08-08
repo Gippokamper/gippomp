@@ -7,6 +7,8 @@ import { RootState } from '../../store'
 import { setFontSize, toggleAddInfo, toggleShowMarker } from '../../store/slices/htmlSlice'
 import { setTheme } from '../../store/siteSlice/siteSlice'
 import { THEME_OPTIONS } from '../../data/theme_options'
+import Segmented from '../segmented'
+import type { Theme } from '../../store/siteSlice/siteSlice'
 
 interface IProps {
   isVisible: boolean
@@ -129,20 +131,16 @@ function LibrarySetting(props: IProps) {
             aynan shu yerda — maqola sozlamalarida — eng kerakli joyda turadi.
           */}
           <div className='library-setting__item-title'>{t('Appearance')}</div>
-          <div className='theme-switch' role='group' aria-label={t('Appearance')}>
-            {THEME_OPTIONS.map(option => (
-              <button
-                key={option.value}
-                type='button'
-                className={theme === option.value ? 'is-active' : ''}
-                aria-pressed={theme === option.value}
-                onClick={() => dispatch(setTheme(option.value))}
-              >
-                {option.icon}
-                <span>{t(option.label)}</span>
-              </button>
-            ))}
-          </div>
+          <Segmented
+            ariaLabel={t('Appearance')}
+            value={theme}
+            onChange={next => dispatch(setTheme(next as Theme))}
+            options={THEME_OPTIONS.map(option => ({
+              value: option.value,
+              label: t(option.label),
+              icon: option.icon
+            }))}
+          />
         </div>
       </div>
     </div>

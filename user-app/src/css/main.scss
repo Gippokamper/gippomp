@@ -1484,9 +1484,12 @@ body.dark .footer-library .footer-menu a.disabled {
 .header__logo {
   display: none;
 }
+/* Elementlar orasidagi masofa `gap` orqali — ilgari har biri o'z
+   `margin-right` ini yozardi va oraliqlar bir xil emas edi. */
 .header-wrap {
   display: flex;
   align-items: center;
+  gap: var(--s-1);
 }
 .header__side {
   color: #ccc;
@@ -1608,95 +1611,274 @@ body.dark .footer-library .footer-menu a.disabled {
 .header-lang__item:hover {
   color: #4daf00;
 }
+/*
+ * Qo'ng'iroq — tinch tugma. Ilgari `btn` sinfi bilan to'la yashil doira edi va
+ * yonidagi avatar bilan birga o'ng burchakda ikkita yashil dog' hosil qilardi.
+ */
 .header__nots {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  margin-right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ctl-h);
+  height: var(--ctl-h);
+  border-radius: var(--r-md);
+  background: none;
+  /* Susaytirilgan kulrang juda kuchsiz ko'rinardi — asosiy matn rangida. */
+  color: var(--g-text);
   position: relative;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.header__nots:hover {
+  background: var(--g-fill);
+  color: var(--g-accent);
 }
 .header__nots svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
+/* Sarlavhadagi belgili tugma (saqlanganlar) */
+.header__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ctl-h);
+  height: var(--ctl-h);
+  border-radius: var(--r-md);
+  /* Susaytirilgan kulrangda belgi deyarli ko'rinmasdi. */
+  color: var(--g-text);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.header__icon-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.header__icon-btn:hover {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+/* Saqlanganlar sahifasida turganda tugma yoqilgan ko'rinishda bo'ladi. */
+.header__icon-btn.is-current {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+/* O'qilmagan xabar soni — kichik va aniq. */
 .header .count {
-  display: inline-table;
-  vertical-align: middle;
-  width: 1.2rem;
-  height: 1.2rem;
-  background-color: #ccc;
-  border-radius: 50%;
   position: absolute;
-  right: -0.1rem;
-  top: -0.1rem;
+  right: 0.35rem;
+  top: 0.3rem;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--g-surface);
+  background: #e24a4a;
+  color: #fff;
 }
 .header .count span {
-  font-size: medium;
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+/*
+ * Bildirishnomalar oynasi — profil menyusi bilan bir uslubda.
+ *
+ * Ilgari kulrang qutichada yalang'och matn turardi va tugmaga bog'lanmagan edi
+ * (`right: 4rem` deb qattiq yozilgan). Endi qo'ng'iroqqa nisbatan joylashadi.
+ */
+.header-nots__wrap {
+  position: relative;
+  display: inline-flex;
 }
 .header-nots {
   position: absolute;
-  top: 4.5rem;
-  background: #eef2f5;
-  width: 12rem;
-  right: 4rem;
-  padding: 0.75rem 0.4rem;
-  border-radius: 0.5rem;
-  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
+  top: calc(100% + 0.65rem);
+  right: 0;
+  width: 19rem;
+  padding: var(--s-1);
+  background: var(--g-surface);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--g-shadow-3);
   z-index: 100;
-  transition: all 0.5s ease-in-out;
+  animation: header-user-in 0.14s ease-out;
+  transform-origin: top right;
+}
+.header-nots::before {
+  content: '';
+  position: absolute;
+  top: -0.3rem;
+  right: 0.95rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: inherit;
+  border-left: inherit;
+  border-top: inherit;
+  transform: rotate(45deg);
+  border-radius: 0.1rem;
 }
 .header-nots.hide {
-  opacity: 0;
   display: none;
-  transition: all 0.5s ease-in-out;
 }
-.header-nots.open {
-  opacity: 1;
-  display: block;
-  transition: all 0.5s ease-in-out;
+.header-nots__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--g-border);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--g-text);
 }
-.header-nots li {
-  margin-bottom: 1rem;
-}
-.header-nots li:last-child {
-  margin-bottom: 0;
+.header-nots__list {
+  max-height: 20rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--s-1) 0 0;
+  list-style: none;
 }
 .header-nots__btn {
   display: flex;
-  align-items: center;
-  color: #121b2d;
-  font-size: 0.7rem;
-  gap: 0.4rem;
+  align-items: flex-start;
+  gap: var(--s-2);
+  width: 100%;
+  padding: var(--s-2);
+  border: none;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--g-text);
+  font: inherit;
   text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast);
 }
 .header-nots__btn:hover {
-  color: #4daf00;
+  background: var(--g-fill);
 }
-.header-nots__btn img {
-  width: 2rem;
-  border-radius: 0.3rem;
+/* Muallif nomining bosh harfi — rasm yo'q, shuning uchun harf. */
+.header-nots__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-}
-.header-nots__btn div p {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--r-circle);
+  background: var(--g-accent-grad);
+  color: #fff;
+  font-size: 0.75rem;
   font-weight: 700;
 }
-.header__user {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: inline-flex;
-  justify-content: center;
+.header-nots__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.header-nots__text b {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.header-nots__text span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  color: var(--g-muted);
+}
+.header-nots__empty {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  background: #eef2f5;
+  gap: var(--s-2);
+  padding: var(--s-6) var(--s-4);
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+.header-nots__empty svg {
+  opacity: 0.5;
+}
+/*
+ * Profil — yalang'och doira emas, qator: avatar + ism/rol + strelka.
+ * Ilgari qo'ng'iroq bilan yonma-yon ikkita bir xil yashil doira turardi.
+ */
+.header__user {
+  display: inline-flex;
+  align-items: center;
+  /* Oraliqlar ataylab tor — ism va rol yaxlit blok bo'lib ko'rinsin. */
+  gap: 0.55rem;
+  max-width: 17rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.3rem;
+  background: none;
+  border-radius: var(--r-lg);
+  color: var(--g-text);
   cursor: pointer;
-  border-radius: 50%;
-  color: #121b2d;
+  transition: background var(--t-fast);
+}
+.header__user:hover,
+.header__user[aria-expanded='true'] {
+  background: var(--g-fill);
+}
+.header__user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: var(--r-circle);
+  overflow: hidden;
+}
+/* Ikki qator: ism (quyuq) va ostida rol (susaygan) */
+.header__user-who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+  min-width: 0;
+  line-height: 1.2;
+}
+.header__user-who b {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.header__user-who span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  color: var(--g-muted);
 }
 .header__user svg {
   width: 1.2rem;
   height: 1.2rem;
+}
+/* `.header__user svg` dan kuchliroq — strelka kichik qolsin. */
+.header__user svg.header__user-caret {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+  color: var(--g-muted);
+  transition: transform var(--t-fast);
+}
+.header__user[aria-expanded='true'] .header__user-caret {
+  transform: rotate(180deg);
+}
+/* Sarlavha tor bo'lganda ism yashiriladi, avatar va strelka qoladi. */
+@media (max-width: 1279.98px) {
+  .header__user-who {
+    display: none;
+  }
 }
 .header__user img {
   width: 100%;
@@ -1867,13 +2049,6 @@ body.dark .footer-library .footer-menu a.disabled {
   font-weight: 600;
 }
 
-/* Til tugmalaridagi bayroqcha */
-.theme-switch button img {
-  width: 1.25rem;
-  height: 0.9rem;
-  border-radius: 0.15rem;
-  object-fit: cover;
-}
 
 body.dark .header-user__who b {
   color: #ddd;
@@ -1901,78 +2076,10 @@ body.sepia .header__user-initials {
   color: #6b7785;
 }
 
-/*
- * Ko'rinish rejimi — uchta variant yonma-yon. Bitta almashtirgich o'rniga
- * segment: qaysi rejim yoqilgani ko'rinib turadi va bir bosishda o'tiladi.
- */
-.theme-switch {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.15rem;
-  padding: 0.2rem;
-  border-radius: 0.6rem;
-  background: rgba(18, 27, 45, 0.05);
-}
-.theme-switch button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  width: 100%;
-  padding: 0.45rem 0.2rem;
-  border-radius: 0.45rem;
-  color: #6b7785;
-  font-size: 0.68rem;
-  line-height: 1.1;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.theme-switch button svg {
-  width: 1.15rem;
-  height: 1.15rem;
-}
-.theme-switch button:hover {
-  color: #121b2d;
-}
-.theme-switch button.is-active {
-  background: #fff;
-  color: #4daf00;
-  box-shadow: 0 1px 3px rgba(18, 27, 45, 0.12);
-}
-.theme-switch button:focus-visible {
-  outline: 2px solid #4daf00;
-  outline-offset: -2px;
-}
-
-body.dark .theme-switch {
-  background: rgba(255, 255, 255, 0.07);
-}
-body.dark .theme-switch button {
-  color: #a3b2bd;
-}
-body.dark .theme-switch button:hover {
-  color: #ddd;
-}
-body.dark .theme-switch button.is-active {
-  background: #2c3448;
-  color: #f79f44;
-}
 body.dark .header-user__label {
   color: #a3b2bd;
 }
 
-body.sepia .theme-switch {
-  background: rgba(124, 104, 74, 0.12);
-}
-body.sepia .theme-switch button {
-  color: #8a7757;
-}
-body.sepia .theme-switch button:hover {
-  color: #463a2a;
-}
-body.sepia .theme-switch button.is-active {
-  background: #fffaf0;
-  color: #3f7d18;
-}
 body.sepia .header-user__label {
   color: #8a7757;
 }

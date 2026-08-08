@@ -3,7 +3,7 @@ import ToggleIcon from '../../img/icons/ToggleIcon'
 import uz from '../../img/icons/uz.svg'
 import ru from '../../img/icons/ru.svg'
 import en from '../../img/icons/en.svg'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import GetContainer from '../../components/get-container'
 import Modal from '../../components/modal'
@@ -15,6 +15,8 @@ import { request, logout, MEDIA_URL } from '../../helpers/request'
 import { RootState } from '../../store'
 import { setTheme } from '../../store/siteSlice/siteSlice'
 import { THEME_OPTIONS } from '../../data/theme_options'
+import Segmented from '../../components/segmented'
+import type { Theme } from '../../store/siteSlice/siteSlice'
 import { AuthContext } from '../../providers/auth-provider'
 import AccountIcon from '../../img/icons/AccountIcon'
 
@@ -86,9 +88,22 @@ function Navbar(props: IProps) {
   const { theme } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const notsRef = useRef<HTMLDivElement>(null)
   const { user } = useContext(AuthContext)
 
   const fullName = [user?.firstname, user?.lastname].filter(Boolean).join(' ')
+
+  /*
+   * Ism ostidagi izoh. Tarif eng foydalisi ("Premium"), u yo'q bo'lsa kasb,
+   * u ham bo'lmasa rol ("user" -> Talaba). Bazada ko'p foydalanuvchida kasb
+   * ham, amaldagi tarif ham bo'lmaydi — shuning uchun rol oxirgi tayanch.
+   */
+  const subtitle = useMemo(() => {
+    const tariff = user?.tariff?.[0]?.name?.[i18n.language]
+    if (tariff) return tariff
+    if (user?.profession) return user.profession
+    return user?.role ? t(user.role === 'user' ? 'Student' : 'Administrator') : ''
+  }, [user, i18n.language, t])
   // Rasm bo'lmasa — ism va familiya bosh harflari.
   const initials = useMemo(
     () =>
@@ -119,6 +134,26 @@ function Navbar(props: IProps) {
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [visibleMenu])
+  /* Bildirishnoma oynasi ham tashqariga bosilganda yopilsin. */
+  useEffect(() => {
+    if (!notsShow) return
+
+    const onPointerDown = (e: MouseEvent) => {
+      if (!notsRef.current?.contains(e.target as Node)) setNotsShow(false)
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNotsShow(false)
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [notsShow])
+
   const { mutate } = useMutation(READ_NOTIFICATION, {
     onSuccess: () => {
       navigate('/account?type=messages')
@@ -239,10 +274,29 @@ function Navbar(props: IProps) {
         </div>
       </div>
       <div className='header-wrap'>
+        {/* Saqlanganlar — bildirishnomaning chapida. */}
+        <NavLink
+          className={({ isActive }) => `header__icon-btn ${isActive ? 'is-current' : ''}`}
+          to='/saved'
+          title={t('Saved')}
+          aria-label={t('Saved')}
+        >
+          <svg width={20} height={20} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+            <path
+              d='M6.5 4.5h11a1 1 0 0 1 1 1v14.2a.6.6 0 0 1-.94.5L12 16.4l-5.56 3.8a.6.6 0 0 1-.94-.5V5.5a1 1 0 0 1 1-1Z'
+              stroke='currentColor'
+              strokeWidth='1.9'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            />
+          </svg>
+        </NavLink>
+
         <GetContainer url='/dashboard/user/notification/feedback'>
           {({ data, isLoading }) => (
-            <>
-              <button className='header__nots btn' onClick={() => setNotsShow(!notsShow)}>
+            <div className='header-nots__wrap' ref={notsRef}>
+              {/* `btn` sinfi olib tashlandi — u to'la yashil doira berardi. */}
+              <button className='header__nots' aria-expanded={notsShow} onClick={() => setNotsShow(!notsShow)}>
                 <svg width={20} height={20} viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
                     d='M18.7951 11.0096L17.3351 5.76457C16.8641 4.07453 15.8419 2.59034 14.4308 1.54781C13.0197 0.505282 11.3007 -0.0357892 9.54683 0.0105607C7.793 0.0569106 6.10497 0.688023 4.75091 1.80363C3.39685 2.91923 2.45443 4.45534 2.07339 6.1679L0.945058 11.2421C0.796203 11.912 0.799683 12.6068 0.955243 13.2752C1.1108 13.9436 1.41447 14.5685 1.84384 15.1038C2.2732 15.6392 2.8173 16.0713 3.43598 16.3682C4.05467 16.6652 4.73213 16.8194 5.41839 16.8196H5.75173C6.01692 17.7367 6.57292 18.5428 7.336 19.1164C8.09907 19.6901 9.02789 20.0003 9.98256 20.0003C10.9372 20.0003 11.866 19.6901 12.6291 19.1164C13.3922 18.5428 13.9482 17.7367 14.2134 16.8196H14.3742C15.0808 16.8196 15.7779 16.6564 16.4109 16.3424C17.044 16.0285 17.5959 15.5725 18.0235 15.01C18.4511 14.4474 18.7429 13.7937 18.876 13.0997C19.0091 12.4057 18.98 11.6904 18.7909 11.0096H18.7951ZM16.0376 13.4962C15.8441 13.7531 15.5934 13.9613 15.3054 14.1042C15.0173 14.2471 14.6999 14.3209 14.3784 14.3196H5.41839C5.10648 14.3195 4.79856 14.2494 4.51737 14.1144C4.23617 13.9795 3.98886 13.7831 3.7937 13.5398C3.59854 13.2965 3.4605 13.0124 3.38978 12.7086C3.31905 12.4049 3.31744 12.0891 3.38506 11.7846L4.51339 6.70124C4.77249 5.53129 5.41551 4.48165 6.3401 3.71939C7.26468 2.95713 8.41768 2.52607 9.61557 2.49483C10.8134 2.46359 11.9874 2.83397 12.9504 3.54699C13.9135 4.26002 14.6103 5.27472 14.9301 6.42957L16.3867 11.6746C16.4746 11.9844 16.4888 12.3105 16.4282 12.6268C16.3676 12.9431 16.2338 13.2409 16.0376 13.4962V13.4962Z'
@@ -258,55 +312,69 @@ function Navbar(props: IProps) {
                 )}
               </button>
 
-              <ul className={`header-nots ${notsShow ? 'show' : 'hide'}`}>
+              <div className={`header-nots ${notsShow ? 'show' : 'hide'}`}>
+                <div className='header-nots__head'>
+                  <span>{t('Notifications')}</span>
+                  {!!data?.data?.length && <span className='ui-count'>{data.data.length}</span>}
+                </div>
+
                 {data?.data?.length > 0 ? (
-                  data?.data?.map((item: any) => (
-                    <li key={item?.id} onClick={() => mutate(item?.feedback_id?.id)}>
-                      <button className='header-nots__btn'>
-                        <svg width={20} height={20} viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                          <path
-                            d='M12.0626 3.7709C13.2016 4.90993 13.2016 6.75666 12.0626 7.89569C10.9235 9.03473 9.0768 9.03473 7.93777 7.89569C6.79874 6.75666 6.79874 4.90993 7.93777 3.7709C9.0768 2.63187 10.9235 2.63187 12.0626 3.7709'
-                            stroke='currentColor'
-                            strokeWidth='1.5'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                          />
-                          <path
-                            fillRule='evenodd'
-                            clipRule='evenodd'
-                            d='M3.3335 15.4166V16.2499C3.3335 16.7099 3.70683 17.0833 4.16683 17.0833H15.8335C16.2935 17.0833 16.6668 16.7099 16.6668 16.2499V15.4166C16.6668 12.8949 13.3735 11.2566 10.0002 11.2566C6.62683 11.2566 3.3335 12.8949 3.3335 15.4166Z'
-                            stroke='currentColor'
-                            strokeWidth='1.5'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                          />
-                        </svg>
-                        <div>
-                          <p>{item?.author}</p>
-                          <span>{item?.message}</span>
-                        </div>
-                      </button>
-                    </li>
-                  ))
+                  <ul className='header-nots__list'>
+                    {data.data.map((item: any) => (
+                      <li key={item?.id}>
+                        <button className='header-nots__btn' onClick={() => mutate(item?.feedback_id?.id)}>
+                          <span className='header-nots__avatar'>{(item?.author ?? '?').charAt(0).toUpperCase()}</span>
+                          <span className='header-nots__text'>
+                            <b>{item?.author}</b>
+                            <span>{item?.message}</span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
-                  <li>
+                  <div className='header-nots__empty'>
+                    <svg width={28} height={28} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+                      <path
+                        d='M18 8.5a6 6 0 1 0-12 0c0 6-2 7.5-2 7.5h16s-2-1.5-2-7.5Z'
+                        stroke='currentColor'
+                        strokeWidth='1.5'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                      />
+                      <path d='M13.7 19.5a2 2 0 0 1-3.4 0' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
+                    </svg>
                     <span>{t('There are no new notifications')}</span>
-                  </li>
+                  </div>
                 )}
-              </ul>
-            </>
+              </div>
+            </div>
           )}
         </GetContainer>
         {/* Tugma va menyu bitta o'ramda — menyu shu tugmaga nisbatan joylashadi
             va tashqariga bosilganini shu o'ram orqali aniqlaymiz. */}
         <div className='header-user__wrap' ref={userMenuRef}>
-        {/* Tugmada foydalanuvchining o'z rasmi — bo'lmasa ism-familiya bosh harflari. */}
+        {/*
+          Yalang'och doira emas, qator: kichik avatar + ism + strelka.
+          Ismi yonida turgani uchun kim kirgani bir qarashda ko'rinadi.
+        */}
         <button className='header__user' aria-expanded={visibleMenu} onClick={() => setVisibleMenu(!visibleMenu)}>
-          {user?.image ? (
-            <img src={MEDIA_URL + user.image} alt='' />
-          ) : (
-            <span className='header__user-initials'>{initials}</span>
+          <span className='header__user-avatar'>
+            {user?.image ? (
+              <img src={MEDIA_URL + user.image} alt='' />
+            ) : (
+              <span className='header__user-initials'>{initials}</span>
+            )}
+          </span>
+          {!!fullName && (
+            <span className='header__user-who'>
+              <b>{fullName}</b>
+              {!!subtitle && <span>{subtitle}</span>}
+            </span>
           )}
+          <svg className='header__user-caret' width='12' height='12' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+            <path d='M6 9l6 6 6-6' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round' />
+          </svg>
         </button>
 
         <ul
@@ -361,41 +429,32 @@ function Navbar(props: IProps) {
           <li className='header-user__sep' aria-hidden='true' />
           <li className='header-user__label'>{t('Appearance')}</li>
           <li>
-            <div className='theme-switch' role='group' aria-label={t('Appearance')}>
-              {THEME_OPTIONS.map(option => (
-                <button
-                  key={option.value}
-                  type='button'
-                  className={theme === option.value ? 'is-active' : ''}
-                  aria-pressed={theme === option.value}
-                  title={t(option.label)}
-                  onClick={() => dispatch(setTheme(option.value))}
-                >
-                  {option.icon}
-                  <span>{t(option.label)}</span>
-                </button>
-              ))}
-            </div>
+            <Segmented
+              ariaLabel={t('Appearance')}
+              value={theme}
+              onChange={next => dispatch(setTheme(next as Theme))}
+              options={THEME_OPTIONS.map(option => ({
+                value: option.value,
+                label: t(option.label),
+                icon: option.icon
+              }))}
+            />
           </li>
 
           {/* Til ilgari sarlavhada alohida turardi — bu yerga ko'chirildi. */}
           <li className='header-user__sep' aria-hidden='true' />
           <li className='header-user__label'>{t('Language')}</li>
           <li>
-            <div className='theme-switch' role='group' aria-label={t('Language')}>
-              {LANGUAGES.map(lang => (
-                <button
-                  key={lang.value}
-                  type='button'
-                  className={i18n.language === lang.value ? 'is-active' : ''}
-                  aria-pressed={i18n.language === lang.value}
-                  onClick={() => i18n.changeLanguage(lang.value)}
-                >
-                  <img src={lang.flag} alt='' />
-                  <span>{lang.value.toUpperCase()}</span>
-                </button>
-              ))}
-            </div>
+            <Segmented
+              ariaLabel={t('Language')}
+              value={i18n.language}
+              onChange={next => i18n.changeLanguage(next)}
+              options={LANGUAGES.map(lang => ({
+                value: lang.value,
+                label: lang.value.toUpperCase(),
+                icon: <img src={lang.flag} alt='' />
+              }))}
+            />
           </li>
 
           {/* Chiqish qolganlaridan ajratib turadi — tasodifan bosilmasin. */}

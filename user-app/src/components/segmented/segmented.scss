@@ -1,0 +1,79 @@
+/*
+ * Belgili almashtirgich (ko'rinish rejimi, til).
+ *
+ * Tanlangan variantni fon bilan bo'yash o'rniga alohida "polzunok" suriladi —
+ * shuning uchun o'tish silliq ko'rinadi. Variantlar soni `--seg-count`,
+ * tanlangani `--seg-index` orqali beriladi.
+ */
+
+.seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--seg-count, 3), 1fr);
+  gap: 0;
+  padding: var(--seg-pad, 0.25rem);
+  border-radius: var(--r-md);
+  background: var(--g-fill);
+}
+
+.seg__thumb {
+  position: absolute;
+  top: var(--seg-pad, 0.25rem);
+  bottom: var(--seg-pad, 0.25rem);
+  left: var(--seg-pad, 0.25rem);
+  width: calc((100% - 2 * var(--seg-pad, 0.25rem)) / var(--seg-count, 3));
+  border-radius: calc(var(--r-md) - 0.15rem);
+  background: var(--g-surface);
+  box-shadow: var(--g-shadow-1);
+  transform: translateX(calc(var(--seg-index, 0) * 100%));
+  transition: transform 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Harakat kamaytirilgan bo'lsa surilish o'chiriladi. */
+@media (prefers-reduced-motion: reduce) {
+  .seg__thumb {
+    transition: none;
+  }
+}
+
+.seg__btn {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--r-md) - 0.15rem);
+  background: none;
+  color: var(--g-muted);
+  cursor: pointer;
+  transition: color var(--t-fast);
+}
+
+.seg__btn:hover {
+  color: var(--g-text);
+}
+
+.seg__btn:focus-visible {
+  outline: 2px solid var(--g-accent);
+  outline-offset: -2px;
+}
+
+.seg__btn.is-active {
+  color: var(--g-accent);
+}
+
+.seg__btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Bayroqcha (til) */
+.seg__btn img {
+  width: 1.35rem;
+  height: 0.95rem;
+  border-radius: 0.15rem;
+  object-fit: cover;
+}
