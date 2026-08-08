@@ -1872,6 +1872,8 @@ body.dark .footer-library .footer-menu a.disabled {
   width: 0.75rem;
   height: 0.75rem;
   flex-shrink: 0;
+  /* Blok eni qat'iy — strelka ismga yopishmasdan eng o'ngda tursin. */
+  margin-left: auto;
   color: var(--g-muted);
   transition: transform var(--t-fast);
 }
