@@ -276,6 +276,10 @@ Route::group(['prefix' => 'v1'], function () {
 
 //                  Quiz
                 Route::get('/quizzes', [Backend\User\QuizController::class, 'index'])->name('quiz.index');
+                // `tree` {slug} dan oldin turishi shart — aks holda slug sifatida tushunilardi.
+                Route::get('/quizzes/tree', [Backend\User\QuizController::class, 'tree'])->name('quiz.tree');
+                Route::post('/quizzes/{slug}/complete', [Backend\User\QuizController::class, 'complete'])->name('quiz.complete');
+                Route::delete('/quizzes/{slug}/complete', [Backend\User\QuizController::class, 'uncomplete'])->name('quiz.uncomplete');
                 Route::get('/quizzes/{slug}', [Backend\User\QuizController::class, 'show'])->name('quiz.show');
 
 //            TARIFF

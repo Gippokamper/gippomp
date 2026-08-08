@@ -1,76 +1,215 @@
-import React, { useMemo } from 'react'
-import { MainLayout } from '../../layouts/main'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import GetContainer from '../../components/get-container'
-import GoBackIcon from '../../img/icons/GoBackIcon'
-import StudyPlanCard from '../../components/study-plan-card'
-import StudyDetailCard from '../../components/study-detail-card'
+import { useCallback, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useTranslation } from 'react-i18next'
 import Skeleton from 'react-loading-skeleton'
-import MinusIcon from '../../img/icons/MinusIcon'
-import PlusIcon from '../../img/icons/PlusIcon'
-import { useDispatch } from 'react-redux'
-import { decrement, increment } from '../../store/slices/htmlSlice'
+
+import { MainLayout } from '../../layouts/main'
+import { request } from '../../helpers/request'
+import { useApiErrorHandler } from '../../hooks/use-api-error-handler'
+import './quiz-tree.scss'
+
+/** Daraxtning bitta tuguni — bo'lim, fan yoki mavzu. Chuqurlik cheklanmagan. */
+interface IQuizNode {
+  id: number
+  slug: string
+  name?: Record<string, string>
+  info?: Record<string, string>
+  /** O'zida savol bloklari bor — bosilganda testga o'tadi. */
+  testable: boolean
+  /** Ostki daraxt bilan birga savollar soni. */
+  total: number
+  /** Shundan yechilgani (belgilangan bo'limda — hammasi). */
+  used: number
+  /** Foydalanuvchi "bajardim" deb belgilaganmi. */
+  done: boolean
+  children: IQuizNode[]
+}
+
+const QUERY_KEY = 'quiz-tree'
+
+const Caret = () => (
+  <svg width='12' height='12' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path d='M9 6l6 6-6 6' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round' />
+  </svg>
+)
+
+/**
+ * Tugun to'liq belgilanmagan, lekin ichida belgilangani bor — checkbox
+ * oraliq holatda turadi. Server faqat `done` ni biladi, oraliq holat
+ * bolalardan hisoblanadi.
+ */
+const hasDoneDescendant = (node: IQuizNode): boolean =>
+  node.children.some(child => child.done || hasDoneDescendant(child))
 
 function Quizzes() {
   const { i18n, t } = useTranslation()
-  const navigate = useNavigate()
-  const { pathname } = useLocation()
-  const dispatch = useDispatch()
+  const queryClient = useQueryClient()
+  const handleApiError = useApiErrorHandler()
 
-  const lastSlug = useMemo(() => {
-    const items = pathname.split('/')
-    return items[items.length - 1] === 'quizzes' ? '' : items[items.length - 1]
-  }, [pathname])
+  const [expanded, setExpanded] = useState<number[]>([])
 
-  const to = (slug: string) => {
-    return pathname + '/' + slug
+  const { data, isLoading, isError, refetch } = useQuery(
+    [QUERY_KEY],
+    async () => {
+      const response: any = await request({ url: 'dashboard/user/quizzes/tree', method: 'GET' })
+      return (response?.data?.data ?? []) as IQuizNode[]
+    },
+    { onError: handleApiError }
+  )
+
+  /*
+   * Endpoint javob sifatida yangilangan daraxtni qaytaradi, shuning uchun
+   * qayta so'rov kerak emas — kelgan daraxtni to'g'ridan-to'g'ri qo'yamiz.
+   */
+  const { mutate: toggleDone, isLoading: isSaving } = useMutation(
+    async ({ slug, done }: { slug: string; done: boolean }) => {
+      const response: any = await request({
+        url: `dashboard/user/quizzes/${slug}/complete`,
+        method: done ? 'DELETE' : 'POST'
+      })
+      return (response?.data?.data ?? []) as IQuizNode[]
+    },
+    {
+      onSuccess: tree => {
+        queryClient.setQueryData([QUERY_KEY], tree)
+      },
+      onError: handleApiError
+    }
+  )
+
+  const tree = useMemo(() => data ?? [], [data])
+
+  const toggleExpanded = useCallback(
+    (id: number) => setExpanded(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])),
+    []
+  )
+
+  const renderRow = (node: IQuizNode, depth: number) => {
+    const isOpen = expanded.includes(node.id)
+    const hasChildren = node.children.length > 0
+    const percent = node.total > 0 ? Math.round((node.used / node.total) * 100) : 0
+    const partial = !node.done && hasDoneDescendant(node)
+    const label = node.name?.[i18n.language] || node.slug
+
+    return (
+      <div className='qt-branch' key={node.id}>
+        <div
+          className={`qt-row ${node.done ? 'is-done' : ''} ${depth === 0 ? 'is-root' : ''}`}
+          style={{ ['--qt-depth' as any]: depth }}
+        >
+          <div className='qt-row__main'>
+            {hasChildren ? (
+              <button
+                type='button'
+                className='qt-row__caret'
+                aria-expanded={isOpen}
+                aria-label={isOpen ? t('Collapse') : t('Expand')}
+                onClick={() => toggleExpanded(node.id)}
+              >
+                <Caret />
+              </button>
+            ) : (
+              <span className='qt-row__caret is-empty' aria-hidden='true' />
+            )}
+
+            {/*
+              Belgi — talabaning o'zi uchun. Serverda saqlanadi, shuning uchun
+              boshqa qurilmada ham ko'rinadi. Ota-bo'lim belgilansa, ichidagi
+              hamma bo'lim ham belgilanadi (buni backend qiladi).
+            */}
+            <label className='qt-check' title={t('Mark as done')}>
+              <input
+                type='checkbox'
+                checked={node.done}
+                disabled={isSaving}
+                ref={el => {
+                  if (el) el.indeterminate = partial
+                }}
+                onChange={() => toggleDone({ slug: node.slug, done: node.done })}
+              />
+              <span className='qt-check__box' aria-hidden='true' />
+            </label>
+
+            {node.testable ? (
+              <Link className='qt-row__name is-link' to={`/detail/quiz/${node.slug}`}>
+                {label}
+              </Link>
+            ) : hasChildren ? (
+              <button type='button' className='qt-row__name' onClick={() => toggleExpanded(node.id)}>
+                {label}
+              </button>
+            ) : (
+              <span className='qt-row__name is-plain'>{label}</span>
+            )}
+          </div>
+
+          <div className='qt-row__progress'>
+            <div className='qt-count'>
+              <b>{node.used}</b>
+              <span>/</span>
+              <span>{node.total}</span>
+            </div>
+            <div className='qt-bar' role='progressbar' aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+              <span style={{ width: `${percent}%` }} />
+            </div>
+          </div>
+        </div>
+
+        {hasChildren && isOpen && (
+          <div className='qt-children'>{node.children.map(child => renderRow(child, depth + 1))}</div>
+        )}
+      </div>
+    )
   }
+
+  const renderBody = () => {
+    if (isLoading) {
+      return (
+        <div className='qt-skeletons'>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} height={48} />
+          ))}
+        </div>
+      )
+    }
+
+    if (isError) {
+      return (
+        <div className='qt-note' role='alert'>
+          <span className='qt-note__title'>{t('Failed to load')}</span>
+          <button type='button' className='qt-note__retry' onClick={() => refetch()}>
+            {t('Try again')}
+          </button>
+        </div>
+      )
+    }
+
+    if (!tree.length) {
+      return (
+        <div className='qt-note'>
+          <span className='qt-note__title'>{t('This section is empty')}</span>
+        </div>
+      )
+    }
+
+    return tree.map(node => renderRow(node, 0))
+  }
+
   return (
     <MainLayout>
-      <GetContainer url={'dashboard/user/quizzes/' + lastSlug}>
-        {({ data, isLoading }) => (
-          <section className='study'>
-            {!!lastSlug && (
-              <button className='section-back' onClick={() => navigate(-1)}>
-                <GoBackIcon />
-                <span>{t('Back')}</span>
-              </button>
-            )}
-            <h1 className='study__title section-title'>
-              {isLoading ? (
-                <Skeleton count={1} width={100} />
-              ) : lastSlug ? (
-                data?.data?.name?.[i18n.language]
-              ) : (
-                t('Test your knowledge')
-              )}
-            </h1>
-            <div className='study__text'>
-              {isLoading ? (
-                <Skeleton count={5} width={'100%'} />
-              ) : lastSlug ? (
-                data?.data?.info?.[i18n.language]
-              ) : (
-                t('Quiz description')
-              )}
-            </div>
-            <div className='study-list'>
-              {isLoading ? (
-                <Skeleton count={1} width={120} height={40} />
-              ) : !lastSlug ? (
-                data?.data?.map((item: any) =>
-                  item?.with_content ? <StudyDetailCard isQuiz item={item} /> : <StudyPlanCard item={item} to={to} />
-                )
-              ) : (
-                data?.data?.child_quiz?.map((item: any) =>
-                  item?.with_content ? <StudyDetailCard isQuiz item={item} /> : <StudyPlanCard item={item} to={to} />
-                )
-              )}
-            </div>
-          </section>
-        )}
-      </GetContainer>
+      <section className='qt'>
+        <h1 className='qt-title'>{t('Test your knowledge')}</h1>
+        <p className='qt-lead'>{t('Quiz description')}</p>
+
+        <div className='qt-table'>
+          <div className='qt-head'>
+            <span>{t('Subject')}</span>
+            <span>{t('Used')}</span>
+          </div>
+          <div className='qt-body'>{renderBody()}</div>
+        </div>
+      </section>
     </MainLayout>
   )
 }

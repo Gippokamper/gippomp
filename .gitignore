@@ -68,3 +68,6 @@ yarn-error.log*
 
 .vercel
 .env*
+
+# Cloudflare Wrangler lokal keshi
+.wrangler/

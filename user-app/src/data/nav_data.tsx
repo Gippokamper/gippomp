@@ -1,22 +1,21 @@
-import { t } from 'i18next'
-import AccountIcon from '../img/icons/AccountIcon'
-import HelpIcon from '../img/icons/HelpIcon'
 import LibraryIcon from '../img/icons/LibraryIcon'
 import NewsIcon from '../img/icons/NewsIcon'
 import StudyIcon from '../img/icons/StudyIcon'
 import TestIcon from '../img/icons/TestIcon'
 import VediosIcon from '../img/icons/VediosIcon'
 
+/*
+ * Chap menyu — faqat o'quv modullari.
+ *
+ * Shaxsiy kabinet, yordam markazi va tungi rejim bu yerdan olib tashlandi:
+ * ular yuqori o'ng burchakdagi profil menyusiga ko'chirildi (layouts/navbar).
+ * O'quv reja esa modullarning eng oxirida turadi.
+ */
 export const nav_data = [
   {
     to: '/library',
     text: 'Library',
     icon: <LibraryIcon />
-  },
-  {
-    to: '/study-plan',
-    text: 'Educational program',
-    icon: <StudyIcon />
   },
   {
     to: '/quizzes',
@@ -34,13 +33,8 @@ export const nav_data = [
     icon: <NewsIcon />
   },
   {
-    to: '/account',
-    text: 'Personal cabinet',
-    icon: <AccountIcon />
-  },
-  {
-    to: '/help',
-    text: 'Help center',
-    icon: <HelpIcon />
+    to: '/study-plan',
+    text: 'Educational program',
+    icon: <StudyIcon />
   }
 ]

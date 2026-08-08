@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useQueries } from 'react-query'
 import { useTranslation } from 'react-i18next'
@@ -24,7 +24,10 @@ interface INode {
   paid?: boolean
 }
 
-/** Bir daraja — ya'ni bitta kategoriyaning bolalari (0-daraja = ildiz ro'yxati). */
+/**
+ * Bir daraja — ya'ni bitta kategoriyaning bolalari (0-daraja = ildiz ro'yxati).
+ * Ekranda har bir daraja alohida ustun bo'lib chiqadi.
+ */
 interface ILevel {
   key: string
   index: number
@@ -37,12 +40,6 @@ interface ILevel {
   refetch: () => void
 }
 
-const Caret = () => (
-  <svg width='10' height='10' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <path d='M9 6l6 6-6 6' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round' />
-  </svg>
-)
-
 export const Home = () => {
   const { userPermissions } = useContext(AuthContext)
   const { i18n, t } = useTranslation()
@@ -52,9 +49,7 @@ export const Home = () => {
   const reduceMotion = useReducedMotion()
 
   const [modalOpen, setModalOpen] = useState(false)
-  // Yig'ilgan ota-darajalardan qaysilari ochilgani. Kalit sifatida daraja
-  // slug'i ishlatiladi — indeks emas, chunki navigatsiyada indekslar suriladi.
-  const [openParents, setOpenParents] = useState<string[]>([])
+  const colsRef = useRef<HTMLDivElement>(null)
 
   /** '/library/klinik/gastroenterologiya' -> ['klinik', 'gastroenterologiya'] */
   const slugs = useMemo(() => pathname.split('/').filter(Boolean).slice(1), [pathname])
@@ -99,8 +94,16 @@ export const Home = () => {
   })
 
   const current = levels[levels.length - 1]
-  // Ierarxiya tartibida: Kutubxona -> Klinik -> ... -> joriy daraja.
-  const parents = levels.slice(0, -1)
+
+  /*
+   * Yangi ustun qo'shilganda konteynerni o'ng chekkaga suramiz — aks holda
+   * ochilgan bo'lim ekrandan tashqarida qolib ketadi. Ustun eni qat'iy
+   * bo'lgani uchun scrollWidth kontent yuklanishini kutmaydi.
+   */
+  useEffect(() => {
+    const el = colsRef.current
+    if (el) el.scrollTo({ left: el.scrollWidth, behavior: reduceMotion ? 'auto' : 'smooth' })
+  }, [levels.length, reduceMotion])
 
   const canReadArticles = !!userPermissions?.some((e: string) => e === 'articles')
 
@@ -111,9 +114,6 @@ export const Home = () => {
     }
     navigate('/article/' + item.slug)
   }
-
-  const toggleParent = (key: string) =>
-    setOpenParents(prev => (prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]))
 
   const modalProps: IModal = useMemo(
     () => ({
@@ -136,16 +136,16 @@ export const Home = () => {
     ? { hidden: { opacity: 0 }, show: { opacity: 1 } }
     : { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }
 
-  const gridVariants = {
+  const listVariants = {
     hidden: {},
     show: { transition: { staggerChildren: reduceMotion ? 0 : 0.03 } }
   }
 
-  /** Bitta darajaning to'ri: papkalar + maqolalar. */
-  const renderGrid = (level: ILevel) => {
+  /** Bitta ustunning ichi: papkalar, so'ng maqolalar. */
+  const renderList = (level: ILevel) => {
     if (level.isLoading) {
       return (
-        <ul className='lib-grid'>
+        <ul className='lib-list'>
           {Array.from({ length: 6 }).map((_, i) => (
             <li key={i}>
               <Skeleton className='lib-skeleton' />
@@ -175,7 +175,7 @@ export const Home = () => {
     }
 
     return (
-      <motion.ul className='lib-grid' variants={gridVariants} initial='hidden' animate='show'>
+      <motion.ul className='lib-list' variants={listVariants} initial='hidden' animate='show'>
         {level.folders.map(item => (
           <motion.li key={`folder-${item.id}`} variants={cardVariants}>
             <Link
@@ -251,71 +251,43 @@ export const Home = () => {
           })}
         </nav>
 
+        {/* Ekran o'quvchilari uchun — ustunlar o'z sarlavhalarini o'zi ko'rsatadi. */}
+        <h1 className='lib-sr-only'>{current.title || t('Library')}</h1>
+
         {/*
-          Ota-darajalar — ierarxiya tartibida (Kutubxona -> Klinik -> ...),
-          joriy darajaning tepasida. Yig'ilgan holda turadi: qo'shni bo'limga
-          o'tish imkoni saqlanadi, lekin ular joriy kontentni pastga surib
-          yubormaydi (ilgari hamma daraja ochiq taxlanardi).
+          Har bir daraja — alohida ustun, ierarxiya tartibida chapdan o'ngga:
+          Kutubxona | Klinik | Endokrinologiya | ...  Ustunlar soni yo'l
+          chuqurligiga qarab o'zi o'zgaradi, qat'iy chegara yo'q.
         */}
-        {parents.length > 0 && (
-          <div className='lib-parents'>
-            {parents.map(level => {
-              const isOpen = openParents.includes(level.key)
+        <div className='lib-cols' ref={colsRef}>
+          <AnimatePresence initial={false}>
+            {levels.map(level => {
               const count = level.folders.length + level.articles.length
+              const isLast = level.index === levels.length - 1
 
               return (
-                <div className='lib-parent' key={level.key}>
-                  <button
-                    type='button'
-                    className='lib-parent__head'
-                    aria-expanded={isOpen}
-                    onClick={() => toggleParent(level.key)}
-                  >
-                    <span className='lib-parent__caret'>
-                      <Caret />
+                <motion.section
+                  key={level.key}
+                  className={`lib-col ${isLast ? 'is-last' : ''}`}
+                  aria-label={level.title || level.key}
+                  initial={{ opacity: 0, x: reduceMotion ? 0 : -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.18 }}
+                >
+                  <header className='lib-col__head'>
+                    <span className='lib-col__title'>
+                      {level.isLoading && !level.title ? <Skeleton width={110} /> : level.title || level.key}
                     </span>
-                    <span className='lib-parent__name'>{level.title || level.key}</span>
-                    {!!count && (
-                      <span className='lib-parent__count'>
-                        {count} {t('sections')}
-                      </span>
-                    )}
-                  </button>
+                    {!!count && <span className='lib-col__count'>{count}</span>}
+                  </header>
 
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        className='lib-parent__body'
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: reduceMotion ? 0 : 0.22 }}
-                      >
-                        {renderGrid(level)}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                  <div className='lib-col__body'>{renderList(level)}</div>
+                </motion.section>
               )
             })}
-          </div>
-        )}
-
-        {/* Joriy daraja — eng pastda. Yo'l o'zgarganda almashinuv silliq bo'lsin. */}
-        <AnimatePresence mode='wait' initial={false}>
-          <motion.div
-            key={current.key}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.15 }}
-          >
-            <h1 className='lib-title'>
-              {current.isLoading && !current.title ? <Skeleton width={180} /> : current.title}
-            </h1>
-            {renderGrid(current)}
-          </motion.div>
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
       </section>
 
       <Modal {...modalProps} />

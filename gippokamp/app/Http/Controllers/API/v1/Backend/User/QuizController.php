@@ -9,6 +9,7 @@ use App\Http\Requests\QuizRequests\QuizRequest;
 use App\Http\Resources\QuizResource;
 use App\Models\Quiz;
 use App\Services\QuizService;
+use App\Services\QuizTreeService;
 use Illuminate\Http\Request;
 
 class QuizController extends UserBaseController
@@ -44,5 +45,42 @@ class QuizController extends UserBaseController
         }catch (\Exception $e){
             return $this->errorResponse(404, $e->getMessage(), 404);
         }
+    }
+
+    /**
+     * Butun bo'limlar daraxti — chuqurligi cheklanmagan, har bir tugunda
+     * savollar soni, foydalanuvchi yechgani va "bajarildi" belgisi bilan.
+     */
+    public function tree()
+    {
+        return $this->successResponse('success', (new QuizTreeService())->tree(auth('sanctum')->id()));
+    }
+
+    /** Bo'limni (va ichidagi hammasini) "bajardim" deb belgilash. */
+    public function complete(string $slug)
+    {
+        $quiz = Quiz::firstWhere('slug', $slug);
+
+        if (!$quiz) {
+            return $this->errorResponse(404, 'Quiz not found', 404);
+        }
+
+        (new QuizTreeService())->complete(auth('sanctum')->id(), $quiz->id);
+
+        return $this->successResponse('success', (new QuizTreeService())->tree(auth('sanctum')->id()));
+    }
+
+    /** Belgini bo'limdan (va ichidagilardan) olib tashlash. */
+    public function uncomplete(string $slug)
+    {
+        $quiz = Quiz::firstWhere('slug', $slug);
+
+        if (!$quiz) {
+            return $this->errorResponse(404, 'Quiz not found', 404);
+        }
+
+        (new QuizTreeService())->uncomplete(auth('sanctum')->id(), $quiz->id);
+
+        return $this->successResponse('success', (new QuizTreeService())->tree(auth('sanctum')->id()));
     }
 }

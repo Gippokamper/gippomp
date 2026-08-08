@@ -1,5 +1,6 @@
 import React from 'react'
 import close from '../../img/icons/close.svg'
+import { youtubeEmbed } from '../../helpers/youtube'
 
 interface IProps {
   url: string
@@ -7,7 +8,6 @@ interface IProps {
 }
 
 function VideoModal(props: IProps) {
-  console.log(props.url, 'url', 'https://www.youtube.com/embed/' + props.url?.split('https://youtube.com/')?.[1])
   return (
     <div className='library-gallery' style={{ display: props.url ? 'block' : 'none' }}>
       <div className='library-gallery__content'>
@@ -39,7 +39,7 @@ function VideoModal(props: IProps) {
                 height: '100%'
               }}
               height={'80%'}
-              src={'https://www.youtube.com/embed/' + props.url?.split('https://youtu.be/')?.[1]}
+              src={youtubeEmbed(props.url)}
               title='YouTube video player'
               frameBorder='0'
               allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'

@@ -69,33 +69,143 @@ body.dark .lib {
 
 /* ---------- Sarlavha ---------- */
 
-.lib-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--lib-text);
-  margin: 0 0 1.25rem;
+/* Faqat ekran o'quvchilari uchun — vizual sarlavhani ustun boshi ko'rsatadi. */
+.lib-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* ---------- Tо'r ---------- */
+/* ---------- Ustunlar ---------- */
 
 /*
- * Ilgari `width: calc(20% - 1.2rem)` edi — element soni 5 tadan kam bo'lsa
- * qatorning qolgan qismi bo'sh turardi. auto-fill + minmax joyni to'liq
- * ishlatadi va oraliq ekran o'lchamlarida ham o'zi moslashadi.
+ * Har bir ierarxiya darajasi — bitta ustun. Ustunlar soni oldindan belgilanmagan:
+ * bo'lim ichida bo'lim ochilaversa, o'ngga yangi ustun qo'shilaveradi.
  */
-.lib-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
-  gap: 1rem;
-  margin: 0 0 1.5rem;
+.lib-cols {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.75rem;
+  scrollbar-width: thin;
+}
+
+.lib-cols::-webkit-scrollbar {
+  height: 0.4rem;
+}
+
+.lib-cols::-webkit-scrollbar-thumb {
+  background: var(--lib-border);
+  border-radius: 1rem;
+}
+
+.lib-col {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 15rem;
+  min-width: 0;
+  max-width: 15rem;
+  padding: 0 0.9rem;
+  border-right: 1px solid var(--lib-border);
+}
+
+.lib-col:first-child {
+  padding-left: 0;
+}
+
+/* Oxirgi (joriy) ustun — maqola nomlari uzun bo'ladi, qolgan joyni egallasin. */
+.lib-col.is-last {
+  flex: 1 1 15rem;
+  max-width: none;
+  padding-right: 0;
+  border-right: none;
+}
+
+.lib-col__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0 0.25rem 0.55rem;
+  margin-bottom: 0.65rem;
+  border-bottom: 1px solid var(--lib-border);
+}
+
+.lib-col__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--lib-text);
+}
+
+.lib-col__count {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--lib-muted);
+}
+
+/*
+ * Ustun ichi alohida suriladi: bir bo'limda 40 ta mavzu bo'lsa ham qo'shni
+ * ustunlar tepada ko'rinib turadi.
+ */
+.lib-col__body {
+  flex: 1 1 auto;
+  max-height: 65vh;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 0.15rem 0.25rem 0.25rem;
+  margin: -0.15rem -0.25rem -0.25rem;
+  scrollbar-width: thin;
+}
+
+.lib-col__body::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+.lib-col__body::-webkit-scrollbar-thumb {
+  background: var(--lib-border);
+  border-radius: 1rem;
+}
+
+.lib-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-@media (max-width: 575.98px) {
-  .lib-grid {
-    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-    gap: 0.75rem;
+/*
+ * Telefonda yonma-yon ustun sig'maydi — faqat joriy daraja ko'rsatiladi,
+ * yuqori darajalarga qaytish breadcrumb orqali.
+ */
+@media (max-width: 767.98px) {
+  .lib-col {
+    display: none;
+  }
+
+  .lib-col.is-last {
+    display: flex;
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .lib-col__body {
+    max-height: none;
+    overflow-y: visible;
   }
 }
 
@@ -107,8 +217,8 @@ body.dark .lib {
   gap: 0.6rem;
   width: 100%;
   height: 100%;
-  min-height: 3.5rem;
-  padding: 0.9rem;
+  min-height: 2.9rem;
+  padding: 0.7rem 0.8rem;
   border: 1px solid var(--lib-border);
   border-radius: 0.6rem;
   background: var(--lib-surface);
@@ -146,7 +256,7 @@ body.dark .lib {
 
 .lib-card__label {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -173,80 +283,15 @@ body.dark .lib {
   color: var(--lib-accent);
 }
 
-/* ---------- Yig'ilgan ota-darajalar ---------- */
-
-/* Joriy darajaning tepasida turadi, shuning uchun ajratuvchi chiziq pastda. */
-.lib-parents {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--lib-border);
-}
-
-.lib-parent__head {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: 0.5rem;
-  background: none;
-  color: var(--lib-muted);
-  font: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.lib-parent__head:hover {
-  background: var(--lib-surface);
-  color: var(--lib-text);
-}
-
-.lib-parent__head:focus-visible {
-  outline: 2px solid var(--lib-accent);
-  outline-offset: 2px;
-}
-
-.lib-parent__caret {
-  display: flex;
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-.lib-parent__head[aria-expanded='true'] .lib-parent__caret {
-  transform: rotate(90deg);
-}
-
-.lib-parent__name {
-  font-weight: 600;
-}
-
-.lib-parent__count {
-  margin-left: auto;
-  font-size: 0.8rem;
-  opacity: 0.75;
-}
-
-.lib-parent__body {
-  overflow: hidden;
-}
-
-.lib-parent__body .lib-grid {
-  margin: 0.5rem 0 0.5rem;
-}
-
 /* ---------- Bo'sh / xato / yuklanish ---------- */
 
+/* Ustun ichida turadi, shuning uchun to'ldirish to'rdagidan kichikroq. */
 .lib-note {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.6rem;
-  padding: 3rem 1rem;
+  padding: 1.75rem 0.75rem;
   border: 1px dashed var(--lib-border);
   border-radius: 0.75rem;
   color: var(--lib-muted);
@@ -254,7 +299,7 @@ body.dark .lib {
 }
 
 .lib-note__title {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--lib-text);
 }
@@ -271,6 +316,6 @@ body.dark .lib {
 }
 
 .lib-skeleton {
-  height: 3.5rem;
+  height: 2.9rem;
   border-radius: 0.6rem;
 }

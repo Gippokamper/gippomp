@@ -10,7 +10,14 @@ import Modal from '../../components/modal'
 import lightIcon from '../../img/icons/exit-light.svg'
 import darkIcon from '../../img/icons/exit-dark.svg'
 import { useMutation } from 'react-query'
+import { useDispatch, useSelector } from 'react-redux'
 import { request, logout } from '../../helpers/request'
+import { RootState } from '../../store'
+import { setTheme } from '../../store/siteSlice/siteSlice'
+import AccountIcon from '../../img/icons/AccountIcon'
+import HelpIcon from '../../img/icons/HelpIcon'
+import SunIcon from '../../img/icons/SunIcon'
+import MoonIcon from '../../img/icons/MoonIcon'
 
 interface IProps {
   isCollapsed: boolean
@@ -26,6 +33,15 @@ const READ_NOTIFICATION = async (id: number) => {
   return response.data
 }
 
+/** Profil menyusidagi qatorlar bir xil ko'rinishda tursin. */
+const menuItemStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: '0.5rem',
+  width: '100%'
+}
+
 function Navbar(props: IProps) {
   const { i18n , t } = useTranslation()
   const [search, setSearch] = useState('')
@@ -33,6 +49,8 @@ function Navbar(props: IProps) {
   const [visibleMenu, setVisibleMenu] = useState(false)
   const navigate = useNavigate()
   const [notsShow, setNotsShow] = useState(false)
+  const { isDark } = useSelector((state: RootState) => state.site)
+  const dispatch = useDispatch()
   const { mutate } = useMutation(READ_NOTIFICATION, {
     onSuccess: () => {
       navigate('/account?type=messages')
@@ -271,50 +289,43 @@ function Navbar(props: IProps) {
             display: visibleMenu ? 'block' : 'none'
           }}
         >
+          {/*
+            Shaxsiy kabinet, yordam markazi va tungi rejim ilgari chap menyuda
+            edi — bu yerga ko'chirildi, chap menyuda faqat o'quv modullari qoldi.
+          */}
           <li>
             <button
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.2rem'
-              }}
+              style={menuItemStyle}
               onClick={() => {
                 setVisibleMenu(false)
-                navigate('/account?type=payments')
+                navigate('/account')
               }}
             >
-              <svg width={20} height={20} viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path
-                  d='M12.0626 3.7709C13.2016 4.90993 13.2016 6.75666 12.0626 7.89569C10.9235 9.03473 9.0768 9.03473 7.93777 7.89569C6.79874 6.75666 6.79874 4.90993 7.93777 3.7709C9.0768 2.63187 10.9235 2.63187 12.0626 3.7709'
-                  stroke='#121B2D'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-                <path
-                  fillRule='evenodd'
-                  clipRule='evenodd'
-                  d='M3.3335 15.4166V16.2499C3.3335 16.7099 3.70683 17.0833 4.16683 17.0833H15.8335C16.2935 17.0833 16.6668 16.7099 16.6668 16.2499V15.4166C16.6668 12.8949 13.3735 11.2566 10.0002 11.2566C6.62683 11.2566 3.3335 12.8949 3.3335 15.4166Z'
-                  stroke='#121B2D'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
-              <span>{t('Profile')}</span>
+              <AccountIcon />
+              <span>{t('Personal cabinet')}</span>
             </button>
           </li>
           <li>
             <button
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.2rem'
+              style={menuItemStyle}
+              onClick={() => {
+                setVisibleMenu(false)
+                navigate('/help')
               }}
+            >
+              <HelpIcon />
+              <span>{t('Help center')}</span>
+            </button>
+          </li>
+          <li>
+            <button style={menuItemStyle} onClick={() => dispatch(setTheme(!isDark))}>
+              {isDark ? <SunIcon /> : <MoonIcon />}
+              <span>{isDark ? t('Light') : t('Dark')}</span>
+            </button>
+          </li>
+          <li>
+            <button
+              style={menuItemStyle}
               onClick={() => {
                 setModalOpen(true)
                 setVisibleMenu(false)
@@ -325,35 +336,35 @@ function Navbar(props: IProps) {
                   fillRule='evenodd'
                   clipRule='evenodd'
                   d='M9.16667 16.16V6.25249C9.16667 5.67749 8.87083 5.14332 8.38333 4.83915L5.05 2.75582C3.94 2.06248 2.5 2.85998 2.5 4.16915V14.0758C2.5 14.6508 2.79583 15.185 3.28333 15.4892L6.61667 17.5725C7.72667 18.2667 9.16667 17.4683 9.16667 16.16Z'
-                  stroke='#323232'
+                  stroke='currentColor'
                   strokeWidth='1.5'
                   strokeLinecap='round'
                   strokeLinejoin='round'
                 />
                 <path
                   d='M12.5 9.16667H17.5'
-                  stroke='#323232'
+                  stroke='currentColor'
                   strokeWidth='1.5'
                   strokeLinecap='round'
                   strokeLinejoin='round'
                 />
                 <path
                   d='M15.8335 10.8333L17.5002 9.16667L15.8335 7.5'
-                  stroke='#323232'
+                  stroke='currentColor'
                   strokeWidth='1.5'
                   strokeLinecap='round'
                   strokeLinejoin='round'
                 />
                 <path
                   d='M9.1665 15.8334H12.4998C13.4207 15.8334 14.1665 15.0875 14.1665 14.1667V13.3334'
-                  stroke='#323232'
+                  stroke='currentColor'
                   strokeWidth='1.5'
                   strokeLinecap='round'
                   strokeLinejoin='round'
                 />
                 <path
                   d='M14.1665 5V4.16667C14.1665 3.24583 13.4207 2.5 12.4998 2.5H4.1665'
-                  stroke='#323232'
+                  stroke='currentColor'
                   strokeWidth='1.5'
                   strokeLinecap='round'
                   strokeLinejoin='round'
