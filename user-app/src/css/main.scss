@@ -1811,7 +1811,11 @@ body.dark .footer-library .footer-menu a.disabled {
   align-items: center;
   /* Oraliqlar ataylab tor — ism va rol yaxlit blok bo'lib ko'rinsin. */
   gap: 0.55rem;
-  max-width: 17rem;
+  /*
+   * Qat'iy en: aks holda qo'ng'iroq va saqlanganlar belgilari har
+   * foydalanuvchida boshqa joyda turardi — ism uzunligiga qarab surilib.
+   */
+  width: 15rem;
   padding: 0.3rem 0.55rem 0.3rem 0.3rem;
   background: none;
   border-radius: var(--r-lg);
@@ -1879,6 +1883,10 @@ body.dark .footer-library .footer-menu a.disabled {
   .header__user-who {
     display: none;
   }
+  /* Ism yo'q — qat'iy en ham kerak emas, tugma qisqaradi. */
+  .header__user {
+    width: auto;
+  }
 }
 .header__user img {
   width: 100%;
@@ -1902,8 +1910,12 @@ body.dark .footer-library .footer-menu a.disabled {
   top: calc(100% + 0.65rem);
   right: 0;
   background: #fff;
-  width: max-content;
-  min-width: 12rem;
+  /*
+   * Qat'iy en. Ilgari `max-content` edi va menyu har foydalanuvchida boshqa
+   * kenglikda ochilardi — uzun ismli talabada kengayib, qisqasida torayib.
+   * Endi kim kirsa ham bir xil, uzun matn `...` bilan kesiladi.
+   */
+  width: 18rem;
   padding: 0.4rem;
   border: 1px solid rgba(18, 27, 45, 0.07);
   border-radius: 0.85rem;
@@ -2033,6 +2045,9 @@ body.dark .footer-library .footer-menu a.disabled {
 .header-user__who span {
   font-size: 0.78rem;
   color: #6b7785;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Tugmadagi rasm/bosh harflar */
