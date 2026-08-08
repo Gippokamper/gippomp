@@ -4,6 +4,7 @@ import LogoText from '../../img/icons/LogoText'
 import { Link, NavLink } from 'react-router-dom'
 import { nav_data } from '../../data/nav_data'
 import { useTranslation } from 'react-i18next'
+import './sidebar-rail.scss'
 //side-mini
 
 interface IProps {
@@ -13,7 +14,7 @@ interface IProps {
 function Sidebar(props: IProps) {
   const { t } = useTranslation()
   return (
-    <aside className={props.isCollapsed ? 'side side-mini' : 'side'}>
+    <aside className={`side side-rail ${props.isCollapsed ? 'side-mini' : ''}`}>
       <Link to='/library' className='side-logo'>
         <LogoImage />
         <div className='side-logo__text'>

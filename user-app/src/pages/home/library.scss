@@ -121,10 +121,14 @@ body.dark .lib {
   padding-left: 0;
 }
 
-/* Oxirgi (joriy) ustun — maqola nomlari uzun bo'ladi, qolgan joyni egallasin. */
+/*
+ * Oxirgi (joriy) ustun — maqola nomlari uzun bo'lgani uchun bir oz kengroq,
+ * lekin cho'zilmaydi: ilgari `flex: 1` edi va ikkita element bo'lsa ham butun
+ * ekran enini egallab, kartochkalar cho'zilib ketardi.
+ */
 .lib-col.is-last {
-  flex: 1 1 15rem;
-  max-width: none;
+  flex: 0 0 18rem;
+  max-width: 18rem;
   padding-right: 0;
   border-right: none;
 }
@@ -159,13 +163,16 @@ body.dark .lib {
  * Ustun ichi alohida suriladi: bir bo'limda 40 ta mavzu bo'lsa ham qo'shni
  * ustunlar tepada ko'rinib turadi.
  */
+/*
+ * Manfiy margin olib tashlandi: u kontentni ustundan kengaytirib yuborardi va
+ * sahifa ostida keraksiz gorizontal scrollbar paydo bo'lardi.
+ */
 .lib-col__body {
   flex: 1 1 auto;
   max-height: 65vh;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  padding: 0.15rem 0.25rem 0.25rem;
-  margin: -0.15rem -0.25rem -0.25rem;
+  padding: 0.15rem 0.25rem;
   scrollbar-width: thin;
 }
 
