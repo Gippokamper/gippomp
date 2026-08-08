@@ -89,6 +89,18 @@ function Navbar(props: IProps) {
   const dispatch = useDispatch()
   const userMenuRef = useRef<HTMLDivElement>(null)
   const notsRef = useRef<HTMLDivElement>(null)
+  const [copied, setCopied] = useState(false)
+
+  /* Raqamni almashish buferiga nusxalaydi va bir zumga tasdiq belgisini ko'rsatadi. */
+  const copyAccount = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1600)
+    } catch {
+      // buferga ruxsat berilmagan bo'lishi mumkin — jim o'tamiz
+    }
+  }
   const { user } = useContext(AuthContext)
 
   const fullName = [user?.firstname, user?.lastname].filter(Boolean).join(' ')
@@ -393,6 +405,38 @@ function Navbar(props: IProps) {
               {!!user?.phone && <span>+{user.phone}</span>}
             </span>
           </li>
+
+          {/*
+            Shaxsiy hisob raqami — to'lov qilayotganda kiritiladigan raqam.
+            Payme `account.user_id`, Click esa `merchant_trans_id` sifatida
+            aynan shu `id` ni kutadi, shuning uchun boshqa maydon emas.
+          */}
+          {!!user?.id && (
+            <li className='header-user__account'>
+              <span className='header-user__account-label'>{t('Personal account number')}</span>
+              <span className='header-user__account-row'>
+                <b>{user.id}</b>
+                <button
+                  type='button'
+                  className='header-user__copy'
+                  title={t('Copy')}
+                  aria-label={t('Copy')}
+                  onClick={() => copyAccount(String(user.id))}
+                >
+                  {copied ? (
+                    <svg width={16} height={16} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+                      <path d='M5 12.5 10 17.5 19 7' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                    </svg>
+                  ) : (
+                    <svg width={16} height={16} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+                      <rect x='9' y='9' width='11' height='11' rx='2' stroke='currentColor' strokeWidth='1.6' />
+                      <path d='M15 5.5A1.5 1.5 0 0 0 13.5 4h-8A1.5 1.5 0 0 0 4 5.5v8A1.5 1.5 0 0 0 5.5 15' stroke='currentColor' strokeWidth='1.6' strokeLinecap='round' />
+                    </svg>
+                  )}
+                </button>
+              </span>
+            </li>
+          )}
           <li className='header-user__sep' aria-hidden='true' />
 
           {/*

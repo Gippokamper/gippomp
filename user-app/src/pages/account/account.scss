@@ -1,266 +1,425 @@
 /*
- * Shaxsiy kabinet: chap ustundagi profil kartochkasi va o'ngdagi tablar.
- * Sinflar `acc-` prefiksi bilan — eski `.account-side` / `.account-head`
- * qoidalariga tegilmadi (ular main.scss'da qoladi).
+ * Shaxsiy kabinet.
  *
- * DIQQAT — o'lchov shkalasi: loyihada `:root { font-size }` ekran kengligiga
- * qarab 30px dan 10px gacha o'zgaradi (main.scss:30 va media so'rovlar).
- * Ya'ni 1rem = 16px EMAS, balki "bitta qator matn". Mavjud dizayn shkalasi:
- * oddiy matn ~1rem, mayda matn ~0.8rem, bo'lim sarlavhasi 1.5rem.
- * Quyidagi qiymatlar shunga moslangan.
+ * Tuzilishi referensdagidek: chapda bo'limlar ro'yxati, o'ngda tanlangan
+ * bo'lim paneli. Ilgari chapda profil kartochkasi, o'ngda gorizontal tablar
+ * edi — bo'lim ko'paygach tablar sig'masdi.
+ *
+ * Ranglar `tokens.scss` dan — bu yerda mavzuga xos qiymat yozilmagan.
  */
 
-/*
- * Ustunlar orasidagi oraliq. main.scss'da `.account-content { display: flex }`
- * bo'lib, oraliqni eski `.account-side` ning `margin-right` i berardi. U sinf
- * `.acc-profile` ga almashgach oraliq ham yo'qolgan edi.
- */
-.account-content {
-  gap: 1.5rem;
-
-  --acc-surface: #fff;
-  --acc-text: #121b2d;
-  --acc-muted: #6b7785;
-  --acc-accent: #4daf00;
-  --acc-grad: linear-gradient(174deg, #399a48 0%, #aacc3a 100%);
-  --acc-border: rgba(18, 27, 45, 0.1);
-  --acc-shadow: 0 1px 2px rgba(18, 27, 45, 0.06);
+.account__title {
+  margin-bottom: var(--s-5);
 }
 
-body.dark .account-content {
-  --acc-surface: #1f2638;
-  --acc-text: #ddd;
-  --acc-muted: #a3b2bd;
-  --acc-accent: #f79f44;
-  --acc-grad: linear-gradient(133deg, #f8b042 0%, #f79f44 100%);
-  --acc-border: rgba(255, 255, 255, 0.1);
-  --acc-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+.account-grid {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: var(--s-5);
+  align-items: start;
 }
 
-/* ---------- Profil kartochkasi ---------- */
+/* ---------- Chap: bo'limlar ---------- */
 
-.acc-profile {
+.acc-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  padding: 1rem;
-  border: 1px solid var(--acc-border);
-  border-radius: 0.5rem;
-  background: var(--acc-surface);
-  box-shadow: var(--acc-shadow);
-  color: var(--acc-text);
-  align-self: flex-start;
-
-  /* Eski `.account-side` dagi o'lchamlar — flex element sifatida u kontentga
-     qarab qisqarib ketmasin. `.account-main` esa calc(100% - 18.5rem) bilan
-     hisoblangan, ya'ni 17rem + 1.5rem oraliq. */
-  width: 17rem;
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
+  gap: var(--s-2);
 }
 
-@media (max-width: 991.98px) {
-  .acc-profile {
-    width: 100%;
-    position: static;
-    margin-bottom: 1.5rem;
-  }
-}
-
-.acc-profile__top {
+.acc-nav__item {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-}
-
-.acc-profile__avatar {
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-  background: var(--acc-border);
-}
-
-.acc-profile__ident {
-  min-width: 0;
-}
-
-.acc-profile__name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.acc-profile__role {
-  margin-top: 0.1rem;
-  font-size: 0.7rem;
-  color: var(--acc-muted);
-}
-
-/* ---------- Hamyon ---------- */
-
-.acc-profile__wallet {
-  padding: 0.75rem;
-  border-radius: 0.4rem;
-  background: var(--acc-grad);
-  color: #fff;
-}
-
-.acc-profile__wallet-label {
-  font-size: 0.68rem;
-  opacity: 0.9;
-}
-
-.acc-profile__wallet-value {
-  margin-top: 0.15rem;
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.acc-profile__wallet-value span {
-  font-size: 0.62rem;
-  font-weight: 500;
-  opacity: 0.9;
-}
-
-.acc-profile__topup {
+  gap: var(--s-3);
   width: 100%;
-  margin-top: 0.6rem;
-  padding: 0.4rem 0.6rem;
-  border: none;
-  border-radius: 0.3rem;
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
+  padding: var(--s-3);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface);
+  color: var(--g-text);
   font: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: var(--fs-body);
+  text-align: left;
   cursor: pointer;
-  transition: background 0.18s ease;
+  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
 }
 
-.acc-profile__topup:hover {
-  background: rgba(255, 255, 255, 0.32);
+.acc-nav__item:hover {
+  border-color: var(--g-accent);
+  color: var(--g-accent);
 }
 
-.acc-profile__topup:focus-visible {
-  outline: 2px solid #fff;
+.acc-nav__item:focus-visible {
+  outline: 2px solid var(--g-accent);
   outline-offset: 2px;
 }
 
-/* ---------- Ma'lumot ro'yxati ---------- */
+.acc-nav__item.is-active {
+  background: var(--g-accent-grad);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--g-shadow-1);
+}
 
-.acc-profile__facts {
+.acc-nav__icon {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin: 0;
+  flex-shrink: 0;
 }
 
-.acc-profile__fact {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+.acc-nav__icon svg {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
-.acc-profile__fact dt {
-  font-size: 0.65rem;
-  color: var(--acc-muted);
-}
-
-.acc-profile__fact dd {
-  margin: 0;
-  font-size: 0.78rem;
-  font-weight: 500;
-}
-
-.acc-profile__tariff {
-  display: block;
-}
-
-.acc-profile__muted {
-  color: var(--acc-muted);
-  font-weight: 400;
-}
-
-.acc-profile__ellipsis {
+.acc-nav__label {
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ---------- Tablar ---------- */
-
-.acc-tabs {
+.acc-nav__caret {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--acc-border);
+  flex-shrink: 0;
+  opacity: 0.5;
 }
 
-.acc-tabs__btn {
-  position: relative;
-  display: inline-flex;
+/* ---------- O'ng: panel ---------- */
+
+.acc-panel {
+  padding: var(--s-5);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-lg);
+  background: var(--g-surface);
+  box-shadow: var(--g-shadow-1);
+}
+
+.acc-panel__head {
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 0.8rem;
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+
+.acc-panel__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--g-text);
+}
+
+.acc-panel__action {
+  margin-left: auto;
+  padding: 0;
   border: none;
   background: none;
-  color: var(--acc-muted);
+  color: var(--g-accent);
   font: inherit;
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: var(--fs-sm);
   cursor: pointer;
-  transition: color 0.18s ease;
 }
 
-.acc-tabs__btn svg {
-  width: 0.85rem;
-  height: 0.85rem;
+.acc-panel__action:hover {
+  text-decoration: underline;
 }
 
-.acc-tabs__btn:hover {
-  color: var(--acc-text);
+/* ---------- Akkaunt: rasm va ism ---------- */
+
+.acc-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
 }
 
-.acc-tabs__btn.is-active {
-  color: var(--acc-accent);
-  font-weight: 600;
+.acc-hero__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--r-circle);
+  background: var(--g-accent-grad);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  overflow: hidden;
 }
 
-.acc-tabs__btn:focus-visible {
-  outline: 2px solid var(--acc-accent);
+.acc-hero__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.acc-hero__name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--g-text);
+}
+
+/* ---------- Akkaunt: ma'lumot qatorlari ---------- */
+
+.acc-facts {
+  margin: 0 0 var(--s-5);
+}
+
+.acc-facts__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--g-border);
+}
+
+.acc-facts__row:last-child {
+  border-bottom: none;
+}
+
+.acc-facts__row dt {
+  flex: 0 0 12rem;
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+}
+
+.acc-facts__row dd {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  min-width: 0;
+  color: var(--g-text);
+  font-size: var(--fs-body);
+}
+
+/* Hisob raqami va balans — monoshirinada o'qish oson */
+.acc-facts__num {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--g-accent);
+}
+
+.acc-facts__ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acc-facts__copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--g-muted);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.acc-facts__copy:hover {
+  background: var(--g-fill);
+  color: var(--g-text);
+}
+
+.acc-facts__copy:focus-visible {
+  outline: 2px solid var(--g-accent);
   outline-offset: -2px;
-  border-radius: 0.3rem;
 }
 
-/* Faol tab ostidagi chiziq — tablar orasida siljib o'tadi (motion layoutId). */
-.acc-tabs__underline {
-  position: absolute;
-  left: 0.5rem;
-  right: 0.5rem;
-  bottom: -1px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--acc-grad);
+/* ---------- Akkaunt: tarif kartasi ---------- */
+
+.acc-tariff {
+  padding: var(--s-4);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface-2);
 }
 
-@media (max-width: 767.98px) {
-  .acc-tabs__btn {
-    padding: 0.65rem 0.7rem;
-    font-size: 0.85rem;
+.acc-tariff__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.acc-tariff__label {
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+}
+
+.acc-tariff__value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--g-accent);
+}
+
+.acc-tariff__value.is-empty {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--g-muted);
+}
+
+.acc-tariff__until {
+  margin-top: var(--s-1);
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+}
+
+.acc-tariff__warn {
+  margin-top: var(--s-1);
+  color: var(--g-danger);
+  font-size: var(--fs-sm);
+}
+
+.acc-tariff__btn {
+  width: 100%;
+  margin-top: var(--s-4);
+}
+
+/* ---------- Chiqish ---------- */
+
+.acc-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-5);
+  padding: var(--s-2) var(--s-3);
+  border: none;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--g-muted);
+  font: inherit;
+  font-size: var(--fs-body);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.acc-logout:hover {
+  background: var(--g-danger-fill);
+  color: var(--g-danger);
+}
+
+/* ---------- Qurilmalar ---------- */
+
+.acc-devices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.acc-device {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface-2);
+}
+
+.acc-device__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--r-md);
+  background: var(--g-fill);
+  color: var(--g-text);
+}
+
+.acc-device__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.acc-device__body b {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--g-text);
+}
+
+.acc-device__body span {
+  font-size: var(--fs-sm);
+  color: var(--g-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acc-device__date {
+  font-size: var(--fs-xs);
+}
+
+.acc-device__end {
+  flex-shrink: 0;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--g-danger);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+
+.acc-device__end:hover:not(:disabled) {
+  background: var(--g-danger-fill);
+}
+
+.acc-device__end:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* ---------- Telefon ---------- */
+
+@media (max-width: 991.98px) {
+  .account-grid {
+    grid-template-columns: 1fr;
   }
 
-  .acc-tabs__btn span {
+  /* Bo'limlar gorizontal lentaga aylanadi — vertikal ro'yxat joy oladi. */
+  .acc-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: var(--s-1);
+  }
+
+  .acc-nav__item {
+    flex: 0 0 auto;
+    padding: var(--s-2) var(--s-3);
+  }
+
+  .acc-nav__caret {
     display: none;
   }
 
-  .acc-tabs__btn.is-active span {
-    display: inline;
+  .acc-panel {
+    padding: var(--s-4);
+  }
+
+  .acc-facts__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-1);
+  }
+
+  .acc-facts__row dt {
+    flex-basis: auto;
   }
 }

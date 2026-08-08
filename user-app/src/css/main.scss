@@ -2084,6 +2084,54 @@ body.sepia .header__user-initials {
   background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
 }
 
+/*
+ * Shaxsiy hisob raqami — to'lov ilovasiga kiritiladigan raqam, shuning uchun
+ * nusxalash tugmasi bilan. Raqam monoshirinada: uzun raqamni o'qish oson.
+ */
+.header-user__account {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.15rem 0.6rem 0.5rem;
+}
+.header-user__account-label {
+  font-size: 0.72rem;
+  color: var(--g-muted);
+}
+.header-user__account-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.header-user__account-row b {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--g-accent);
+}
+.header-user__copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--g-muted);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.header-user__copy:hover {
+  background: var(--g-fill);
+  color: var(--g-text);
+}
+.header-user__copy:focus-visible {
+  outline: 2px solid var(--g-accent);
+  outline-offset: -2px;
+}
+
 .header-user__label {
   padding: 0.2rem 0.6rem 0.3rem;
   font-size: 0.72rem;

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
@@ -7,170 +7,108 @@ import MessagesIcon from '../../img/icons/MessagesIcon'
 import SettingsIcon from '../../img/icons/SettingsIcon'
 import TariffsIcon from '../../img/icons/TariffsIcon'
 import WalletIcon from '../../img/icons/WalletIcon'
+import AccountIcon from '../../img/icons/AccountIcon'
 import { MainLayout } from '../../layouts/main'
+import Overview from './components/Overview'
+import Devices from './components/Devices'
 import Payments from './components/Payments'
 import Settings from './components/Settings'
 import Tariffs from './components/Tariffs'
 import Messages from './components/Messages'
-import { MEDIA_URL } from '../../helpers/request'
+import { useContext } from 'react'
 import { AuthContext } from '../../providers/auth-provider'
 import './account.scss'
 
-type TabKey = 'payments' | 'tariffs' | 'settings' | 'messages'
+type TabKey = 'account' | 'devices' | 'tariffs' | 'payments' | 'messages' | 'settings'
 
+const DeviceIcon = () => (
+  <svg width={20} height={20} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <rect x='2.5' y='5' width='13' height='10' rx='2' stroke='currentColor' strokeWidth='1.5' />
+    <rect x='16.5' y='9' width='5' height='10' rx='1.5' stroke='currentColor' strokeWidth='1.5' />
+    <path d='M6 19h5' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
+  </svg>
+)
+
+/*
+ * Bo'limlar — referensdagidek chapda ro'yxat, o'ngda tanlangani.
+ * `payments`, `tariffs`, `messages` kalitlari o'zgarmadi: ilovaning boshqa
+ * joyidagi `/account?type=...` havolalari ishlashda davom etsin.
+ */
 const TABS: { key: TabKey; icon: JSX.Element; label: string }[] = [
-  { key: 'payments', icon: <WalletIcon />, label: 'Payments' },
+  { key: 'account', icon: <AccountIcon />, label: 'Account' },
+  { key: 'devices', icon: <DeviceIcon />, label: 'Devices' },
   { key: 'tariffs', icon: <TariffsIcon />, label: 'Tariffs' },
-  { key: 'settings', icon: <SettingsIcon />, label: 'Settings' },
-  { key: 'messages', icon: <MessagesIcon />, label: 'Messages' }
+  { key: 'payments', icon: <WalletIcon />, label: 'Payments' },
+  { key: 'messages', icon: <MessagesIcon />, label: 'Messages' },
+  { key: 'settings', icon: <SettingsIcon />, label: 'Settings' }
 ]
 
-/** 450000 -> "450 000" */
-const formatAmount = (value: number | string | undefined) =>
-  Math.round(Number(value) || 0)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+const Caret = () => (
+  <svg width='12' height='12' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path d='M9 6l6 6-6 6' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round' />
+  </svg>
+)
 
 export const Account = () => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useContext(AuthContext)
   const reduceMotion = useReducedMotion()
 
   useEffect(() => {
     if (!searchParams.has('type')) {
-      setSearchParams({ type: 'payments' }, { replace: true })
+      setSearchParams({ type: 'account' }, { replace: true })
     }
   }, [searchParams, setSearchParams])
 
-  const activeTab = (searchParams.get('type') as TabKey) ?? 'payments'
+  const requested = searchParams.get('type') as TabKey | null
+  const activeTab: TabKey = TABS.some(tab => tab.key === requested) ? (requested as TabKey) : 'account'
 
-  const fullName = useMemo(
-    () => [user?.firstname, user?.lastname].filter(Boolean).join(' '),
-    [user?.firstname, user?.lastname]
-  )
-
-  const activeTariffs: any[] = user?.tariff ?? []
+  const go = (key: TabKey) => setSearchParams({ type: key })
 
   return (
     <MainLayout>
       <section className='account'>
-        <h1 className='account__title section-title'>{t('Personal cabinet')}</h1>
+        <h1 className='ui-title account__title'>{t('Personal cabinet')}</h1>
 
-        <div className='account-content'>
-          {/* ---------- Chap ustun: profil kartochkasi ---------- */}
-          <aside className='acc-profile'>
-            <div className='acc-profile__top'>
-              <img
-                className='acc-profile__avatar'
-                src={user?.image ? MEDIA_URL + user.image : '/image.png'}
-                alt=''
-              />
-              <div className='acc-profile__ident'>
-                <div className='acc-profile__name'>{fullName || '—'}</div>
-                {user?.profession && <div className='acc-profile__role'>{t(user.profession)}</div>}
-              </div>
-            </div>
-
-            {/* Hamyon — ilgari shunchaki raqam edi, endi to'ldirish tugmasi bilan */}
-            <div className='acc-profile__wallet'>
-              <div className='acc-profile__wallet-label'>{t('Your balance')}</div>
-              <div className='acc-profile__wallet-value'>
-                {formatAmount(user?.wallet?.amount)} <span>{t('UZS')}</span>
-              </div>
+        <div className='account-grid'>
+          {/* ---------- Chap: bo'limlar ---------- */}
+          <nav className='acc-nav' aria-label={t('Personal cabinet')}>
+            {TABS.map(tab => (
               <button
+                key={tab.key}
                 type='button'
-                className='acc-profile__topup'
-                onClick={() => setSearchParams({ type: 'tariffs' })}
+                className={`acc-nav__item ${activeTab === tab.key ? 'is-active' : ''}`}
+                aria-current={activeTab === tab.key ? 'page' : undefined}
+                onClick={() => go(tab.key)}
               >
-                {t('Tariffs')}
+                <span className='acc-nav__icon'>{tab.icon}</span>
+                <span className='acc-nav__label'>{t(tab.label)}</span>
+                <span className='acc-nav__caret'>
+                  <Caret />
+                </span>
               </button>
-            </div>
+            ))}
+          </nav>
 
-            <dl className='acc-profile__facts'>
-              <div className='acc-profile__fact'>
-                <dt>{t('Tariff')}</dt>
-                <dd>
-                  {activeTariffs.length ? (
-                    activeTariffs.map((tariff: any) => (
-                      <span key={tariff.id} className='acc-profile__tariff'>
-                        {tariff?.name?.[i18n.language]} ({tariff?.term_id?.name?.[i18n.language]})
-                      </span>
-                    ))
-                  ) : (
-                    <span className='acc-profile__muted'>{t('Active tariff not found')}</span>
-                  )}
-                </dd>
-              </div>
-
-              <div className='acc-profile__fact'>
-                <dt>{t('Phone number')}</dt>
-                <dd>+{user?.phone}</dd>
-              </div>
-
-              {user?.email && (
-                <div className='acc-profile__fact'>
-                  <dt>{t('Email')}</dt>
-                  <dd className='acc-profile__ellipsis'>{user.email}</dd>
-                </div>
-              )}
-
-              {user?.gender && (
-                <div className='acc-profile__fact'>
-                  <dt>{t('Sex')}</dt>
-                  <dd>{t(user.gender)}</dd>
-                </div>
-              )}
-
-              <div className='acc-profile__fact'>
-                <dt>{t('user id:')}</dt>
-                <dd>{user?.wallet?.user_id ?? user?.id}</dd>
-              </div>
-            </dl>
-          </aside>
-
-          {/* ---------- O'ng ustun: tablar ---------- */}
+          {/* ---------- O'ng: tanlangan bo'lim ---------- */}
           <div className='account-main'>
-            {/*
-              Ilgari bu <li onClick> edi: Tab bilan fokus olmasdi va Enter
-              bilan ochilmasdi. Endi haqiqiy tugmalar + tab semantikasi.
-            */}
-            <div className='acc-tabs' role='tablist' aria-label={t('Personal cabinet')}>
-              {TABS.map(tab => (
-                <button
-                  key={tab.key}
-                  type='button'
-                  role='tab'
-                  id={`acc-tab-${tab.key}`}
-                  aria-selected={activeTab === tab.key}
-                  aria-controls={`acc-panel-${tab.key}`}
-                  className={`acc-tabs__btn ${activeTab === tab.key ? 'is-active' : ''}`}
-                  onClick={() => setSearchParams({ type: tab.key })}
-                >
-                  {tab.icon}
-                  <span>{t(tab.label)}</span>
-                  {activeTab === tab.key && (
-                    <motion.span layoutId='acc-tab-underline' className='acc-tabs__underline' />
-                  )}
-                </button>
-              ))}
-            </div>
-
             <AnimatePresence mode='wait'>
               <motion.div
                 key={activeTab}
-                id={`acc-panel-${activeTab}`}
-                role='tabpanel'
-                aria-labelledby={`acc-tab-${activeTab}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: reduceMotion ? 0 : 0.15 }}
               >
-                {activeTab === 'payments' && <Payments />}
+                {activeTab === 'account' && (
+                  <Overview onManageTariffs={() => go('tariffs')} onEdit={() => go('settings')} />
+                )}
+                {activeTab === 'devices' && <Devices />}
                 {activeTab === 'tariffs' && <Tariffs />}
-                {activeTab === 'settings' && <Settings userData={user} />}
+                {activeTab === 'payments' && <Payments />}
                 {activeTab === 'messages' && <Messages />}
+                {activeTab === 'settings' && <Settings userData={user} />}
               </motion.div>
             </AnimatePresence>
           </div>
