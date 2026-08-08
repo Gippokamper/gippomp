@@ -1,0 +1,83 @@
+/*
+ * Saqlash tugmasi — maqola sahifasida matn bilan, kartochkada faqat belgi.
+ *
+ * Ranglar `tokens.scss` dan keladi: ilgali bu yerda uchta mavzu uchun uchta
+ * blok yozilgan edi, endi mavzuni tokenlar hal qiladi.
+ */
+
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--ctl-h);
+  padding: 0 var(--ctl-pad-x);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface);
+  color: var(--g-muted);
+  font: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1;
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+
+.save-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.save-btn:hover:not(:disabled),
+.save-btn.is-saved {
+  color: var(--g-accent);
+  border-color: var(--g-accent);
+}
+
+.save-btn:focus-visible {
+  outline: 2px solid var(--g-accent);
+  outline-offset: 2px;
+}
+
+.save-btn:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+/*
+ * Kartochka ustidagi ixcham variant — muqova burchagida dumaloq tugma.
+ * Rasm ustida turgani uchun fon qora, mavzuga bog'liq emas.
+ */
+.save-btn.is-compact {
+  position: absolute;
+  left: var(--s-2);
+  top: var(--s-2);
+  z-index: 2;
+  min-height: 0;
+  width: var(--ctl-h-sm);
+  height: var(--ctl-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--r-circle);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  backdrop-filter: blur(2px);
+}
+
+.save-btn.is-compact svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.save-btn.is-compact:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.68);
+  border-color: transparent;
+  color: #fff;
+}
+
+.save-btn.is-compact.is-saved {
+  background: var(--g-accent);
+  border-color: transparent;
+  color: #fff;
+}

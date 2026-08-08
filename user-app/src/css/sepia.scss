@@ -1,0 +1,669 @@
+/*
+ * SEPIA — uzoq o'qish uchun iliq qog'oz rejimi.
+ *
+ * Bu fayl QO'LDA YOZILMAGAN: `main.scss` dagi `body.dark` qoidalaridan hosil
+ * qilingan. Sabab — tungi rejim qaysi yuzalarni bo'yashini allaqachon bilamiz,
+ * sepia uchun ham aynan o'sha ro'yxat kerak.
+ *
+ * Rang tanlash XOSSAGA qarab: bir xil `#121b2d` tungi rejimda fon sifatida ham,
+ * matn sifatida ham uchraydi — `background` bo'lsa iliq qog'oz, `color` bo'lsa
+ * jigarrang siyoh oladi. Tuzilishga oid qoidalar (display, height, cursor)
+ * ko'chirilmagan, ular tungi rejimga xos.
+ *
+ * Yangi `body.dark` qoidasi qo'shsangiz, bu yerga ham mosini qo'shing.
+ *
+ * Palitra:
+ *   sahifa foni  #f4ecd8      kartochka  #f9f4e8
+ *   matn         #463a2a      susaygani  #8a7757
+ *   hoshiya      #e2d5b8      urg'u      #3f7d18
+ */
+
+body.sepia {
+  background: #f4ecd8;
+  color: #463a2a;
+}
+
+body.sepia input, body.sepia textarea {
+  background: #f4ecd8;
+}
+
+body.sepia input:focus, body.sepia textarea:focus {
+  border-color: #3f7d18;
+}
+
+body.sepia .checkbox:checked {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .novas svg path {
+  fill: #fffaf0;
+}
+
+body.sepia .btn {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .btn.btn-disabled {
+  background: #cbbb99;
+}
+
+body.sepia .section-back {
+  color: #463a2a;
+}
+
+body.sepia .section-back:hover {
+  color: #3f7d18;
+}
+
+body.sepia .side {
+  background: #f4ecd8;
+  border-right: 1px solid rgba(124, 104, 74, 0.3);
+}
+
+body.sepia .side-logo {
+  color: #463a2a;
+}
+
+body.sepia .side-logo:hover {
+  color: #463a2a;
+}
+
+body.sepia .side-menu a {
+  color: #463a2a;
+}
+
+body.sepia .side-menu a:hover {
+  color: #3f7d18;
+  background-color: #cbbb99;
+}
+
+body.sepia .side-menu a.current {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .side-menu a.current:hover {
+  color: #463a2a;
+}
+
+body.sepia .side-mode {
+  border: none;
+  background: #f9f4e8;
+}
+
+body.sepia .side-mode button {
+  color: #463a2a;
+}
+
+body.sepia .side-plan__title {
+  color: #3f7d18;
+}
+
+body.sepia .side-plan__list a {
+  color: #463a2a;
+}
+
+body.sepia .side-plan__item.active {
+  border-color: #3f7d18;
+  background: rgba(63, 125, 24, 0.16);
+}
+
+body.sepia .side-plan__test li.true, body.sepia .side-plan__test li.false, body.sepia .side-plan__test li.advice {
+  background: #f9f4e8;
+}
+
+body.sepia .side-plan__test li.current {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .side-plan__close {
+  background: #cbbb99;
+}
+
+body.sepia .side-stat__item.current {
+  background: #f9f4e8;
+}
+
+body.sepia .content::-webkit-scrollbar-thumb {
+  background: #3f7d18;
+}
+
+body.sepia .mobile-menu {
+  background: #f4ecd8;
+}
+
+body.sepia .mobile-menu__head {
+  background: #f9f4e8;
+}
+
+body.sepia .mobile-menu__list {
+  background: #f9f4e8;
+}
+
+body.sepia .mobile-menu__list a {
+  color: #463a2a;
+}
+
+body.sepia .header {
+  background: #f4ecd8;
+  border-bottom: 1px solid rgba(124, 104, 74, 0.3);
+}
+
+body.sepia .header__side:hover {
+  color: #3f7d18;
+}
+
+body.sepia .header-user {
+  background: #f9f4e8;
+  border-color: rgba(124, 104, 74, 0.1);
+  box-shadow: 0 0.75rem 2rem rgba(84, 66, 40, 0.16), 0 0.125rem 0.375rem rgba(84, 66, 40, 0.09);
+}
+
+body.sepia .header-user__sep {
+  background: rgba(124, 104, 74, 0.11);
+}
+
+body.sepia .header-user a, body.sepia .header-user button {
+  color: #463a2a;
+}
+
+body.sepia .header-user a svg, body.sepia .header-user button svg {
+  color: #8a7757;
+}
+
+body.sepia .header-user a:hover, body.sepia .header-user button:hover {
+  background: rgba(124, 104, 74, 0.09);
+  color: #3f7d18;
+}
+
+body.sepia .header-user a:active, body.sepia .header-user button:active {
+  background: rgba(124, 104, 74, 0.15);
+}
+
+body.sepia .header-user button.is-danger:hover {
+  background: rgba(178, 58, 58, 0.12);
+  color: #b23a3a;
+}
+
+body.sepia .header-nots {
+  background: #f9f4e8;
+}
+
+body.sepia .header-nots__btn {
+  color: #463a2a;
+}
+
+body.sepia .header-nots__btn:hover {
+  color: #3f7d18;
+}
+
+body.sepia .header-search__result {
+  background: #f9f4e8 !important;
+}
+
+body.sepia .header-search__result::-webkit-scrollbar-thumb {
+  background: #3f7d18;
+}
+
+body.sepia .header-search__result ul li {
+  border-color: rgba(124, 104, 74, 0.3);
+}
+
+body.sepia .header-search__result ul li a {
+  color: #463a2a;
+}
+
+body.sepia .header-search__result ul li a:hover {
+  color: #3f7d18;
+}
+
+body.sepia .login-form__input input {
+  border: 1px solid #d3c3a3;
+}
+
+body.sepia .login-form__check input {
+  border-color: #e2d5b8;
+}
+
+body.sepia .login-form__check input:checked {
+  background: #3f7d18;
+}
+
+body.sepia .login-form__check a {
+  color: #3f7d18;
+}
+
+body.sepia .mobile-library {
+  background: #f9f4e8;
+}
+
+body.sepia .library-item {
+  color: #463a2a;
+  background: #f9f4e8;
+}
+
+body.sepia .library-item:hover {
+  color: #3f7d18;
+}
+
+body.sepia .library-item.current {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .library-item.current:hover {
+  color: #463a2a;
+}
+
+body.sepia .library-btn .btn {
+  background: #cbbb99;
+}
+
+body.sepia .library-btn .btn:hover {
+  background: #f9f4e8;
+}
+
+body.sepia .library-gallery__text::-webkit-scrollbar-thumb {
+  background: #3f7d18;
+}
+
+body.sepia .library-article {
+  color: #463a2a;
+  background: #f9f4e8;
+}
+
+body.sepia .library-article:hover {
+  color: #3f7d18;
+}
+
+body.sepia .library-setting__content {
+  background: #f4ecd8;
+}
+
+body.sepia .library-setting__title {
+  background: #f9f4e8;
+}
+
+body.sepia .library-accordion {
+  background: #f9f4e8;
+}
+
+body.sepia .library-accordion__item.active .library-accordion__head {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .library-accordion__head {
+  border-color: rgba(124, 104, 74, 0.3);
+}
+
+body.sepia .library-hint {
+  background: #f4ecd8;
+  box-shadow: 0px 0px 10px 0px rgba(84, 66, 40, 0.12);
+}
+
+body.sepia .library-mobile__plan .side-plan {
+  background: #f4ecd8;
+}
+
+body.sepia .library-popup__content {
+  background: #f4ecd8;
+}
+
+body.sepia .library-head__btn label {
+  background: #fffaf0;
+}
+
+body.sepia .library-head__btn label span {
+  background: #f4ecd8;
+}
+
+body.sepia .study-list__item {
+  color: #463a2a;
+  background: #f9f4e8;
+}
+
+body.sepia .study-list__item:hover {
+  color: #3f7d18;
+}
+
+body.sepia .study-item {
+  color: #463a2a;
+  background: #f9f4e8;
+}
+
+body.sepia .study-item.active .study-item__head {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .study-item.active:hover .study-item__head {
+  color: #463a2a;
+}
+
+body.sepia .study-item:hover {
+  color: #463a2a;
+}
+
+body.sepia .study-item:hover .study-item__head {
+  color: #3f7d18;
+}
+
+body.sepia .study-item__head {
+  background: rgba(124, 104, 74, 0.14);
+}
+
+body.sepia .study-item__line span {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .study-questions__list {
+  background: #f9f4e8;
+}
+
+body.sepia .study-questions__item {
+  border-color: rgba(124, 104, 74, 0.3);
+}
+
+body.sepia .study-themes__list {
+  background: #f9f4e8;
+}
+
+body.sepia .study-themes__check .checkbox {
+  background: transparent;
+}
+
+body.sepia .study-themes__check .checkbox:checked {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .study-themes__check .checkbox:checked + span {
+  color: #3f7d18;
+}
+
+body.sepia .study-themes__item {
+  border-color: rgba(124, 104, 74, 0.3);
+}
+
+body.sepia .study-themes__item a {
+  color: #463a2a;
+}
+
+body.sepia .study-test__nav {
+  border: 1px solid rgba(124, 104, 74, 0.14);
+}
+
+body.sepia .study-test__nav button {
+  background: #f4ecd8;
+}
+
+body.sepia .study-test__nav button.disabled {
+  background: #efe5d0;
+}
+
+body.sepia .study-test__nav button.active {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .study-test__head li:hover {
+  color: #3f7d18;
+}
+
+body.sepia .study-test__head li.current {
+  border-color: #3f7d18;
+  color: #463a2a;
+}
+
+body.sepia .study-test__head li.current:hover {
+  color: #463a2a;
+}
+
+body.sepia .study-test__wrap button.active::after {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .study-test__card {
+  background: #f9f4e8;
+}
+
+body.sepia .study-test__advice {
+  background: #f4ecd8;
+}
+
+body.sepia .study-test__side {
+  background: #f9f4e8;
+}
+
+body.sepia .study-test__side_wrapper {
+  background: #f9f4e8;
+}
+
+body.sepia .study-test__side-close {
+  background: #f4ecd8;
+}
+
+body.sepia .study-test__table::-webkit-scrollbar-thumb {
+  background: #3f7d18;
+}
+
+body.sepia .study-quest__item.true, body.sepia .study-quest__item.false, body.sepia .study-quest__item.advice {
+  color: #463a2a;
+}
+
+body.sepia .study-quest__item.choosen .study-quest__head span {
+  color: #463a2a;
+  border-color: #e2d5b8;
+}
+
+body.sepia .news-head__btn {
+  background: #fffaf0;
+}
+
+body.sepia .news-head__btn.active {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+  color: #463a2a;
+}
+
+body.sepia .news-item {
+  background: #f9f4e8;
+  color: #efe5d0;
+}
+
+body.sepia .news-item:hover {
+  color: #3f7d18;
+}
+
+body.sepia .news-single__quote {
+  background: #f9f4e8;
+}
+
+body.sepia .account-side {
+  background: #f9f4e8;
+}
+
+body.sepia .account-head {
+  background: #f9f4e8;
+}
+
+body.sepia .account-head li.current {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .account-payment__item {
+  background: #f9f4e8;
+}
+
+body.sepia .account-payment__price {
+  color: #3f7d18;
+}
+
+body.sepia .account-settings {
+  background: #f9f4e8;
+}
+
+body.sepia .account-settings__info {
+  color: #463a2a;
+}
+
+body.sepia .account-settings__info:hover {
+  color: #3f7d18;
+}
+
+body.sepia .account-settings__btn {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .account-settings__input input, body.sepia .account-settings__input select, body.sepia .account-settings__input option {
+  background-color: #f4ecd8;
+}
+
+body.sepia .account-message {
+  background: #f9f4e8;
+}
+
+body.sepia .account-popup__content {
+  background: #f9f4e8;
+}
+
+body.sepia .pagination_previous, body.sepia .pagination_previous_a, body.sepia .pagination_next, body.sepia .pagination_next_a {
+  color: #3f7d18 !important;
+}
+
+body.sepia .pagination_previous a, body.sepia .pagination_previous_a a, body.sepia .pagination_next a, body.sepia .pagination_next_a a {
+  color: #3f7d18 !important;
+}
+
+body.sepia .pagination_previous a, body.sepia .pagination_next a {
+  background-color: #3f7d18;
+}
+
+body.sepia .pagination_page {
+  border-color: #3f7d18;
+}
+
+body.sepia .pagination_page_a {
+  color: #463a2a;
+}
+
+body.sepia .pagination_page_a:hover {
+  color: #3f7d18;
+}
+
+body.sepia .pagination_active {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .pagination_active_a {
+  color: #efe5d0;
+}
+
+body.sepia .rate-card {
+  background: #f9f4e8;
+}
+
+body.sepia .rate-head__list {
+  background: #f9f4e8;
+}
+
+body.sepia .rate-head__list .current {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .rate-item {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .rate-item__card {
+  background: #f9f4e8;
+}
+
+body.sepia .rate-item__list li.active {
+  color: #463a2a;
+}
+
+body.sepia .rate-item__list li.active .rate-item__check {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .help-side {
+  background: #f9f4e8;
+}
+
+body.sepia .help-side__btn {
+  color: #463a2a;
+  border-color: #3f7d18;
+}
+
+body.sepia .help-side__btn:hover {
+  color: #3f7d18;
+}
+
+body.sepia .help-main {
+  background: #f9f4e8;
+}
+
+body.sepia .stats-head {
+  background: #f9f4e8;
+}
+
+body.sepia .stats-main {
+  background: #f9f4e8;
+}
+
+body.sepia .stats-info__btns .btn-white {
+  border-color: #e2d5b8;
+}
+
+body.sepia .stats-popup__content {
+  background: #f4ecd8;
+}
+
+body.sepia .stats-popup__choose label input {
+  border-color: #e8dcc4;
+}
+
+body.sepia .stats-popup__range-value span {
+  border-color: #e2d5b8;
+  color: #463a2a;
+}
+
+body.sepia .footer {
+  background: #f9f4e8;
+}
+
+body.sepia .footer-menu a.current {
+  color: #3f7d18;
+}
+
+body.sepia .footer-menu a.current span {
+  color: #3f7d18;
+}
+
+body.sepia .footer-menu a.current::after {
+  background: linear-gradient(174deg, #3f7d18 0%, #8fae2f 100%);
+}
+
+body.sepia .footer-menu a.current svg {
+  color: #3f7d18;
+}
+
+body.sepia .footer-library .footer-menu a {
+  color: #463a2a;
+}
+
+body.sepia .library-head {
+  background: #f4ecd8;
+}
+
+body.sepia .library-article {
+  background: none;
+}
+
+body.sepia .header {
+  border-bottom: none;
+  background: #f9f4e8;
+}
+
+body.sepia .header__logo {
+  color: #463a2a;
+}
+
+body.sepia .header-search__input input {
+  background: #f9f4e8;
+}

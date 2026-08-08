@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\UserSave;
+use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,7 +27,8 @@ class VideoResource extends JsonResource
             }),
             'slug' => (string) $this->slug,
             'name' => (array) $this->name,
-            'link' => (string) $this->link
+            'link' => (string) $this->link,
+            'is_saved' => UserSave::isSaved(Video::class, (int) $this->id)
         ];
     }
 

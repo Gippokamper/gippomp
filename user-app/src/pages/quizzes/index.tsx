@@ -176,9 +176,9 @@ function Quizzes() {
 
     if (isError) {
       return (
-        <div className='qt-note' role='alert'>
-          <span className='qt-note__title'>{t('Failed to load')}</span>
-          <button type='button' className='qt-note__retry' onClick={() => refetch()}>
+        <div className='ui-empty' role='alert'>
+          <span className='ui-empty__title'>{t('Failed to load')}</span>
+          <button type='button' className='ui-btn ui-btn--primary' onClick={() => refetch()}>
             {t('Try again')}
           </button>
         </div>
@@ -187,8 +187,8 @@ function Quizzes() {
 
     if (!tree.length) {
       return (
-        <div className='qt-note'>
-          <span className='qt-note__title'>{t('This section is empty')}</span>
+        <div className='ui-empty'>
+          <span className='ui-empty__title'>{t('This section is empty')}</span>
         </div>
       )
     }
@@ -199,8 +199,8 @@ function Quizzes() {
   return (
     <MainLayout>
       <section className='qt'>
-        <h1 className='qt-title'>{t('Test your knowledge')}</h1>
-        <p className='qt-lead'>{t('Quiz description')}</p>
+        <h1 className='ui-title'>{t('Test your knowledge')}</h1>
+        <p className='ui-lead'>{t('Quiz description')}</p>
 
         <div className='qt-table'>
           <div className='qt-head'>

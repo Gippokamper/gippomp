@@ -1,15 +1,21 @@
 import { useEffect } from 'react'
+import type { Theme } from '../store/siteSlice/siteSlice'
 
 /**
- * Tungi rejim sinfini haqiqiy <body> elementiga qo'yadi.
+ * Ko'rinish rejimi sinfini haqiqiy <body> elementiga qo'yadi.
  *
  * Ilgari layoutlar React daraxti ichida <body> elementini render qilardi, ya'ni
  * hujjatda `<body><div id="root"><body class="dark">…` kabi ichma-ich body
  * hosil bo'lardi. Bu noto'g'ri HTML va haqiqiy <body> foni o'zgarmay qolardi —
  * tungi rejimda sahifa chetlarida oq chiziqlar ko'rinishi mumkin edi.
+ *
+ * `boolean` ham qabul qilinadi — eski chaqiruvlar buzilmasin.
  */
-export function useBodyTheme(isDark: boolean) {
+export function useBodyTheme(theme: Theme | boolean) {
   useEffect(() => {
-    document.body.classList.toggle('dark', isDark)
-  }, [isDark])
+    const value: Theme = typeof theme === 'boolean' ? (theme ? 'dark' : 'light') : theme
+
+    document.body.classList.toggle('dark', value === 'dark')
+    document.body.classList.toggle('sepia', value === 'sepia')
+  }, [theme])
 }

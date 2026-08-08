@@ -24,10 +24,10 @@ function LibraryLayout(props: any) {
   const {t} = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [openMobilePlan, setOpenMobilePlan] = useState(false)
-  const { isDark } = useSelector((state: RootState) => state.site)
+  const { isDark, theme } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
 
-  useBodyTheme(isDark)
+  useBodyTheme(theme)
 
   return (
     <>

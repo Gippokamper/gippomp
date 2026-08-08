@@ -274,6 +274,10 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::get('/study_plan', [Backend\User\StudyPlanController::class, 'index'])->name('study_plan.index');
                 Route::get('/study_plan/{slug}', [Backend\User\StudyPlanController::class, 'show'])->name('study_plan.show');
 
+//                  Saqlanganlar (maqola / video / yangilik)
+                Route::get('/saves', [Backend\User\SaveController::class, 'index'])->name('saves.index');
+                Route::post('/saves/{type}/{id}', [Backend\User\SaveController::class, 'toggle'])->name('saves.toggle');
+
 //                  Quiz
                 Route::get('/quizzes', [Backend\User\QuizController::class, 'index'])->name('quiz.index');
                 // `tree` {slug} dan oldin turishi shart — aks holda slug sifatida tushunilardi.

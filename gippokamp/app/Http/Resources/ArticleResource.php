@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Article;
 use App\Models\ArticleRead;
+use App\Models\UserSave;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -34,7 +36,8 @@ class ArticleResource extends JsonResource
             'blocks' => $this->whenLoaded('blocks', function (){
                 return BlockResource::collection($this->blocks);
             }),
-            'is_read' => $this->isReadByUser()
+            'is_read' => $this->isReadByUser(),
+            'is_saved' => UserSave::isSaved(Article::class, (int) $this->id)
         ];
     }
 

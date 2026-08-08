@@ -148,7 +148,7 @@ export const Home = () => {
         <ul className='lib-list'>
           {Array.from({ length: 6 }).map((_, i) => (
             <li key={i}>
-              <Skeleton className='lib-skeleton' />
+              <Skeleton className='ui-skeleton' />
             </li>
           ))}
         </ul>
@@ -157,9 +157,9 @@ export const Home = () => {
 
     if (level.isError) {
       return (
-        <div className='lib-note' role='alert'>
-          <span className='lib-note__title'>{t('Failed to load')}</span>
-          <button type='button' className='lib-note__retry' onClick={() => level.refetch()}>
+        <div className='ui-empty ui-empty--tight' role='alert'>
+          <span className='ui-empty__title'>{t('Failed to load')}</span>
+          <button type='button' className='ui-btn ui-btn--primary' onClick={() => level.refetch()}>
             {t('Try again')}
           </button>
         </div>
@@ -168,8 +168,8 @@ export const Home = () => {
 
     if (!level.folders.length && !level.articles.length) {
       return (
-        <div className='lib-note'>
-          <span className='lib-note__title'>{t('This section is empty')}</span>
+        <div className='ui-empty ui-empty--tight'>
+          <span className='ui-empty__title'>{t('This section is empty')}</span>
         </div>
       )
     }
@@ -259,7 +259,7 @@ export const Home = () => {
           Kutubxona | Klinik | Endokrinologiya | ...  Ustunlar soni yo'l
           chuqurligiga qarab o'zi o'zgaradi, qat'iy chegara yo'q.
         */}
-        <div className='lib-cols' ref={colsRef}>
+        <div className='lib-cols ui-scroll' ref={colsRef}>
           <AnimatePresence initial={false}>
             {levels.map(level => {
               const count = level.folders.length + level.articles.length
@@ -282,7 +282,7 @@ export const Home = () => {
                     {!!count && <span className='lib-col__count'>{count}</span>}
                   </header>
 
-                  <div className='lib-col__body'>{renderList(level)}</div>
+                  <div className='lib-col__body ui-scroll'>{renderList(level)}</div>
                 </motion.section>
               )
             })}

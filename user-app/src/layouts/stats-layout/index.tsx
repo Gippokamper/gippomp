@@ -21,11 +21,11 @@ function StatsLayout(props: any) {
   const [isCollapsed, setIsCollapsed] = useState(true)
   const [sideCollapsed, setSideCollapsed] = useState(false)
   const [openMobileMenu, setOpenMobileMenu] = useState(false)
-  const { isDark } = useSelector((state: RootState) => state.site)
+  const { isDark, theme } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
   const {t} = useTranslation();
 
-  useBodyTheme(isDark)
+  useBodyTheme(theme)
 
   return (
     <>

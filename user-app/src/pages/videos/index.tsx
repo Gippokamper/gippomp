@@ -8,6 +8,7 @@ import { MainLayout } from '../../layouts/main'
 import VideoModal from '../../components/vedio-modal'
 import Modal, { IModal } from '../../components/modal'
 import LockIcon from '../../img/icons/LockIcon'
+import SaveButton from '../../components/save-button'
 import lightIcon from '../../img/icons/cash.svg'
 import darkIcon from '../../img/icons/cash-dark.svg'
 import { AuthContext } from '../../providers/auth-provider'
@@ -22,6 +23,7 @@ interface IVideo {
   name?: Record<string, string>
   link?: string
   paid?: boolean
+  is_saved?: boolean
   /** Resursda shunday nomlangan — aslida to'liq kategoriyalar ro'yxati. */
   category_ids?: { id: number; slug: string; name?: Record<string, string> }[]
 }
@@ -148,8 +150,11 @@ export const Videos = () => {
     const label = video.name?.[i18n.language] || video.slug
     const tags = (video.category_ids ?? []).map(c => c.name?.[i18n.language] || c.slug).join(' · ')
 
+    // Saqlash tugmasi kartochkaning YONIDA — tugma ichiga tugma joylash
+    // yaroqsiz HTML bo'lardi. Ustida ko'rinishini stil hal qiladi.
     return (
-      <li key={video.id}>
+      <li key={video.id} className='vid-item'>
+        <SaveButton compact type='video' id={video.id} saved={video.is_saved} />
         <button type='button' className={`vid-card ${locked ? 'is-locked' : ''}`} onClick={() => openVideo(video)}>
           <span className='vid-card__poster'>
             {thumb ? (
@@ -172,7 +177,7 @@ export const Videos = () => {
         <ul className='vid-grid'>
           {Array.from({ length: 8 }).map((_, i) => (
             <li key={i}>
-              <Skeleton className='vid-skeleton' />
+              <Skeleton className='ui-skeleton vid-skeleton' />
             </li>
           ))}
         </ul>
@@ -181,9 +186,9 @@ export const Videos = () => {
 
     if (isError) {
       return (
-        <div className='vid-note' role='alert'>
-          <span className='vid-note__title'>{t('Failed to load')}</span>
-          <button type='button' className='vid-note__retry' onClick={() => refetch()}>
+        <div className='ui-empty' role='alert'>
+          <span className='ui-empty__title'>{t('Failed to load')}</span>
+          <button type='button' className='ui-btn ui-btn--primary' onClick={() => refetch()}>
             {t('Try again')}
           </button>
         </div>
@@ -192,8 +197,8 @@ export const Videos = () => {
 
     if (!videos.length) {
       return (
-        <div className='vid-note'>
-          <span className='vid-note__title'>{t('Nothing found')}</span>
+        <div className='ui-empty'>
+          <span className='ui-empty__title'>{t('Nothing found')}</span>
         </div>
       )
     }
@@ -203,7 +208,12 @@ export const Videos = () => {
         <ul className='vid-grid'>{videos.map(renderCard)}</ul>
         {hasNextPage && (
           <div className='vid-more'>
-            <button type='button' onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+            <button
+              type='button'
+              className='ui-btn ui-btn--ghost'
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
               {t('Load more')}
             </button>
           </div>
@@ -215,9 +225,9 @@ export const Videos = () => {
   return (
     <MainLayout>
       <section className='vid'>
-        <div className='vid-head'>
-          <h1 className='vid-title'>{t('Videos')}</h1>
-          {!isLoading && <span className='vid-total'>{total}</span>}
+        <div className='ui-head'>
+          <h1 className='ui-title'>{t('Videos')}</h1>
+          {!isLoading && <span className='ui-count'>{total}</span>}
         </div>
 
         <div className='vid-bar'>
@@ -240,10 +250,10 @@ export const Videos = () => {
 
         {/* Janrlar — bir nechtasini birga tanlash mumkin. */}
         {!!genreData?.length && (
-          <div className='vid-genres'>
+          <div className='ui-chips'>
             <button
               type='button'
-              className={`vid-chip ${genres.length === 0 ? 'is-active' : ''}`}
+              className={`ui-chip ${genres.length === 0 ? 'is-active' : ''}`}
               onClick={() => setGenres([])}
             >
               {t('All')}
@@ -252,7 +262,7 @@ export const Videos = () => {
               <button
                 key={genre.id}
                 type='button'
-                className={`vid-chip ${genres.includes(genre.slug) ? 'is-active' : ''}`}
+                className={`ui-chip ${genres.includes(genre.slug) ? 'is-active' : ''}`}
                 onClick={() => toggleGenre(genre.slug)}
               >
                 {genre.name?.[i18n.language] || genre.slug}

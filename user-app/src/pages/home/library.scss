@@ -9,51 +9,29 @@
  * almashtiriladi (main.scss'dagi `body.dark` yondashuvi saqlangan).
  */
 
-.lib {
-  --lib-surface: #fff;
-  --lib-text: #121b2d;
-  --lib-muted: #6b7785;
-  --lib-accent: #4daf00;
-  --lib-accent-grad: linear-gradient(174deg, #399a48 0%, #aacc3a 100%);
-  --lib-border: rgba(18, 27, 45, 0.08);
-  --lib-shadow: 0 1px 2px rgba(18, 27, 45, 0.06);
-  --lib-shadow-hover: 0 6px 20px rgba(18, 27, 45, 0.1);
-}
-
-body.dark .lib {
-  --lib-surface: #1f2638;
-  --lib-text: #ddd;
-  --lib-muted: #a3b2bd;
-  --lib-accent: #f79f44;
-  --lib-accent-grad: linear-gradient(133deg, #f8b042 0%, #f79f44 100%);
-  --lib-border: rgba(255, 255, 255, 0.08);
-  --lib-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --lib-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.45);
-}
-
 /* ---------- Breadcrumb ---------- */
 
 .lib-crumbs {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
+  gap: var(--s-1);
+  margin-bottom: var(--s-4);
   font-size: 0.9rem;
-  color: var(--lib-muted);
+  color: var(--g-muted);
 }
 
 .lib-crumbs__link {
-  color: var(--lib-muted);
-  padding: 0.2rem 0.45rem;
-  border-radius: 0.35rem;
+  color: var(--g-muted);
+  padding: var(--s-1) var(--s-2);
+  border-radius: var(--r-sm);
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .lib-crumbs__link:hover {
-  color: var(--lib-accent);
-  background: var(--lib-border);
+  color: var(--g-accent);
+  background: var(--g-border);
 }
 
 .lib-crumbs__sep {
@@ -62,9 +40,9 @@ body.dark .lib {
 }
 
 .lib-crumbs__current {
-  color: var(--lib-text);
+  color: var(--g-text);
   font-weight: 600;
-  padding: 0.2rem 0.45rem;
+  padding: var(--s-1) var(--s-2);
 }
 
 /* ---------- Sarlavha ---------- */
@@ -98,23 +76,14 @@ body.dark .lib {
   scrollbar-width: thin;
 }
 
-.lib-cols::-webkit-scrollbar {
-  height: 0.4rem;
-}
-
-.lib-cols::-webkit-scrollbar-thumb {
-  background: var(--lib-border);
-  border-radius: 1rem;
-}
-
 .lib-col {
   display: flex;
   flex-direction: column;
   flex: 0 0 15rem;
   min-width: 0;
   max-width: 15rem;
-  padding: 0 0.9rem;
-  border-right: 1px solid var(--lib-border);
+  padding: 0 var(--s-4);
+  border-right: 1px solid var(--g-border);
 }
 
 .lib-col:first-child {
@@ -136,11 +105,11 @@ body.dark .lib {
 .lib-col__head {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: var(--s-2);
   flex-shrink: 0;
-  padding: 0 0.25rem 0.55rem;
-  margin-bottom: 0.65rem;
-  border-bottom: 1px solid var(--lib-border);
+  padding: 0 var(--s-1) var(--s-2);
+  margin-bottom: var(--s-3);
+  border-bottom: 1px solid var(--g-border);
 }
 
 .lib-col__title {
@@ -150,13 +119,13 @@ body.dark .lib {
   white-space: nowrap;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--lib-text);
+  color: var(--g-text);
 }
 
 .lib-col__count {
   margin-left: auto;
   font-size: 0.78rem;
-  color: var(--lib-muted);
+  color: var(--g-muted);
 }
 
 /*
@@ -172,23 +141,14 @@ body.dark .lib {
   max-height: 65vh;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  padding: 0.15rem 0.25rem;
+  padding: var(--s-1) var(--s-1);
   scrollbar-width: thin;
-}
-
-.lib-col__body::-webkit-scrollbar {
-  width: 0.4rem;
-}
-
-.lib-col__body::-webkit-scrollbar-thumb {
-  background: var(--lib-border);
-  border-radius: 1rem;
 }
 
 .lib-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--s-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -221,16 +181,16 @@ body.dark .lib {
 .lib-card {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--s-2);
   width: 100%;
   height: 100%;
   min-height: 2.9rem;
-  padding: 0.7rem 0.8rem;
-  border: 1px solid var(--lib-border);
-  border-radius: 0.6rem;
-  background: var(--lib-surface);
-  color: var(--lib-text);
-  box-shadow: var(--lib-shadow);
+  padding: var(--s-3) var(--s-3);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface);
+  color: var(--g-text);
+  box-shadow: var(--g-shadow-1);
   text-align: left;
   text-decoration: none;
   font: inherit;
@@ -240,14 +200,14 @@ body.dark .lib {
 }
 
 .lib-card:hover {
-  color: var(--lib-accent);
+  color: var(--g-accent);
   border-color: transparent;
-  box-shadow: var(--lib-shadow-hover);
+  box-shadow: var(--g-shadow-2);
 }
 
 /* Klaviatura bilan yurganda fokus aniq ko'rinsin. */
 .lib-card:focus-visible {
-  outline: 2px solid var(--lib-accent);
+  outline: 2px solid var(--g-accent);
   outline-offset: 2px;
 }
 
@@ -272,7 +232,7 @@ body.dark .lib {
 
 /* Joriy (ochilgan) bo'lim */
 .lib-card.is-current {
-  background: var(--lib-accent-grad);
+  background: var(--g-accent-grad);
   border-color: transparent;
   color: #fff;
 }
@@ -283,46 +243,12 @@ body.dark .lib {
 
 /* Tarifsiz ochilmaydigan maqola */
 .lib-card.is-locked {
-  color: var(--lib-muted);
+  color: var(--g-muted);
 }
 
 .lib-card.is-locked:hover {
-  color: var(--lib-accent);
+  color: var(--g-accent);
 }
 
 /* ---------- Bo'sh / xato / yuklanish ---------- */
 
-/* Ustun ichida turadi, shuning uchun to'ldirish to'rdagidan kichikroq. */
-.lib-note {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 1.75rem 0.75rem;
-  border: 1px dashed var(--lib-border);
-  border-radius: 0.75rem;
-  color: var(--lib-muted);
-  text-align: center;
-}
-
-.lib-note__title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--lib-text);
-}
-
-.lib-note__retry {
-  padding: 0.45rem 1.1rem;
-  border: none;
-  border-radius: 0.4rem;
-  background: var(--lib-accent-grad);
-  color: #fff;
-  font: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.lib-skeleton {
-  height: 2.9rem;
-  border-radius: 0.6rem;
-}

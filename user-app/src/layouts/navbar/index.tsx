@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ToggleIcon from '../../img/icons/ToggleIcon'
 import uz from '../../img/icons/uz.svg'
 import ru from '../../img/icons/ru.svg'
@@ -11,19 +11,24 @@ import lightIcon from '../../img/icons/exit-light.svg'
 import darkIcon from '../../img/icons/exit-dark.svg'
 import { useMutation } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
-import { request, logout } from '../../helpers/request'
+import { request, logout, MEDIA_URL } from '../../helpers/request'
 import { RootState } from '../../store'
 import { setTheme } from '../../store/siteSlice/siteSlice'
+import { THEME_OPTIONS } from '../../data/theme_options'
+import { AuthContext } from '../../providers/auth-provider'
 import AccountIcon from '../../img/icons/AccountIcon'
-import HelpIcon from '../../img/icons/HelpIcon'
-import SunIcon from '../../img/icons/SunIcon'
-import MoonIcon from '../../img/icons/MoonIcon'
 
 interface IProps {
   isCollapsed: boolean
   setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>
   openMobileMenu: () => void
 }
+
+const LANGUAGES = [
+  { value: 'uz', flag: uz },
+  { value: 'ru', flag: ru },
+  { value: 'en', flag: en }
+]
 
 const READ_NOTIFICATION = async (id: number) => {
   const response = await request({
@@ -33,14 +38,43 @@ const READ_NOTIFICATION = async (id: number) => {
   return response.data
 }
 
-/** Profil menyusidagi qatorlar bir xil ko'rinishda tursin. */
-const menuItemStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: '0.5rem',
-  width: '100%'
-}
+/*
+ * Menyudagi belgilar bir uslubda bo'lsin. Umumiy `HelpIcon` to'rtburchak
+ * ramkali — yonidagi ingichka chiziqli odam/oy/chiqish belgilaridan
+ * og'irroq ko'rinardi, shuning uchun bu yerda dumaloq varianti.
+ */
+const HelpCircleIcon = () => (
+  <svg width={20} height={20} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <circle cx='12' cy='12' r='9' stroke='currentColor' strokeWidth='1.5' />
+    <path
+      d='M9.75 9.5a2.25 2.25 0 1 1 3.2 2.04c-.6.29-.95.9-.95 1.57v.24'
+      stroke='currentColor'
+      strokeWidth='1.5'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+    <circle cx='12' cy='16.6' r='.85' fill='currentColor' />
+  </svg>
+)
+
+const ExitIcon = () => (
+  <svg width={20} height={20} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path
+      d='M15 4.5h2.5A2.5 2.5 0 0 1 20 7v10a2.5 2.5 0 0 1-2.5 2.5H15'
+      stroke='currentColor'
+      strokeWidth='1.5'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+    <path
+      d='M11 15.5 14.5 12 11 8.5M14.5 12H4'
+      stroke='currentColor'
+      strokeWidth='1.5'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+  </svg>
+)
 
 function Navbar(props: IProps) {
   const { i18n , t } = useTranslation()
@@ -49,43 +83,48 @@ function Navbar(props: IProps) {
   const [visibleMenu, setVisibleMenu] = useState(false)
   const navigate = useNavigate()
   const [notsShow, setNotsShow] = useState(false)
-  const { isDark } = useSelector((state: RootState) => state.site)
+  const { theme } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
+  const userMenuRef = useRef<HTMLDivElement>(null)
+  const { user } = useContext(AuthContext)
+
+  const fullName = [user?.firstname, user?.lastname].filter(Boolean).join(' ')
+  // Rasm bo'lmasa — ism va familiya bosh harflari.
+  const initials = useMemo(
+    () =>
+      [user?.firstname, user?.lastname]
+        .filter(Boolean)
+        .map((part: string) => part.trim().charAt(0).toUpperCase())
+        .join('') || '?',
+    [user]
+  )
+
+  /* Menyu tashqariga bosilganda yoki Esc bosilganda yopilsin — aks holda
+     boshqa joyni bosgandan keyin ham ochiq turib qolardi. */
+  useEffect(() => {
+    if (!visibleMenu) return
+
+    const onPointerDown = (e: MouseEvent) => {
+      if (!userMenuRef.current?.contains(e.target as Node)) setVisibleMenu(false)
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setVisibleMenu(false)
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [visibleMenu])
   const { mutate } = useMutation(READ_NOTIFICATION, {
     onSuccess: () => {
       navigate('/account?type=messages')
       setNotsShow(false)
     }
   })
-  const langButtons = [
-    {
-      value: 'uz',
-      button: (
-        <button key='uz' onClick={() => i18n.changeLanguage('uz')} className='header-lang__item'>
-          <img src={uz} alt='lang' />
-          <span>UZ</span>
-        </button>
-      )
-    },
-    {
-      value: 'ru',
-      button: (
-        <button key='ru' onClick={() => i18n.changeLanguage('ru')} className='header-lang__item'>
-          <img src={ru} alt='lang' />
-          <span>RU</span>
-        </button>
-      )
-    },
-    {
-      value: 'en',
-      button: (
-        <button key='en' onClick={() => i18n.changeLanguage('en')} className='header-lang__item'>
-          <img src={en} alt='lang' />
-          <span>EN</span>
-        </button>
-      )
-    }
-  ]
   return (
     <header className='header'>
       <a href='/' className='header__logo'>
@@ -200,10 +239,6 @@ function Navbar(props: IProps) {
         </div>
       </div>
       <div className='header-wrap'>
-        <div className='header-lang'>
-          {langButtons?.find(el => el.value === i18n.language)?.button}
-          {langButtons?.filter(el => el.value !== i18n.language)?.map(item => item.button)}
-        </div>
         <GetContainer url='/dashboard/user/notification/feedback'>
           {({ data, isLoading }) => (
             <>
@@ -262,25 +297,16 @@ function Navbar(props: IProps) {
             </>
           )}
         </GetContainer>
-        <button className='header__user' onClick={() => setVisibleMenu(!visibleMenu)}>
-          <svg width={24} height={24} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-            <path
-              d='M14.4749 4.52513C15.8417 5.89197 15.8417 8.10804 14.4749 9.47488C13.108 10.8417 10.892 10.8417 9.52513 9.47488C8.15829 8.10804 8.15829 5.89197 9.52513 4.52513C10.892 3.15829 13.108 3.15829 14.4749 4.52513'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            />
-            <path
-              fillRule='evenodd'
-              clipRule='evenodd'
-              d='M4 18.5001V19.5001C4 20.0521 4.448 20.5001 5 20.5001H19C19.552 20.5001 20 20.0521 20 19.5001V18.5001C20 15.4741 16.048 13.5081 12 13.5081C7.952 13.5081 4 15.4741 4 18.5001Z'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            />
-          </svg>
+        {/* Tugma va menyu bitta o'ramda — menyu shu tugmaga nisbatan joylashadi
+            va tashqariga bosilganini shu o'ram orqali aniqlaymiz. */}
+        <div className='header-user__wrap' ref={userMenuRef}>
+        {/* Tugmada foydalanuvchining o'z rasmi — bo'lmasa ism-familiya bosh harflari. */}
+        <button className='header__user' aria-expanded={visibleMenu} onClick={() => setVisibleMenu(!visibleMenu)}>
+          {user?.image ? (
+            <img src={MEDIA_URL + user.image} alt='' />
+          ) : (
+            <span className='header__user-initials'>{initials}</span>
+          )}
         </button>
 
         <ul
@@ -289,13 +315,24 @@ function Navbar(props: IProps) {
             display: visibleMenu ? 'block' : 'none'
           }}
         >
+          {/* Kim tizimga kirgani darrov ko'rinib tursin. */}
+          <li className='header-user__card'>
+            <span className='header-user__avatar'>
+              {user?.image ? <img src={MEDIA_URL + user.image} alt='' /> : <span>{initials}</span>}
+            </span>
+            <span className='header-user__who'>
+              <b>{fullName || t('Personal cabinet')}</b>
+              {!!user?.phone && <span>+{user.phone}</span>}
+            </span>
+          </li>
+          <li className='header-user__sep' aria-hidden='true' />
+
           {/*
             Shaxsiy kabinet, yordam markazi va tungi rejim ilgari chap menyuda
             edi — bu yerga ko'chirildi, chap menyuda faqat o'quv modullari qoldi.
           */}
           <li>
             <button
-              style={menuItemStyle}
               onClick={() => {
                 setVisibleMenu(false)
                 navigate('/account')
@@ -307,73 +344,76 @@ function Navbar(props: IProps) {
           </li>
           <li>
             <button
-              style={menuItemStyle}
               onClick={() => {
                 setVisibleMenu(false)
                 navigate('/help')
               }}
             >
-              <HelpIcon />
+              <HelpCircleIcon />
               <span>{t('Help center')}</span>
             </button>
           </li>
+          {/*
+            Uchta ko'rinish: kunduzgi, o'qish (iliq qog'oz) va tungi.
+            Bitta almashtirgich o'rniga segment — qaysi rejim yoqilgani ko'rinib
+            tursin va bir bosishda istalganiga o'tilsin.
+          */}
+          <li className='header-user__sep' aria-hidden='true' />
+          <li className='header-user__label'>{t('Appearance')}</li>
           <li>
-            <button style={menuItemStyle} onClick={() => dispatch(setTheme(!isDark))}>
-              {isDark ? <SunIcon /> : <MoonIcon />}
-              <span>{isDark ? t('Light') : t('Dark')}</span>
-            </button>
+            <div className='theme-switch' role='group' aria-label={t('Appearance')}>
+              {THEME_OPTIONS.map(option => (
+                <button
+                  key={option.value}
+                  type='button'
+                  className={theme === option.value ? 'is-active' : ''}
+                  aria-pressed={theme === option.value}
+                  title={t(option.label)}
+                  onClick={() => dispatch(setTheme(option.value))}
+                >
+                  {option.icon}
+                  <span>{t(option.label)}</span>
+                </button>
+              ))}
+            </div>
           </li>
+
+          {/* Til ilgari sarlavhada alohida turardi — bu yerga ko'chirildi. */}
+          <li className='header-user__sep' aria-hidden='true' />
+          <li className='header-user__label'>{t('Language')}</li>
+          <li>
+            <div className='theme-switch' role='group' aria-label={t('Language')}>
+              {LANGUAGES.map(lang => (
+                <button
+                  key={lang.value}
+                  type='button'
+                  className={i18n.language === lang.value ? 'is-active' : ''}
+                  aria-pressed={i18n.language === lang.value}
+                  onClick={() => i18n.changeLanguage(lang.value)}
+                >
+                  <img src={lang.flag} alt='' />
+                  <span>{lang.value.toUpperCase()}</span>
+                </button>
+              ))}
+            </div>
+          </li>
+
+          {/* Chiqish qolganlaridan ajratib turadi — tasodifan bosilmasin. */}
+          <li className='header-user__sep' aria-hidden='true' />
           <li>
             <button
-              style={menuItemStyle}
+              className='is-danger'
               onClick={() => {
                 setModalOpen(true)
                 setVisibleMenu(false)
               }}
             >
-              <svg width={20} height={20} viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path
-                  fillRule='evenodd'
-                  clipRule='evenodd'
-                  d='M9.16667 16.16V6.25249C9.16667 5.67749 8.87083 5.14332 8.38333 4.83915L5.05 2.75582C3.94 2.06248 2.5 2.85998 2.5 4.16915V14.0758C2.5 14.6508 2.79583 15.185 3.28333 15.4892L6.61667 17.5725C7.72667 18.2667 9.16667 17.4683 9.16667 16.16Z'
-                  stroke='currentColor'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-                <path
-                  d='M12.5 9.16667H17.5'
-                  stroke='currentColor'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-                <path
-                  d='M15.8335 10.8333L17.5002 9.16667L15.8335 7.5'
-                  stroke='currentColor'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-                <path
-                  d='M9.1665 15.8334H12.4998C13.4207 15.8334 14.1665 15.0875 14.1665 14.1667V13.3334'
-                  stroke='currentColor'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-                <path
-                  d='M14.1665 5V4.16667C14.1665 3.24583 13.4207 2.5 12.4998 2.5H4.1665'
-                  stroke='currentColor'
-                  strokeWidth='1.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
+              <ExitIcon />
               <span>{t('Exit')}</span>
             </button>
           </li>
         </ul>
+        </div>
 
         <div className='header-mobile' onClick={props.openMobileMenu}>
           <svg width={24} height={24} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>

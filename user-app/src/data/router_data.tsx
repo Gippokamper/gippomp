@@ -10,6 +10,7 @@ import Quizzes from '../pages/quizzes'
 import SendCode from '../pages/send_code'
 import SignIn from '../pages/sign_in'
 import { SignUp } from '../pages/sign_up'
+import { Saved } from '../pages/saved'
 import { Stats } from '../pages/stats'
 import StudyPlan from '../pages/study_plan'
 import StudyPlanSingle from '../pages/study_plan_single'
@@ -57,6 +58,10 @@ export const router_data = [
   {
     path: '/videos/*',
     element: <Videos />
+  },
+  {
+    path: '/saved',
+    element: <Saved />
   },
   {
     path: '/news',

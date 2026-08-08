@@ -1,62 +1,10 @@
-/*
- * Test bo'limlari daraxti.
- *
- * Sinf prefiksi `qt-` (quiz tree) — sahifada ilgari ishlatilgan `study-*`
- * sinflarini o'quv reja sahifalari ham ishlatadi, ularga tegilmadi.
- *
- * Ranglar CSS o'zgaruvchilari orqali, tungi rejim uchun faqat qiymatlar
- * almashtiriladi (main.scss'dagi `body.dark` yondashuvi).
- */
-
-.qt {
-  --qt-surface: #fff;
-  --qt-head-bg: #eaeef1;
-  --qt-row-open: #f4f7f9;
-  --qt-text: #121b2d;
-  --qt-muted: #6b7785;
-  --qt-accent: #4daf00;
-  --qt-accent-grad: linear-gradient(174deg, #399a48 0%, #aacc3a 100%);
-  --qt-border: rgba(18, 27, 45, 0.09);
-  --qt-track: rgba(18, 27, 45, 0.08);
-  --qt-shadow: 0 1px 3px rgba(18, 27, 45, 0.08);
-}
-
-body.dark .qt {
-  --qt-surface: #1f2638;
-  --qt-head-bg: #262f45;
-  --qt-row-open: #232b3f;
-  --qt-text: #ddd;
-  --qt-muted: #a3b2bd;
-  --qt-accent: #f79f44;
-  --qt-accent-grad: linear-gradient(133deg, #f8b042 0%, #f79f44 100%);
-  --qt-border: rgba(255, 255, 255, 0.08);
-  --qt-track: rgba(255, 255, 255, 0.1);
-  --qt-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-}
-
-/* ---------- Sarlavha ---------- */
-
-.qt-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--qt-text);
-  margin: 0 0 0.5rem;
-}
-
-.qt-lead {
-  max-width: 46rem;
-  margin: 0 0 1.5rem;
-  color: var(--qt-muted);
-  line-height: 1.5;
-}
-
 /* ---------- Jadval ---------- */
 
 .qt-table {
-  border: 1px solid var(--qt-border);
-  border-radius: 0.75rem;
-  background: var(--qt-surface);
-  box-shadow: var(--qt-shadow);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-lg);
+  background: var(--g-surface);
+  box-shadow: var(--g-shadow-1);
   overflow: hidden;
 }
 
@@ -64,15 +12,15 @@ body.dark .qt {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.85rem 1.1rem;
-  background: var(--qt-head-bg);
-  border-bottom: 1px solid var(--qt-border);
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--g-surface-2);
+  border-bottom: 1px solid var(--g-border);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--qt-muted);
+  color: var(--g-muted);
 }
 
 /* O'ng ustun eni qatorlardagi progress ustuni bilan bir xil bo'lsin. */
@@ -85,15 +33,15 @@ body.dark .qt {
 .qt-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--s-4);
   /* Chuqurlik `--qt-depth` orqali keladi — daraja soni cheklanmagan. */
   padding: 0.6rem 1.1rem 0.6rem calc(1.1rem + var(--qt-depth, 0) * 1.4rem);
-  border-bottom: 1px solid var(--qt-border);
+  border-bottom: 1px solid var(--g-border);
   transition: background 0.15s ease;
 }
 
 .qt-row:hover {
-  background: var(--qt-row-open);
+  background: var(--g-fill);
 }
 
 .qt-branch:last-child > .qt-row:last-child {
@@ -103,7 +51,7 @@ body.dark .qt {
 .qt-row__main {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--s-2);
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -117,15 +65,15 @@ body.dark .qt {
   height: 1.35rem;
   padding: 0;
   border: none;
-  border-radius: 0.3rem;
+  border-radius: var(--r-sm);
   background: none;
-  color: var(--qt-muted);
+  color: var(--g-muted);
   cursor: pointer;
   transition: transform 0.2s ease, color 0.15s ease;
 }
 
 .qt-row__caret:hover {
-  color: var(--qt-text);
+  color: var(--g-text);
 }
 
 .qt-row__caret[aria-expanded='true'] {
@@ -142,7 +90,7 @@ body.dark .qt {
   padding: 0;
   border: none;
   background: none;
-  color: var(--qt-text);
+  color: var(--g-text);
   font: inherit;
   font-size: 0.95rem;
   text-align: left;
@@ -159,14 +107,14 @@ body.dark .qt {
 
 .qt-row__name.is-link:hover,
 .qt-row__name:not(.is-plain):hover {
-  color: var(--qt-accent);
+  color: var(--g-accent);
 }
 
 .qt-row__name:focus-visible,
 .qt-row__caret:focus-visible {
-  outline: 2px solid var(--qt-accent);
+  outline: 2px solid var(--g-accent);
   outline-offset: 2px;
-  border-radius: 0.25rem;
+  border-radius: var(--r-sm);
 }
 
 /* Ildiz darajasi quyuqroq — skrinshotdagidek. */
@@ -177,11 +125,11 @@ body.dark .qt {
 /* ---------- Bajarilgan qator ---------- */
 
 .qt-row.is-done .qt-row__name {
-  color: var(--qt-muted);
+  color: var(--g-muted);
 }
 
 .qt-row.is-done .qt-bar span {
-  background: var(--qt-accent-grad);
+  background: var(--g-accent-grad);
 }
 
 /* ---------- Checkbox ---------- */
@@ -207,14 +155,14 @@ body.dark .qt {
   justify-content: center;
   width: 1.15rem;
   height: 1.15rem;
-  border: 1.5px solid var(--qt-border);
-  border-radius: 0.35rem;
+  border: 1.5px solid var(--g-border);
+  border-radius: var(--r-sm);
   background: transparent;
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
 }
 
 .qt-check:hover .qt-check__box {
-  border-color: var(--qt-accent);
+  border-color: var(--g-accent);
 }
 
 .qt-check input:active + .qt-check__box {
@@ -222,13 +170,13 @@ body.dark .qt {
 }
 
 .qt-check input:focus-visible + .qt-check__box {
-  outline: 2px solid var(--qt-accent);
+  outline: 2px solid var(--g-accent);
   outline-offset: 2px;
 }
 
 .qt-check input:checked + .qt-check__box {
   border-color: transparent;
-  background: var(--qt-accent-grad);
+  background: var(--g-accent-grad);
 }
 
 .qt-check input:checked + .qt-check__box::after {
@@ -243,7 +191,7 @@ body.dark .qt {
 
 /* Ichida belgilangani bor, lekin hammasi emas — chiziqcha. */
 .qt-check input:indeterminate + .qt-check__box {
-  border-color: var(--qt-accent);
+  border-color: var(--g-accent);
 }
 
 .qt-check input:indeterminate + .qt-check__box::after {
@@ -251,7 +199,7 @@ body.dark .qt {
   width: 0.55rem;
   height: 2px;
   border-radius: 1px;
-  background: var(--qt-accent);
+  background: var(--g-accent);
 }
 
 .qt-check input:disabled + .qt-check__box {
@@ -265,28 +213,28 @@ body.dark .qt {
   flex: 0 0 13rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--s-1);
 }
 
 .qt-count {
   display: flex;
   align-items: baseline;
-  gap: 0.35rem;
+  gap: var(--s-1);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.85rem;
-  color: var(--qt-muted);
+  color: var(--g-muted);
 }
 
 .qt-count b {
-  color: var(--qt-accent);
+  color: var(--g-accent);
   font-weight: 600;
 }
 
 .qt-bar {
   width: 100%;
   height: 0.28rem;
-  border-radius: 1rem;
-  background: var(--qt-track);
+  border-radius: var(--r-pill);
+  background: var(--g-fill-strong);
   overflow: hidden;
 }
 
@@ -294,7 +242,7 @@ body.dark .qt {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--qt-accent-grad);
+  background: var(--g-accent-grad);
   transition: width 0.3s ease;
 }
 
@@ -303,48 +251,21 @@ body.dark .qt {
 .qt-skeletons {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.75rem 1.1rem;
-}
-
-.qt-note {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 3rem 1rem;
-  color: var(--qt-muted);
-  text-align: center;
-}
-
-.qt-note__title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--qt-text);
-}
-
-.qt-note__retry {
-  padding: 0.45rem 1.1rem;
-  border: none;
-  border-radius: 0.4rem;
-  background: var(--qt-accent-grad);
-  color: #fff;
-  font: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
 }
 
 /* ---------- Telefon ---------- */
 
 @media (max-width: 575.98px) {
   .qt-row {
-    gap: 0.6rem;
+    gap: var(--s-2);
     padding-left: calc(0.7rem + var(--qt-depth, 0) * 1rem);
     padding-right: 0.7rem;
   }
 
   .qt-head {
-    padding: 0.75rem 0.7rem;
+    padding: var(--s-3) var(--s-3);
     font-size: 0.7rem;
   }
 

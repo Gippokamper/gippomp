@@ -39,20 +39,10 @@ function Sidebar(props: IProps) {
           </ul>
         </div>
       </div>
-      <button
-        className={`side__close btn ${props.isCollapsed ? 'closed' : ''}`}
-        onClick={() => props.setIsCollapsed(!props.isCollapsed)}
-      >
-        <svg width={16} height={16} viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
-          <path
-            d='M10.5 3.625L6.125 8L10.5 12.375'
-            stroke='white'
-            strokeWidth='1.5'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          />
-        </svg>
-      </button>
+      {/*
+        Chekkadagi yashil dumaloq tutqich olib tashlandi. Menyuni yig'ish
+        yuqoridagi paneldagi tugma (`header__side`) orqali ishlaydi.
+      */}
     </aside>
   )
 }

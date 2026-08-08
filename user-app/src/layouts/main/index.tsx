@@ -9,10 +9,10 @@ import { useBodyTheme } from '../../hooks/use-body-theme'
 
 export const MainLayout = (props: any) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const { isDark } = useSelector((state: RootState) => state.site)
+  const { isDark, theme } = useSelector((state: RootState) => state.site)
   const [openMenu, setOpenMenu] = useState(false)
 
-  useBodyTheme(isDark)
+  useBodyTheme(theme)
 
   return (
     <>

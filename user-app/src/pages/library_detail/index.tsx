@@ -16,6 +16,7 @@ import FeedbackModal from '../../components/feedback-modal'
 import Success from '../../components/notifications/Success'
 import WithTooltip from '../../components/with-html/WithTooltip'
 import { request } from '../../helpers/request'
+import SaveButton from '../../components/save-button'
 import { useApiErrorHandler } from '../../hooks/use-api-error-handler'
 import { RootState } from '../../store'
 import {
@@ -149,6 +150,8 @@ export const LibraryDetail = () => {
         <div className='library-head'>
           <h1 className='library__title section-title'>{article?.name?.[lang]}</h1>
           <div className='library-head__wrap'>
+            {/* Maqolani "Saqlanganlar"ga qo'shish. */}
+            {!!article?.id && <SaveButton type='article' id={article.id} saved={article.is_saved} />}
             {/*
               Faqat o'zbek tili qoldirildi. RU/EN tugmalari olib tashlandi;
               setLang mexanizmi va Redux'dagi `lang` o'z joyida — kerak bo'lsa

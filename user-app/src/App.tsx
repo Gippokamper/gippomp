@@ -1,6 +1,12 @@
 import React from 'react'
 import './App.scss'
+// Tokenlar birinchi — qolgan hamma stil shulardan foydalanadi.
+import './css/tokens.scss'
 import './css/main.scss'
+// main.scss dan keyin — sepia qoidalari asosiy ranglar ustiga tushishi kerak.
+import './css/sepia.scss'
+// Umumiy elementlar oxirida — modul stillari ustiga chiqmasin.
+import './css/ui.scss'
 import './configs/i18n'
 
 import { Navigate, Route, Routes } from 'react-router-dom'
