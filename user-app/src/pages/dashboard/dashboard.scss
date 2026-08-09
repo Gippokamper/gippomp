@@ -1,69 +1,249 @@
 /*
- * Bosh sahifa.
+ * Bosh sahifa — suhbat.
  *
- * Markazda qidiruv, ekranning yarmi ataylab bo'sh — sahifa bitta aniq
- * harakatga qaratilgan. Kartochkalar faqat pastda, birinchi ekrandan keyin.
+ * Ish shu yerdan kechadi: talaba savolini yozadi, tizim topilgan
+ * materiallarni turlarga ajratib qaytaradi. Sun'iy intellekt yo'q —
+ * javob sizning kutubxonangizdan olinadi, shuning uchun hech narsa
+ * to'qilmaydi.
  *
  * Ranglar `tokens.scss` dan.
  */
 
-.dash {
+.chat {
   display: flex;
   flex-direction: column;
+  /* Sarlavha balandligi ayirilgan — yozish maydoni doim pastda tursin. */
+  height: calc(100vh - 5.5rem);
 }
 
-/* ---------- Qidiruv ekrani ---------- */
+/* ---------- Suhbat maydoni ---------- */
 
-.dash-hero {
+.chat-feed {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--s-5) var(--s-4);
+  scrollbar-width: thin;
+}
+
+/* Suhbat bo'sh bo'lsa kirish qismi markazda turadi. */
+.chat.is-empty .chat-feed {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: min(34rem, 68vh);
-  padding: var(--s-6) var(--s-4);
-  text-align: center;
-  /* Yengil yashil nur — pastga qarab so'nadi. */
-  background: radial-gradient(120% 80% at 50% 0%, rgba(77, 175, 0, 0.07) 0%, transparent 60%);
 }
 
-.dash-hero__title {
+/* ---------- Kirish (bo'sh holat) ---------- */
+
+.chat-intro {
+  width: 100%;
+  max-width: 36rem;
+  text-align: center;
+}
+
+.chat-intro__title {
   margin: 0 0 var(--s-2);
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
   font-weight: 700;
   color: var(--g-text);
 }
 
-.dash-hero__sub {
+.chat-intro__sub {
   margin: 0 0 var(--s-5);
-  max-width: 34rem;
   color: var(--g-muted);
   font-size: var(--fs-body);
 }
 
-.dash-hero__more {
-  margin-top: var(--s-5);
-  color: var(--g-accent);
-  font-size: var(--fs-sm);
-  text-decoration: none;
+/* ---------- Oxirgi savollar ---------- */
+
+.chat-history {
+  text-align: left;
 }
 
-.dash-hero__more:hover {
-  text-decoration: underline;
+.chat-history__label {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--g-muted);
 }
 
-/* ---------- Qidiruv maydoni ---------- */
-
-.dash-search {
-  position: relative;
-  width: 100%;
-  max-width: 34rem;
+.chat-history ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.dash-search__box {
+.chat-history button {
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  padding: var(--s-3) var(--s-3) var(--s-3) var(--s-4);
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  border: none;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--g-text);
+  font: inherit;
+  font-size: var(--fs-body);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.chat-history button:hover {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+
+.chat-history button svg {
+  flex-shrink: 0;
+  color: var(--g-muted);
+}
+
+.chat-history button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Suhbat oqimi ---------- */
+
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.chat-turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+/* Talaba savoli — o'ng tomonda, urg'uli fonda */
+.chat-question {
+  align-self: flex-end;
+  max-width: 80%;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--g-accent-grad);
+  color: #fff;
+  font-size: var(--fs-body);
+}
+
+/* Javob — chapda, oq kartochkada */
+.chat-answer {
+  align-self: flex-start;
+  width: 100%;
+  padding: var(--s-4);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-lg);
+  background: var(--g-surface);
+  box-shadow: var(--g-shadow-1);
+}
+
+.chat-answer__text {
+  margin: 0 0 var(--s-3);
+  font-size: var(--fs-body);
+  color: var(--g-text);
+}
+
+.chat-answer__hint {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--g-muted);
+}
+
+.chat-answer__wait {
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- Natijalar guruhlari ---------- */
+
+.chat-group + .chat-group {
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--g-border);
+}
+
+.chat-group__label {
+  display: block;
+  margin-bottom: var(--s-1);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--g-muted);
+}
+
+.chat-group ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chat-group a {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  color: var(--g-text);
+  font-size: var(--fs-body);
+  text-decoration: none;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.chat-group a:hover {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+
+.chat-group a svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: var(--g-muted);
+}
+
+.chat-group a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Savollar soni — nom yonida, susaygan */
+.chat-group a span i {
+  font-style: normal;
+  color: var(--g-muted);
+}
+
+/* ---------- Yozish maydoni ---------- */
+
+.chat-composer {
+  flex-shrink: 0;
+  padding: var(--s-3) var(--s-4) var(--s-4);
+  background: var(--g-bg);
+}
+
+.chat-composer__box {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
   border: 1px solid var(--g-border);
   border-radius: var(--r-lg);
   background: var(--g-surface);
@@ -71,47 +251,28 @@
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
-.dash-search__box:focus-within {
+.chat-composer__box:focus-within {
   border-color: var(--g-accent);
   box-shadow: var(--g-shadow-3);
 }
 
-.dash-search__icon {
-  display: flex;
-  flex-shrink: 0;
-  color: var(--g-muted);
-}
-
-.dash-search__box input {
+.chat-composer__box input {
   flex: 1 1 auto;
   min-width: 0;
-  height: 2.2rem;
+  height: 2.4rem;
   border: none;
   background: none;
   outline: none;
   color: var(--g-text);
   font: inherit;
-  font-size: 1.02rem;
+  font-size: 1rem;
 }
 
-.dash-search__box input::placeholder {
+.chat-composer__box input::placeholder {
   color: var(--g-muted);
 }
 
-/* Klaviatura yorlig'i — maydon ichida, o'ng tomonda */
-.dash-search__kbd {
-  flex-shrink: 0;
-  padding: 0.2rem 0.45rem;
-  border: 1px solid var(--g-border);
-  border-radius: var(--r-sm);
-  background: var(--g-fill);
-  color: var(--g-muted);
-  font-family: inherit;
-  font-size: var(--fs-xs);
-  white-space: nowrap;
-}
-
-.dash-search__go {
+.chat-composer__send {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -126,235 +287,51 @@
   transition: opacity var(--t-fast), transform var(--t-fast);
 }
 
-.dash-search__go:hover:not(:disabled) {
+.chat-composer__send:hover:not(:disabled) {
   transform: scale(1.05);
 }
 
-.dash-search__go:disabled {
+.chat-composer__send:disabled {
   opacity: 0.35;
   cursor: default;
 }
 
-.dash-search__go:focus-visible {
+.chat-composer__send:focus-visible {
   outline: 2px solid var(--g-accent);
   outline-offset: 2px;
 }
 
-/* ---------- Natijalar ---------- */
+/* Klaviatura yorliqlari — referensdagi kabi maydon ostida */
+.chat-composer__hints {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-3);
+  max-width: 46rem;
+  margin: var(--s-2) auto 0;
+  color: var(--g-muted);
+  font-size: var(--fs-xs);
+}
 
-.dash-results {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + 0.5rem);
-  z-index: 20;
-  max-height: 22rem;
-  overflow-y: auto;
-  padding: var(--s-1);
+.chat-composer__hints kbd {
+  padding: 0.1rem 0.3rem;
   border: 1px solid var(--g-border);
-  border-radius: var(--r-lg);
-  background: var(--g-surface);
-  box-shadow: var(--g-shadow-3);
-  text-align: left;
-}
-
-.dash-results ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-results a {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: var(--s-2) var(--s-3);
-  border-radius: var(--r-md);
-  color: var(--g-text);
-  font-size: var(--fs-body);
-  text-decoration: none;
-  transition: background var(--t-fast), color var(--t-fast);
-}
-
-.dash-results a:hover {
+  border-radius: var(--r-sm);
   background: var(--g-fill);
-  color: var(--g-accent);
-}
-
-.dash-results a svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  flex-shrink: 0;
-  color: var(--g-muted);
-}
-
-.dash-results a span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dash-results__empty {
-  padding: var(--s-4);
-  color: var(--g-muted);
-  font-size: var(--fs-sm);
-  text-align: center;
-}
-
-/* ---------- Pastdagi kartochkalar ---------- */
-
-.dash-below {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: var(--s-4);
-  padding: 0 var(--s-5) var(--s-6);
-}
-
-.dash-panel {
-  padding: var(--s-5);
-  border: 1px solid var(--g-border);
-  border-radius: var(--r-lg);
-  background: var(--g-surface);
-  box-shadow: var(--g-shadow-1);
-}
-
-.dash-panel__title {
-  margin: 0 0 var(--s-3);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--g-text);
-}
-
-.dash-panel__empty {
-  margin: 0;
-  color: var(--g-muted);
-  font-size: var(--fs-sm);
-}
-
-.dash-panel__lead {
-  margin: 0 0 var(--s-4);
-  font-size: var(--fs-sm);
-  opacity: 0.85;
-}
-
-/* To'q fonli variant — referensdagi "Learning" kartasi */
-.dash-panel--accent {
-  display: flex;
-  flex-direction: column;
-  border-color: transparent;
-  background: linear-gradient(160deg, #1f4d2b 0%, #2f6b34 100%);
-  color: #fff;
-}
-
-.dash-panel--accent .dash-panel__title {
-  color: #fff;
-}
-
-.dash-panel__btn {
-  align-self: flex-start;
-  margin-top: auto;
-  padding: 0.6rem 1.1rem;
-  border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  text-decoration: none;
-  transition: background var(--t-fast);
-}
-
-.dash-panel__btn:hover {
-  background: rgba(255, 255, 255, 0.26);
-}
-
-.dash-metric {
-  display: flex;
-  align-items: baseline;
-  gap: var(--s-2);
-}
-
-.dash-metric__value {
-  font-size: 2.6rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.dash-metric__label {
-  font-size: var(--fs-sm);
-  opacity: 0.8;
-}
-
-.dash-metric__bar {
-  width: 100%;
-  height: 0.35rem;
-  margin: var(--s-3) 0 var(--s-2);
-  border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.22);
-  overflow: hidden;
-}
-
-.dash-metric__bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: #fff;
-  transition: width 0.3s ease;
-}
-
-/* ---------- Ro'yxat ---------- */
-
-.dash-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-list a {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: var(--s-2) var(--s-3);
-  border-radius: var(--r-md);
-  color: var(--g-text);
-  font-size: var(--fs-body);
-  text-decoration: none;
-  transition: background var(--t-fast), color var(--t-fast);
-}
-
-.dash-list a:hover {
-  background: var(--g-fill);
-  color: var(--g-accent);
-}
-
-.dash-list a svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  flex-shrink: 0;
-  color: var(--g-muted);
-}
-
-.dash-list a span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-family: inherit;
+  font-size: 0.68rem;
 }
 
 @media (max-width: 767.98px) {
-  .dash-hero {
-    min-height: auto;
-    padding: var(--s-6) var(--s-4);
+  .chat {
+    height: calc(100vh - 4.5rem);
   }
 
-  .dash-below {
-    grid-template-columns: 1fr;
-    padding: 0 var(--s-4) var(--s-5);
-  }
-
-  /* Tor ekranda yorliq joy egallaydi. */
-  .dash-search__kbd {
+  .chat-composer__hints {
     display: none;
+  }
+
+  .chat-question {
+    max-width: 92%;
   }
 }

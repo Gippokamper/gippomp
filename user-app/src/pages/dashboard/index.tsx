@@ -1,63 +1,74 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useQueries, useQuery } from 'react-query'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Skeleton from 'react-loading-skeleton'
 
 import { MainLayout } from '../../layouts/main'
 import Article from '../../img/icons/Article'
+import VideoCard from '../../components/vedio-card'
+import TestIcon from '../../img/icons/TestIcon'
 import { AuthContext } from '../../providers/auth-provider'
 import { request } from '../../helpers/request'
 import './dashboard.scss'
 
-interface IQuizNode {
-  total: number
-  used: number
-  children: IQuizNode[]
-}
-
-interface IAttempt {
+/** Suhbatdagi bitta almashuv: talaba savoli va unga topilgan materiallar. */
+interface IExchange {
   id: number
-  right_answer: number
-  wrong_answer: number
-  help_answer: number
+  question: string
+  status: 'loading' | 'done' | 'error'
+  result?: {
+    articles: any[]
+    chapters: any[]
+    videos: any[]
+    blocks: any[]
+  }
 }
 
-const get = (url: string, params?: Record<string, unknown>) => async () => {
-  const response: any = await request({ url, method: 'GET', params })
-  return response?.data
+const HISTORY_KEY = 'gippokamp:chat-history'
+const HISTORY_LIMIT = 8
+
+const readHistory = (): string[] => {
+  try {
+    const raw = window.localStorage.getItem(HISTORY_KEY)
+    return raw ? (JSON.parse(raw) as string[]).slice(0, HISTORY_LIMIT) : []
+  } catch {
+    return []
+  }
 }
 
-const percent = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0)
-
-const SearchIcon = () => (
-  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <circle cx='11' cy='11' r='7' stroke='currentColor' strokeWidth='2' />
-    <path d='M20 20l-3.5-3.5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+const SendIcon = () => (
+  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path d='M5 12h13M13 6l6 6-6 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
   </svg>
 )
 
-const ArrowIcon = () => (
-  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <path d='M5 12h13M13 6l6 6-6 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+const ClockIcon = () => (
+  <svg width='16' height='16' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <circle cx='12' cy='12' r='9' stroke='currentColor' strokeWidth='1.6' />
+    <path d='M12 7.5V12l3 1.8' stroke='currentColor' strokeWidth='1.6' strokeLinecap='round' strokeLinejoin='round' />
   </svg>
 )
 
 export const Dashboard = () => {
   const { t, i18n } = useTranslation()
   const { user } = useContext(AuthContext)
-  const navigate = useNavigate()
 
   const [term, setTerm] = useState('')
-  const [debounced, setDebounced] = useState('')
+  const [exchanges, setExchanges] = useState<IExchange[]>([])
+  const [history, setHistory] = useState<string[]>(readHistory)
+  /** Klaviatura bilan tarixdan tanlash uchun joriy o'rin (-1 = tanlanmagan). */
+  const [cursor, setCursor] = useState(-1)
+
   const inputRef = useRef<HTMLInputElement>(null)
+  const feedRef = useRef<HTMLDivElement>(null)
 
+  const firstName = user?.firstname || ''
+
+  /* Yangi javob kelganda suhbat oxiriga suriladi. */
   useEffect(() => {
-    const timer = setTimeout(() => setDebounced(term.trim()), 300)
-    return () => clearTimeout(timer)
-  }, [term])
+    feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'smooth' })
+  }, [exchanges])
 
-  /* Ctrl+K — qidiruvga o'tish. AMBOSS'dagi kabi, maydon yonida ko'rsatilgan. */
+  /* Ctrl+K — yozish maydoniga o'tish. */
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -69,170 +80,257 @@ export const Dashboard = () => {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const { data: found, isFetching } = useQuery(
-    ['dash-search', debounced],
-    get('dashboard/user/search', { search: debounced }),
-    { enabled: debounced.length > 2, retry: false }
-  )
+  const remember = (question: string) => {
+    const next = [question, ...history.filter(h => h !== question)].slice(0, HISTORY_LIMIT)
+    setHistory(next)
+    try {
+      window.localStorage.setItem(HISTORY_KEY, JSON.stringify(next))
+    } catch {
+      // xotira to'lgan yoki taqiqlangan bo'lishi mumkin — jim o'tamiz
+    }
+  }
 
-  /*
-   * `user_test_attempt` tarif tekshiruvi ichida — tarifsiz foydalanuvchida
-   * xato qaytaradi, shuning uchun `retry: false` va xato sahifani buzmaydi.
-   */
-  const [attempts, quizzes, recent] = useQueries([
-    { queryKey: ['dash-attempts'], queryFn: get('dashboard/user/user_test_attempt'), retry: false },
-    { queryKey: ['dash-quiz-tree'], queryFn: get('dashboard/user/quizzes/tree'), retry: false },
-    { queryKey: ['dash-recent'], queryFn: get('dashboard/user/articles_recent', { limit: 5 }), retry: false }
-  ]) as any[]
+  const ask = async (raw: string) => {
+    const question = raw.trim()
+    if (!question) return
 
-  const list: IAttempt[] = attempts?.data?.data ?? []
-  const recentArticles: any[] = recent?.data?.data ?? []
+    const id = Date.now()
+    setExchanges(prev => [...prev, { id, question, status: 'loading' }])
+    setTerm('')
+    setCursor(-1)
+    remember(question)
 
-  const totalQuestions = useMemo(() => {
-    const roots: IQuizNode[] = quizzes?.data?.data ?? []
-    return roots.reduce((sum, node) => sum + (node.total || 0), 0)
-  }, [quizzes?.data])
+    try {
+      const response: any = await request({
+        url: 'dashboard/user/search',
+        method: 'GET',
+        params: { search: question }
+      })
+      const data = response?.data?.data ?? {}
+      setExchanges(prev =>
+        prev.map(item =>
+          item.id === id
+            ? {
+                ...item,
+                status: 'done',
+                result: {
+                  articles: data.articles ?? [],
+                  chapters: data.chapters ?? [],
+                  videos: data.videos ?? [],
+                  blocks: data.blocks ?? []
+                }
+              }
+            : item
+        )
+      )
+    } catch {
+      setExchanges(prev => prev.map(item => (item.id === id ? { ...item, status: 'error' } : item)))
+    }
+  }
 
-  const summary = useMemo(() => {
-    const answered = list.reduce((s, a) => s + a.right_answer + a.wrong_answer + a.help_answer, 0)
-    const right = list.reduce((s, a) => s + a.right_answer, 0)
-    return { answered, right, accuracy: percent(right, answered) }
-  }, [list])
+  /* ↑/↓ — oldingi savollar bo'ylab yurish, Esc — tozalash. */
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      ask(term)
+      return
+    }
+    if (e.key === 'Escape') {
+      setTerm('')
+      setCursor(-1)
+      return
+    }
+    if (!history.length) return
 
-  const articles: any[] = found?.data?.articles ?? []
-  const chapters: any[] = found?.data?.chapters ?? []
-  const hasResults = articles.length > 0 || chapters.length > 0
-  const showResults = debounced.length > 2
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const next = Math.min(cursor + 1, history.length - 1)
+      setCursor(next)
+      setTerm(history[next])
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      const next = cursor - 1
+      setCursor(next)
+      setTerm(next < 0 ? '' : history[next])
+    }
+  }
+
+  const isEmpty = exchanges.length === 0
+
+  const renderAnswer = (exchange: IExchange) => {
+    if (exchange.status === 'loading') {
+      return <div className='chat-answer__wait'>{t('Loading...')}</div>
+    }
+
+    if (exchange.status === 'error') {
+      return <div className='chat-answer__wait'>{t('Failed to load')}</div>
+    }
+
+    const { articles = [], chapters = [], videos = [], blocks = [] } = exchange.result ?? {}
+    const total = articles.length + chapters.length + videos.length + blocks.length
+
+    if (!total) {
+      return (
+        <>
+          <p className='chat-answer__text'>{t('Nothing found')}</p>
+          <p className='chat-answer__hint'>{t('Try another word or check the spelling')}</p>
+        </>
+      )
+    }
+
+    return (
+      <>
+        <p className='chat-answer__text'>
+          {t('Found materials')}: <b>{total}</b>
+        </p>
+
+        {articles.length > 0 && (
+          <div className='chat-group'>
+            <span className='chat-group__label'>{t('Library')}</span>
+            <ul>
+              {articles.map((article: any) => (
+                <li key={`a-${article.id}`}>
+                  <Link to={'/article/' + article.slug}>
+                    <Article />
+                    <span>{article?.name?.[i18n.language] || article.slug}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {chapters.length > 0 && (
+          <div className='chat-group'>
+            <span className='chat-group__label'>{t('Topics')}</span>
+            <ul>
+              {chapters.map((chapter: any) =>
+                (chapter?.article_ids ?? []).slice(0, 1).map((article: any) => (
+                  <li key={`c-${chapter.id}`}>
+                    <Link to={`/article/${article?.slug}?chapter_id=${chapter?.id}`}>
+                      <Article />
+                      <span>{chapter?.title?.[i18n.language]}</span>
+                    </Link>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        )}
+
+        {videos.length > 0 && (
+          <div className='chat-group'>
+            <span className='chat-group__label'>{t('Videos')}</span>
+            <ul>
+              {videos.map((video: any) => (
+                <li key={`v-${video.id}`}>
+                  <Link to='/videos'>
+                    <VideoCard />
+                    <span>{video?.name?.[i18n.language] || video.slug}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {blocks.length > 0 && (
+          <div className='chat-group'>
+            <span className='chat-group__label'>{t('Test your knowledge')}</span>
+            <ul>
+              {blocks.map((block: any) => (
+                <li key={`b-${block.id}`}>
+                  <Link to='/quizzes'>
+                    <TestIcon />
+                    <span>
+                      {block?.name?.[i18n.language] || block.slug}
+                      {!!block.count && <i> · {block.count}</i>}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </>
+    )
+  }
 
   return (
     <MainLayout disablePadding>
-      <section className='dash'>
-        {/* ---------- Qidiruv ---------- */}
-        <div className='dash-hero'>
-          <h1 className='dash-hero__title'>{t('What are you searching for?')}</h1>
-          <p className='dash-hero__sub'>{t('The library is constantly updated and expanded')}</p>
+      <section className={`chat ${isEmpty ? 'is-empty' : ''}`}>
+        <div className='chat-feed' ref={feedRef}>
+          {isEmpty ? (
+            <div className='chat-intro'>
+              <h1 className='chat-intro__title'>
+                {firstName ? `${t('Hello')}, ${firstName}` : t('Hello')}
+              </h1>
+              <p className='chat-intro__sub'>{t('Ask about any topic — I will find the materials')}</p>
 
-          <div className='dash-search'>
-            <label className='dash-search__box'>
-              <span className='dash-search__icon'>
-                <SearchIcon />
-              </span>
-              <input
-                ref={inputRef}
-                type='search'
-                value={term}
-                placeholder={t('Find content')}
-                onChange={e => setTerm(e.target.value)}
-              />
-              <kbd className='dash-search__kbd'>Ctrl + K</kbd>
-              <button
-                type='button'
-                className='dash-search__go'
-                aria-label={t('Search')}
-                disabled={!articles.length}
-                onClick={() => articles[0] && navigate('/article/' + articles[0].slug)}
-              >
-                <ArrowIcon />
-              </button>
-            </label>
-
-            {/* Natijalar maydon ostida ochiladi — sahifa o'zgarmaydi. */}
-            {showResults && (
-              <div className='dash-results'>
-                {isFetching && !hasResults ? (
-                  <div className='dash-results__empty'>{t('Loading...')}</div>
-                ) : hasResults ? (
+              {history.length > 0 && (
+                <div className='chat-history'>
+                  <span className='chat-history__label'>{t('Your recent questions')}</span>
                   <ul>
-                    {articles.slice(0, 5).map(article => (
-                      <li key={`a-${article.id}`}>
-                        <Link to={'/article/' + article.slug} onClick={() => setTerm('')}>
-                          <Article />
-                          <span>{article?.name?.[i18n.language] || article.slug}</span>
-                        </Link>
+                    {history.map(item => (
+                      <li key={item}>
+                        <button type='button' onClick={() => ask(item)}>
+                          <ClockIcon />
+                          <span>{item}</span>
+                        </button>
                       </li>
                     ))}
-                    {chapters.slice(0, 3).map((chapter: any) =>
-                      (chapter?.article_ids ?? []).slice(0, 1).map((article: any) => (
-                        <li key={`c-${chapter.id}-${article.id}`}>
-                          <Link
-                            to={`/article/${article?.slug}?chapter_id=${chapter?.id}`}
-                            onClick={() => setTerm('')}
-                          >
-                            <Article />
-                            <span>{chapter?.title?.[i18n.language]}</span>
-                          </Link>
-                        </li>
-                      ))
-                    )}
                   </ul>
-                ) : (
-                  <div className='dash-results__empty'>{t('Nothing found')}</div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <a className='dash-hero__more' href='#dash-below'>
-            {t('Explore more')} ↓
-          </a>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className='chat-thread'>
+              {exchanges.map(exchange => (
+                <div className='chat-turn' key={exchange.id}>
+                  <div className='chat-question'>{exchange.question}</div>
+                  <div className='chat-answer'>{renderAnswer(exchange)}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* ---------- Pastdagi ikkita kartochka ---------- */}
-        <div className='dash-below' id='dash-below'>
-          <div className='dash-panel'>
-            <h2 className='dash-panel__title'>{t('Recently viewed articles')}</h2>
-
-            {recent?.isLoading ? (
-              <div className='dash-list'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} height={40} />
-                ))}
-              </div>
-            ) : recentArticles.length ? (
-              <ul className='dash-list'>
-                {recentArticles.map(article => (
-                  <li key={article.id}>
-                    <Link to={'/article/' + article.slug}>
-                      <Article />
-                      <span>{article?.name?.[i18n.language] || article.slug}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className='dash-panel__empty'>{t('This section is empty')}</p>
-            )}
+        {/* ---------- Yozish maydoni ---------- */}
+        <div className='chat-composer'>
+          <div className='chat-composer__box'>
+            <input
+              ref={inputRef}
+              type='text'
+              value={term}
+              placeholder={t('Ask a question')}
+              onChange={e => {
+                setTerm(e.target.value)
+                setCursor(-1)
+              }}
+              onKeyDown={onKeyDown}
+            />
+            <button
+              type='button'
+              className='chat-composer__send'
+              aria-label={t('Search')}
+              disabled={!term.trim()}
+              onClick={() => ask(term)}
+            >
+              <SendIcon />
+            </button>
           </div>
 
-          {/* To'q fonli "o'quv" kartasi — referensdagi Learning bloki. */}
-          <div className='dash-panel dash-panel--accent'>
-            <h2 className='dash-panel__title'>{t('Learning')}</h2>
-
-            {attempts?.isError || !summary.answered ? (
-              <>
-                <p className='dash-panel__lead'>{t('Solve your first test and your progress will appear here')}</p>
-                <Link className='dash-panel__btn' to={attempts?.isError ? '/account?type=tariffs' : '/quizzes'}>
-                  {attempts?.isError ? t('Manage tariffs') : t('Test your knowledge')}
-                </Link>
-              </>
-            ) : (
-              <>
-                <div className='dash-metric'>
-                  <span className='dash-metric__value'>{summary.accuracy}%</span>
-                  <span className='dash-metric__label'>{t('Correct answers')}</span>
-                </div>
-                <div className='dash-metric__bar'>
-                  <span style={{ width: `${summary.accuracy}%` }} />
-                </div>
-                <p className='dash-panel__lead'>
-                  {summary.answered}
-                  {totalQuestions > 0 && ` / ${totalQuestions}`} {t('Solved questions').toLowerCase()}
-                </p>
-                <Link className='dash-panel__btn' to='/quizzes'>
-                  {t('Test your knowledge')}
-                </Link>
-              </>
-            )}
+          {/* Referensdagi kabi klaviatura yorliqlari */}
+          <div className='chat-composer__hints'>
+            <span>
+              <kbd>Ctrl</kbd> + <kbd>K</kbd> {t('Open')}
+            </span>
+            <span>
+              <kbd>↑</kbd> <kbd>↓</kbd> {t('Recent questions')}
+            </span>
+            <span>
+              <kbd>Enter</kbd> {t('Send')}
+            </span>
           </div>
         </div>
       </section>
