@@ -3,16 +3,12 @@ import { Link } from 'react-router-dom'
 import { useQueries } from 'react-query'
 import { useTranslation } from 'react-i18next'
 import Skeleton from 'react-loading-skeleton'
+import moment from 'moment'
 
 import { MainLayout } from '../../layouts/main'
-import LibraryIcon from '../../img/icons/LibraryIcon'
-import TestIcon from '../../img/icons/TestIcon'
-import VediosIcon from '../../img/icons/VediosIcon'
-import StudyIcon from '../../img/icons/StudyIcon'
 import Article from '../../img/icons/Article'
 import { AuthContext } from '../../providers/auth-provider'
-import { MEDIA_URL, request } from '../../helpers/request'
-import { useApiErrorHandler } from '../../hooks/use-api-error-handler'
+import { request } from '../../helpers/request'
 import './dashboard.scss'
 
 interface IQuizNode {
@@ -21,58 +17,118 @@ interface IQuizNode {
   children: IQuizNode[]
 }
 
-const MODULES = [
-  { to: '/library', label: 'Library', icon: <LibraryIcon /> },
-  { to: '/quizzes', label: 'Test your knowledge', icon: <TestIcon /> },
-  { to: '/videos', label: 'Videos', icon: <VediosIcon /> },
-  { to: '/study-plan', label: 'Educational program', icon: <StudyIcon /> }
-]
+interface IAttempt {
+  id: number
+  right_answer: number
+  wrong_answer: number
+  help_answer: number
+  no_answer: number
+  question_count?: number
+  created_at?: string
+  block_id?: { id: number; slug: string; name?: Record<string, string> }
+}
 
 const get = (url: string, params?: Record<string, unknown>) => async () => {
   const response: any = await request({ url, method: 'GET', params })
   return response?.data
 }
 
+/** Foizni butun songa yaxlitlaydi, bo'luvchi nol bo'lsa 0 qaytaradi. */
+const percent = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0)
+
 export const Dashboard = () => {
   const { t, i18n } = useTranslation()
   const { user } = useContext(AuthContext)
-  const handleApiError = useApiErrorHandler()
 
-  const [quizzes, saves, recent, news] = useQueries([
-    { queryKey: ['dash-quiz-tree'], queryFn: get('dashboard/user/quizzes/tree'), onError: handleApiError },
-    { queryKey: ['dash-saves'], queryFn: get('dashboard/user/saves', { perPage: 4 }), onError: handleApiError },
-    { queryKey: ['dash-recent'], queryFn: get('dashboard/user/articles_recent', { limit: 4 }), onError: handleApiError },
-    { queryKey: ['dash-news'], queryFn: get('dashboard/user/news', { perPage: 3 }), onError: handleApiError }
+  /*
+   * `user_test_attempt` tarif tekshiruvi ichida — tarifsiz foydalanuvchida
+   * xato qaytaradi. Shuning uchun bu yerda `onError` bilan to'xtatilmaydi:
+   * xato bo'lsa tahlil bloklari o'rniga "boshlash" holati ko'rsatiladi.
+   */
+  const [attempts, quizzes, recent] = useQueries([
+    { queryKey: ['dash-attempts'], queryFn: get('dashboard/user/user_test_attempt'), retry: false },
+    { queryKey: ['dash-quiz-tree'], queryFn: get('dashboard/user/quizzes/tree'), retry: false },
+    { queryKey: ['dash-recent'], queryFn: get('dashboard/user/articles_recent', { limit: 4 }), retry: false }
   ]) as any[]
 
   const firstName = user?.firstname || ''
   const tariff = (user?.tariff ?? [])[0]
 
-  /* Test daraxti ildizlarda yig'ilgan — umumiy holat uchun ularni qo'shamiz. */
-  const progress = useMemo(() => {
+  const list: IAttempt[] = useMemo(() => attempts?.data?.data ?? [], [attempts?.data])
+
+  /** Bazadagi jami savollar — test daraxti ildizlaridan yig'iladi. */
+  const totalQuestions = useMemo(() => {
     const roots: IQuizNode[] = quizzes?.data?.data ?? []
-    const total = roots.reduce((sum, node) => sum + (node.total || 0), 0)
-    const used = roots.reduce((sum, node) => sum + (node.used || 0), 0)
-    return { total, used, percent: total ? Math.round((used / total) * 100) : 0 }
+    return roots.reduce((sum, node) => sum + (node.total || 0), 0)
   }, [quizzes?.data])
 
-  const savedItems: any[] = saves?.data?.data?.data ?? []
-  const savedTotal: number = saves?.data?.data?.meta?.total ?? savedItems.length
+  /** Umumiy holat: nechta savol yechilgan va ulardan qanchasi to'g'ri. */
+  const summary = useMemo(() => {
+    const answered = list.reduce((s, a) => s + a.right_answer + a.wrong_answer + a.help_answer, 0)
+    const right = list.reduce((s, a) => s + a.right_answer, 0)
+    // Sessiya deb faqat javob berilgan urinish sanaladi — bo'sh boshlanganlari emas.
+    const sessions = list.filter(a => a.right_answer + a.wrong_answer + a.help_answer > 0).length
+    return { answered, right, sessions, accuracy: percent(right, answered) }
+  }, [list])
+
+  /**
+   * Zaif mavzular — blok bo'yicha to'g'ri javob ulushi. Bir blok bir necha
+   * marta yechilgan bo'lishi mumkin, shuning uchun urinishlar qo'shiladi.
+   */
+  const weakTopics = useMemo(() => {
+    const byBlock = new Map<number, { name: string; right: number; answered: number }>()
+
+    list.forEach(attempt => {
+      const block = attempt.block_id
+      if (!block) return
+
+      const answered = attempt.right_answer + attempt.wrong_answer + attempt.help_answer
+      if (!answered) return
+
+      const current = byBlock.get(block.id) ?? {
+        name: block.name?.[i18n.language] || block.slug,
+        right: 0,
+        answered: 0
+      }
+      current.right += attempt.right_answer
+      current.answered += answered
+      byBlock.set(block.id, current)
+    })
+
+    return Array.from(byBlock.values())
+      .map(item => ({ ...item, accuracy: percent(item.right, item.answered) }))
+      .sort((a, b) => a.accuracy - b.accuracy)
+      .slice(0, 3)
+  }, [list, i18n.language])
+
+  /*
+   * Oxirgi sessiyalar — API o'sish tartibida qaytaradi, teskarilaymiz.
+   *
+   * Javob berilmagan urinishlar tashlab yuboriladi: bazada boshlangan, lekin
+   * bironta savolga javob berilmagan yozuvlar ko'p (21 tadan aksariyati), ular
+   * ro'yxatni ma'nosiz "0/0 — 0%" qatorlar bilan to'ldirardi.
+   */
+  const recentSessions = useMemo(
+    () =>
+      [...list]
+        .filter(a => a.right_answer + a.wrong_answer + a.help_answer > 0)
+        .reverse()
+        .slice(0, 5),
+    [list]
+  )
+
   const recentArticles: any[] = recent?.data?.data ?? []
-  const newsItems: any[] = news?.data?.data ?? []
+  const hasAttempts = list.length > 0
+  const attemptsBlocked = attempts?.isError
 
   return (
     <MainLayout>
       <section className='dash'>
-        {/* ---------- Salomlashish ---------- */}
         <header className='dash-hello'>
-          <h1 className='ui-title'>
-            {firstName ? `${t('Hello')}, ${firstName}` : t('Hello')}
-          </h1>
+          <h1 className='ui-title'>{firstName ? `${t('Hello')}, ${firstName}` : t('Hello')}</h1>
           <p className='dash-hello__sub'>{t('What are we learning today?')}</p>
         </header>
 
-        {/* Tarif yo'q bo'lsa — bir marta ko'rinadigan taklif. */}
         {!tariff && (
           <div className='dash-banner'>
             <div className='dash-banner__text'>
@@ -85,45 +141,115 @@ export const Dashboard = () => {
           </div>
         )}
 
-        {/* ---------- Holat ---------- */}
-        <div className='dash-stats'>
-          <div className='dash-stat'>
-            <span className='dash-stat__label'>{t('Test your knowledge')}</span>
-            {quizzes?.isLoading ? (
-              <Skeleton height={28} />
-            ) : (
-              <>
-                <span className='dash-stat__value'>
-                  {progress.used} <i>/ {progress.total}</i>
-                </span>
-                <span className='dash-stat__bar'>
-                  <span style={{ width: `${progress.percent}%` }} />
-                </span>
-              </>
-            )}
+        {/* ---------- O'quv xulosasi ---------- */}
+        <section className='dash-block'>
+          <div className='dash-block__head'>
+            <h2 className='dash-block__title'>{t('Study summary')}</h2>
           </div>
 
-          <div className='dash-stat'>
-            <span className='dash-stat__label'>{t('Saved')}</span>
-            {saves?.isLoading ? (
-              <Skeleton height={28} />
-            ) : (
-              <>
-                <span className='dash-stat__value'>{savedTotal}</span>
-                <Link className='dash-stat__link' to='/saved'>
-                  {t('Open')}
-                </Link>
-              </>
-            )}
-          </div>
+          {attempts?.isLoading ? (
+            <Skeleton height={120} borderRadius={14} />
+          ) : hasAttempts ? (
+            <div className='dash-summary'>
+              <div className='dash-summary__main'>
+                <span className='dash-summary__label'>{t('Correct answers')}</span>
+                <span className='dash-summary__accuracy'>{summary.accuracy}%</span>
+                <span className='dash-summary__bar'>
+                  <span style={{ width: `${summary.accuracy}%` }} />
+                </span>
+                <span className='dash-summary__note'>
+                  {summary.right} / {summary.answered}
+                </span>
+              </div>
 
-          <div className='dash-stat'>
-            <span className='dash-stat__label'>{t('My tariff')}</span>
-            <span className={`dash-stat__value ${tariff ? '' : 'is-muted'}`}>
-              {tariff ? tariff?.name?.[i18n.language] : '—'}
-            </span>
-          </div>
-        </div>
+              <dl className='dash-summary__side'>
+                <div>
+                  <dt>{t('Solved questions')}</dt>
+                  <dd>
+                    {summary.answered}
+                    {totalQuestions > 0 && <i> / {totalQuestions}</i>}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t('Sessions')}</dt>
+                  <dd>{summary.sessions}</dd>
+                </div>
+                <div>
+                  <dt>{t('My tariff')}</dt>
+                  <dd className={tariff ? '' : 'is-muted'}>{tariff ? tariff?.name?.[i18n.language] : '—'}</dd>
+                </div>
+              </dl>
+            </div>
+          ) : (
+            /* Hali test yechilmagan yoki tarif yo'q — nima qilish kerakligi aytiladi. */
+            <div className='dash-start'>
+              <b>{attemptsBlocked ? t('Active tariff not found') : t('You have not solved any tests yet')}</b>
+              <span>
+                {attemptsBlocked
+                  ? t('Purchase a tariff to access all materials')
+                  : t('Solve your first test and your progress will appear here')}
+              </span>
+              <Link className='ui-btn ui-btn--primary' to={attemptsBlocked ? '/account?type=tariffs' : '/quizzes'}>
+                {attemptsBlocked ? t('Manage tariffs') : t('Test your knowledge')}
+              </Link>
+            </div>
+          )}
+        </section>
+
+        {/* ---------- Zaif mavzular ---------- */}
+        {weakTopics.length > 0 && (
+          <section className='dash-block'>
+            <div className='dash-block__head'>
+              <h2 className='dash-block__title'>{t('Focus on these')}</h2>
+              <Link className='dash-block__more' to='/quizzes'>
+                {t('Test your knowledge')}
+              </Link>
+            </div>
+            <ul className='dash-rows'>
+              {weakTopics.map(topic => (
+                <li className='dash-row' key={topic.name}>
+                  <span className='dash-row__name'>{topic.name}</span>
+                  <span className='dash-row__bar'>
+                    <span style={{ width: `${topic.accuracy}%` }} />
+                  </span>
+                  <span className={`dash-row__value ${topic.accuracy < 50 ? 'is-low' : ''}`}>
+                    {topic.accuracy}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* ---------- Oxirgi sessiyalar ---------- */}
+        {recentSessions.length > 0 && (
+          <section className='dash-block'>
+            <div className='dash-block__head'>
+              <h2 className='dash-block__title'>{t('Recent sessions')}</h2>
+            </div>
+            <ul className='dash-rows'>
+              {recentSessions.map(session => {
+                const answered = session.right_answer + session.wrong_answer + session.help_answer
+                const accuracy = percent(session.right_answer, answered)
+
+                return (
+                  <li className='dash-row' key={session.id}>
+                    <span className='dash-row__name'>
+                      {session.block_id?.name?.[i18n.language] || session.block_id?.slug || '—'}
+                      {!!session.created_at && (
+                        <i>{moment(session.created_at).format('DD.MM.YYYY')}</i>
+                      )}
+                    </span>
+                    <span className='dash-row__score'>
+                      {session.right_answer} / {answered}
+                    </span>
+                    <span className={`dash-row__value ${accuracy < 50 ? 'is-low' : ''}`}>{accuracy}%</span>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
 
         {/* ---------- Davom ettirish ---------- */}
         {(recent?.isLoading || recentArticles.length > 0) && (
@@ -155,81 +281,6 @@ export const Dashboard = () => {
                 ))}
               </ul>
             )}
-          </section>
-        )}
-
-        {/* ---------- Modullar ---------- */}
-        <section className='dash-block'>
-          <div className='dash-block__head'>
-            <h2 className='dash-block__title'>{t('Modules')}</h2>
-          </div>
-          <ul className='dash-modules'>
-            {MODULES.map(module => (
-              <li key={module.to}>
-                <Link className='dash-module' to={module.to}>
-                  <span className='dash-module__icon'>{module.icon}</span>
-                  <span className='dash-module__label'>{t(module.label)}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* ---------- Saqlanganlar ---------- */}
-        {savedItems.length > 0 && (
-          <section className='dash-block'>
-            <div className='dash-block__head'>
-              <h2 className='dash-block__title'>{t('Saved')}</h2>
-              <Link className='dash-block__more' to='/saved'>
-                {t('Open')}
-              </Link>
-            </div>
-            <ul className='dash-cards'>
-              {savedItems.map(saved => (
-                <li key={`${saved.type}-${saved.item?.id}`}>
-                  <Link
-                    className='dash-card'
-                    to={saved.type === 'article' ? '/article/' + saved.item?.slug : '/saved'}
-                  >
-                    <span className='dash-card__icon'>
-                      <Article />
-                    </span>
-                    <span className='dash-card__label'>
-                      {saved.item?.name?.[i18n.language] || saved.item?.slug}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* ---------- Yangiliklar ---------- */}
-        {newsItems.length > 0 && (
-          <section className='dash-block'>
-            <div className='dash-block__head'>
-              <h2 className='dash-block__title'>{t('News')}</h2>
-              <Link className='dash-block__more' to='/news'>
-                {t('Open')}
-              </Link>
-            </div>
-            <ul className='dash-news'>
-              {newsItems.map(item => (
-                <li key={item.id}>
-                  <Link className='dash-news__item' to={'/news/' + item.id}>
-                    {!!item.photo && (
-                      <span className='dash-news__photo'>
-                        <img src={MEDIA_URL + item.photo} alt='' loading='lazy' />
-                      </span>
-                    )}
-                    <span className='dash-news__body'>
-                      <b>{item?.title?.[i18n.language]}</b>
-                      {!!item.date && <span>{item.date}</span>}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </section>
         )}
       </section>

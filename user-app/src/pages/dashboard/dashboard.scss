@@ -56,60 +56,51 @@
   color: var(--g-muted);
 }
 
-/* ---------- Holat ---------- */
+/* ---------- O'quv xulosasi ---------- */
 
-.dash-stats {
+/*
+ * Chapda asosiy ko'rsatkich (to'g'ri javob foizi), o'ngda qolgan raqamlar.
+ * Ilgari uchta bir xil plita edi — qaysi biri muhimligi bilinmasdi.
+ */
+.dash-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: var(--s-3);
-}
-
-.dash-stat {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  padding: var(--s-4);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: var(--s-5);
+  padding: var(--s-5);
   border: 1px solid var(--g-border);
   border-radius: var(--r-lg);
   background: var(--g-surface);
   box-shadow: var(--g-shadow-1);
 }
 
-.dash-stat__label {
+.dash-summary__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.dash-summary__label {
   color: var(--g-muted);
   font-size: var(--fs-sm);
 }
 
-.dash-stat__value {
-  font-size: 1.6rem;
+.dash-summary__accuracy {
+  font-size: 2.6rem;
   font-weight: 700;
   line-height: 1;
-  color: var(--g-text);
+  color: var(--g-accent);
 }
 
-/* Umumiy sondan keyingi qism susayadi: "12 / 166" */
-.dash-stat__value i {
-  font-style: normal;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--g-muted);
-}
-
-.dash-stat__value.is-muted {
-  font-size: 1.2rem;
-  color: var(--g-muted);
-}
-
-.dash-stat__bar {
+.dash-summary__bar {
   display: block;
   width: 100%;
-  height: 0.35rem;
+  height: 0.45rem;
   border-radius: var(--r-pill);
   background: var(--g-fill-strong);
   overflow: hidden;
 }
 
-.dash-stat__bar span {
+.dash-summary__bar span {
   display: block;
   height: 100%;
   border-radius: inherit;
@@ -117,15 +108,154 @@
   transition: width 0.3s ease;
 }
 
-.dash-stat__link {
-  align-self: flex-start;
-  color: var(--g-accent);
+.dash-summary__note {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--fs-sm);
-  text-decoration: none;
+  color: var(--g-muted);
 }
 
-.dash-stat__link:hover {
-  text-decoration: underline;
+.dash-summary__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin: 0;
+  justify-content: center;
+}
+
+.dash-summary__side > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+}
+
+.dash-summary__side dt {
+  flex: 1 1 auto;
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+}
+
+.dash-summary__side dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--g-text);
+}
+
+.dash-summary__side dd i {
+  font-style: normal;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--g-muted);
+}
+
+.dash-summary__side dd.is-muted {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--g-muted);
+}
+
+/* Hali test yechilmagan holat */
+.dash-start {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  border: 1px dashed var(--g-border);
+  border-radius: var(--r-lg);
+}
+
+.dash-start b {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--g-text);
+}
+
+.dash-start span {
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+}
+
+.dash-start .ui-btn {
+  margin-top: var(--s-2);
+}
+
+/* ---------- Qatorlar (zaif mavzular, sessiyalar) ---------- */
+
+.dash-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface);
+  box-shadow: var(--g-shadow-1);
+}
+
+.dash-row__name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body);
+  color: var(--g-text);
+}
+
+/* Sessiya sanasi — nom ostida, susaygan */
+.dash-row__name i {
+  font-style: normal;
+  font-size: var(--fs-xs);
+  color: var(--g-muted);
+}
+
+.dash-row__bar {
+  display: block;
+  flex: 0 0 8rem;
+  height: 0.35rem;
+  border-radius: var(--r-pill);
+  background: var(--g-fill-strong);
+  overflow: hidden;
+}
+
+.dash-row__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--g-accent-grad);
+}
+
+.dash-row__score {
+  flex-shrink: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--fs-sm);
+  color: var(--g-muted);
+}
+
+.dash-row__value {
+  flex: 0 0 3rem;
+  text-align: right;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--g-accent);
+}
+
+/* Yarmidan past natija — e'tibor tortadi */
+.dash-row__value.is-low {
+  color: var(--g-danger);
 }
 
 /* ---------- Blok ---------- */
@@ -207,136 +337,20 @@
   line-height: 1.25;
 }
 
-/* ---------- Modullar ---------- */
+@media (max-width: 767.98px) {
+  /* Xulosa bitta ustunga tushadi, o'lchagich chizig'i qatordan chiqadi. */
+  .dash-summary {
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
 
-.dash-modules {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: var(--s-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-module {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-2);
-  height: 100%;
-  min-height: 7rem;
-  padding: var(--s-4);
-  border: 1px solid var(--g-border);
-  border-radius: var(--r-lg);
-  background: var(--g-surface);
-  color: var(--g-text);
-  box-shadow: var(--g-shadow-1);
-  font-size: var(--fs-body);
-  font-weight: 600;
-  text-align: center;
-  text-decoration: none;
-  transition: box-shadow var(--t-slow), transform var(--t-slow), color var(--t-fast);
-}
-
-.dash-module:hover {
-  color: var(--g-accent);
-  transform: translateY(-2px);
-  box-shadow: var(--g-shadow-2);
-}
-
-.dash-module__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: var(--r-md);
-  background: var(--g-fill);
-  color: var(--g-accent);
-}
-
-.dash-module__icon svg {
-  width: 1.4rem;
-  height: 1.4rem;
-}
-
-/* ---------- Yangiliklar ---------- */
-
-.dash-news {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: var(--s-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dash-news__item {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  height: 100%;
-  padding: var(--s-2);
-  border: 1px solid var(--g-border);
-  border-radius: var(--r-md);
-  background: var(--g-surface);
-  color: var(--g-text);
-  box-shadow: var(--g-shadow-1);
-  text-decoration: none;
-  transition: box-shadow var(--t-slow), color var(--t-fast);
-}
-
-.dash-news__item:hover {
-  color: var(--g-accent);
-  box-shadow: var(--g-shadow-2);
-}
-
-.dash-news__photo {
-  display: block;
-  flex-shrink: 0;
-  width: 4.5rem;
-  aspect-ratio: 4 / 3;
-  border-radius: var(--r-sm);
-  overflow: hidden;
-  background: var(--g-fill);
-}
-
-.dash-news__photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.dash-news__body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-}
-
-.dash-news__body b {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.dash-news__body span {
-  font-size: var(--fs-xs);
-  color: var(--g-muted);
+  .dash-row__bar {
+    display: none;
+  }
 }
 
 @media (max-width: 575.98px) {
   .dash {
     gap: var(--s-5);
-  }
-
-  .dash-modules {
-    grid-template-columns: repeat(2, 1fr);
   }
 }

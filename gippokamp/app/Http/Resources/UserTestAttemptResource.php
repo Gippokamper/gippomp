@@ -31,6 +31,8 @@ class UserTestAttemptResource extends JsonResource
             'question_count' => $this->whenLoaded('attempt_question', function (){
                 return $this->attempt_question->count();
             }),
+            // Bosh sahifadagi "oxirgi sessiyalar" uchun — qachon yechilgani.
+            'created_at' => $this->created_at,
         ];
     }
 
