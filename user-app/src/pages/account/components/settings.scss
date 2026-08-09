@@ -34,6 +34,28 @@
   display: none;
 }
 
+/* ---------- Guruhlar ---------- */
+
+/*
+ * Maydonlar mazmuni bo'yicha guruhlangan: shaxsiy, ta'lim, aloqa.
+ * Ilgari hammasi bir tekis oqib ketardi — 12 ta maydon orasida qaysi biri
+ * nima uchunligi ko'rinmasdi.
+ */
+.acc-form__group + .acc-form__group {
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--g-border);
+}
+
+.acc-form__legend {
+  margin: 0 0 var(--s-3);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--g-muted);
+}
+
 /* ---------- Maydonlar ---------- */
 
 .acc-form {

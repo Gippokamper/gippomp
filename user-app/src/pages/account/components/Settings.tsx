@@ -133,106 +133,123 @@ function Settings(props: IProps) {
         />
       </div>
 
-      <div className='acc-form'>
-        <label className='acc-form__field'>
-          <span>{t('Your name')}</span>
-          <input type='text' placeholder={t('Enter your name')} {...register('firstname')} />
-        </label>
+      {/*
+        Maydonlar mazmuni bo'yicha guruhlangan. Ilgari 12 ta maydon bir tekis
+        oqib ketardi va qaysi biri nima uchunligi ko'rinmasdi.
+      */}
+      <div className='acc-form__group'>
+        <h3 className='acc-form__legend'>{t('Personal information')}</h3>
+        <div className='acc-form'>
+          <label className='acc-form__field'>
+            <span>{t('Your name')}</span>
+            <input type='text' placeholder={t('Enter your name')} {...register('firstname')} />
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Your surname')}</span>
-          <input type='text' placeholder={t('Enter your surname')} {...register('lastname')} />
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Your surname')}</span>
+            <input type='text' placeholder={t('Enter your surname')} {...register('lastname')} />
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Profession')}</span>
-          <select {...register('profession')}>
-            <option value='not selected'>{t('not selected')}</option>
-            <option value='student'>{t('student')}</option>
-            <option value='doctor'>{t('doctor')}</option>
-            <option value='teacher'>{t('teacher')}</option>
-          </select>
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Birthday')}</span>
+            <input type='date' {...register('birthday')} />
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Study place')}</span>
-          <GetContainer url='dashboard/user/universities'>
-            {({ data, isLoading }) =>
-              isLoading ? (
-                <input type='text' disabled placeholder={t('Loading...')} />
-              ) : (
-                <select {...register('university_id')}>
-                  <option value='not selected'>{t('not selected')}</option>
-                  {data?.data?.map((item: any) => (
-                    <option key={item?.id} value={item?.id}>
-                      {t(item?.name)}
-                    </option>
-                  ))}
-                </select>
-              )
-            }
-          </GetContainer>
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Sex')}</span>
+            <select {...register('gender')}>
+              <option value='not selected'>{t('not selected')}</option>
+              <option value='male'>{t('male')}</option>
+              <option value='female'>{t('female')}</option>
+            </select>
+          </label>
+        </div>
+      </div>
 
-        <label className='acc-form__field'>
-          <span>{t('District/City')}</span>
-          <GetContainer url='dashboard/user/regions'>
-            {({ data, isLoading }) =>
-              isLoading ? (
-                <input type='text' disabled placeholder={t('Loading...')} />
-              ) : (
-                <select {...register('region_id')}>
-                  <option value='not selected'>{t('not selected')}</option>
-                  {data?.data?.map((item: any) => (
-                    <option key={item?.id} value={item?.id}>
-                      {t(item?.name)}
-                    </option>
-                  ))}
-                </select>
-              )
-            }
-          </GetContainer>
-        </label>
+      <div className='acc-form__group'>
+        <h3 className='acc-form__legend'>{t('Education')}</h3>
+        <div className='acc-form'>
+          <label className='acc-form__field'>
+            <span>{t('Profession')}</span>
+            <select {...register('profession')}>
+              <option value='not selected'>{t('not selected')}</option>
+              <option value='student'>{t('student')}</option>
+              <option value='doctor'>{t('doctor')}</option>
+              <option value='teacher'>{t('teacher')}</option>
+            </select>
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Province')}</span>
-          <input type='text' placeholder={t('Province')} {...register('province')} />
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Study place')}</span>
+            <GetContainer url='dashboard/user/universities'>
+              {({ data, isLoading }) =>
+                isLoading ? (
+                  <input type='text' disabled placeholder={t('Loading...')} />
+                ) : (
+                  <select {...register('university_id')}>
+                    <option value='not selected'>{t('not selected')}</option>
+                    {data?.data?.map((item: any) => (
+                      <option key={item?.id} value={item?.id}>
+                        {t(item?.name)}
+                      </option>
+                    ))}
+                  </select>
+                )
+              }
+            </GetContainer>
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Graduation year')}</span>
-          <input type='number' min='1900' max='2099' step='1' placeholder='2026' {...register('graduation_year')} />
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Graduation year')}</span>
+            <input type='number' min='1900' max='2099' step='1' placeholder='2026' {...register('graduation_year')} />
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Birthday')}</span>
-          <input type='date' {...register('birthday')} />
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Interest')}</span>
+            <input type='text' placeholder={t('Interest')} {...register('interests')} />
+          </label>
+        </div>
+      </div>
 
-        <label className='acc-form__field'>
-          <span>{t('Sex')}</span>
-          <select {...register('gender')}>
-            <option value='not selected'>{t('not selected')}</option>
-            <option value='male'>{t('male')}</option>
-            <option value='female'>{t('female')}</option>
-          </select>
-        </label>
+      <div className='acc-form__group'>
+        <h3 className='acc-form__legend'>{t('Contacts')}</h3>
+        <div className='acc-form'>
+          {/* Telefon o'zgartirilmaydi — tizimga kirish shu raqam orqali. */}
+          <label className='acc-form__field'>
+            <span>{t('Phone number')}</span>
+            <input type='tel' disabled {...register('phone')} />
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Interest')}</span>
-          <input type='text' placeholder={t('Interest')} {...register('interests')} />
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Email')}</span>
+            <input type='email' placeholder={t('Email')} {...register('email')} />
+          </label>
 
-        <label className='acc-form__field'>
-          <span>{t('Email')}</span>
-          <input type='email' placeholder={t('Email')} {...register('email')} />
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('District/City')}</span>
+            <GetContainer url='dashboard/user/regions'>
+              {({ data, isLoading }) =>
+                isLoading ? (
+                  <input type='text' disabled placeholder={t('Loading...')} />
+                ) : (
+                  <select {...register('region_id')}>
+                    <option value='not selected'>{t('not selected')}</option>
+                    {data?.data?.map((item: any) => (
+                      <option key={item?.id} value={item?.id}>
+                        {t(item?.name)}
+                      </option>
+                    ))}
+                  </select>
+                )
+              }
+            </GetContainer>
+          </label>
 
-        {/* Telefon o'zgartirilmaydi — tizimga kirish shu raqam orqali. */}
-        <label className='acc-form__field'>
-          <span>{t('Phone number')}</span>
-          <input type='tel' disabled {...register('phone')} />
-        </label>
+          <label className='acc-form__field'>
+            <span>{t('Province')}</span>
+            <input type='text' placeholder={t('Province')} {...register('province')} />
+          </label>
+        </div>
       </div>
 
       <div className='acc-form__footer'>
