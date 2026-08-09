@@ -6,17 +6,26 @@
  * toraytirardi.
  */
 
+/*
+ * Mundarija — sarlavha qatorining ustidagi tor tasma. Oralarida bo'shliq yo'q:
+ * ikkalasi bitta blok bo'lib ko'rinsin, o'qish maydonidan joy yemasin.
+ */
 .toc {
   position: sticky;
   top: 0;
-  z-index: 5;
-  margin-bottom: var(--s-4);
+  /* Sarlavha qatoridan (90) baland: aylantirilganda o'sha qator shu
+     tasmaning ostiga emas, ketidan kelib to'xtaydi. */
+  z-index: 95;
+  box-sizing: border-box;
+  height: var(--toc-h);
   border-bottom: 1px solid var(--g-border);
   background: var(--g-bg);
 }
 
 .toc__list {
   display: flex;
+  height: 100%;
+  align-items: center;
   gap: var(--s-1);
   margin: 0;
   padding: 0;
@@ -32,9 +41,11 @@
 }
 
 .toc__item {
-  display: block;
+  display: flex;
+  height: 100%;
+  align-items: center;
   flex-shrink: 0;
-  padding: 0.6rem 0.65rem;
+  padding: 0 0.65rem;
   border-bottom: 2px solid transparent;
   color: var(--g-muted);
   font-size: 0.85rem;

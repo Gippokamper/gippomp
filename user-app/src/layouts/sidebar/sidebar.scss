@@ -1,0 +1,223 @@
+/*
+ * CHAP MENYU — barcha layoutlar uchun yagona manba.
+ *
+ * Ilgari qoidalar ikki joyda edi: `main.scss` da eski keng ustun (`.side`,
+ * `.side-menu`, `.side-wrap__hidden`, `body.dark .side-menu ...`) va shu
+ * yerda tor "rail". Ular kuchi teng bo'lgani uchun natija import tartibiga
+ * bog'liq bo'lib qolar, shuning uchun bu fayldagi selektorlar `.side.side-rail`
+ * dan boshlanardi. Eski qoidalar `main.scss` dan olib tashlandi — endi bu
+ * yerda `.side` ning o'zi belgilanadi va himoya prefiksi kerak emas.
+ *
+ * Ranglar `tokens.scss` dan — mavzu (kunduzgi/o'qish/tungi) o'zi almashadi.
+ * Ilgari tungi rejim uchun `#121b2d` qo'lda yozilgan edi va "o'qish" mavzusida
+ * noto'g'ri chiqardi.
+ */
+
+.side {
+  position: relative;
+  height: 100vh;
+  flex-shrink: 0;
+  /*
+   * Yon to'ldirish ataylab kattaroq: faol element shu hisobga ichkariga
+   * suriladi. Ilgari 0.5rem edi va yashil blok panel qirralariga yopishib
+   * turardi.
+   */
+  /* Tepada to'ldirish yo'q: logotip bloki sarlavha bilan bitta balandlikda
+     boshlanib, ajratgich chiziqlari bir chiziqqa tushsin. */
+  padding: 0 var(--s-3) var(--s-5);
+  background: var(--g-surface);
+  border-right: 1px solid var(--g-border);
+  /* `width: 0` + `overflow: hidden`: yopilish silliq bo'ladi.
+     `display: none` bunday animatsiya bermasdi. */
+  overflow: hidden;
+  transition: width 0.24s cubic-bezier(0.32, 0.72, 0, 1), padding 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Modullar ustuni: piktogramma tepada, nomi ostida. */
+.side-rail {
+  width: var(--side-w-rail);
+}
+
+/*
+ * Yonida qo'shimcha ustun bo'lganda (test yechish, statistika) panel
+ * kengayadi: ichkaridagi ikki ustun o'z enini oladi.
+ */
+.side-rail--with-panel {
+  width: auto;
+}
+
+/* ---------- Logotip ---------- */
+
+/*
+ * Eni modullar ustuniki bilan bir xil. Yonida qo'shimcha ustun bo'lganda
+ * `.side` kengayadi va logotip `justify-content: center` bilan butun
+ * panelning o'rtasiga — ya'ni modullardan o'ngga — surilib ketardi.
+ */
+/*
+ * Balandligi sarlavha bilan bir xil: ajratgich chizig'i o'ngdagi sarlavhaning
+ * pastki chekkasi bilan bitta chiziqda tursin. Ilgari balandlik ichidagi
+ * belgidan kelib chiqardi va ikki chiziq bir-biriga to'g'ri kelmasdi.
+ */
+.side-logo {
+  display: flex;
+  box-sizing: border-box;
+  height: var(--header-h);
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  width: calc(var(--side-w-rail) - var(--s-3) * 2);
+  margin: 0 0 var(--s-3);
+  border-bottom: 1px solid var(--g-border);
+  color: var(--g-text);
+}
+
+/*
+ * Belgi qatorga sig'sin. `max-height` yaramaydi: `<svg>` da `height`
+ * atributi bor va u kichraymay, kesilib qolardi — shuning uchun ikkala
+ * o'lcham ham aniq beriladi.
+ */
+.side-logo svg {
+  height: calc(var(--header-h) - var(--s-5));
+  width: auto;
+}
+
+.side-logo:hover {
+  color: var(--g-text);
+}
+
+/* Sinf `LogoImage` ning `<svg>` iga qo'yilgan: belgining tabiiy eni 29px,
+   bu yerda esa panelga mos o'lchamga tushiriladi. */
+.side-logo__ico {
+  width: 1.4rem;
+}
+
+/* Tor panelda logotip yozuvi sig'maydi — faqat belgisi qoladi. */
+.side-logo__text {
+  display: none;
+}
+
+.side-content {
+  display: flex;
+  height: calc(100% - 7rem);
+}
+
+/*
+ * Eni aniq: yonida panel bo'lganda `.side` ning o'zi `width: auto` ga o'tadi
+ * va modullar ustuni cho'zilib ketmasligi kerak. `--side-w-rail` panel
+ * to'ldirishi bilan birga o'lchanadi, shuning uchun to'ldirish ayiriladi.
+ */
+.side-wrap {
+  width: calc(var(--side-w-rail) - var(--s-3) * 2);
+  flex-shrink: 0;
+}
+
+/* ---------- Elementlar ---------- */
+
+.side-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.side-menu a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: var(--side-item-h);
+  padding: var(--s-2) 0.3rem;
+  border-radius: var(--r-lg);
+  color: var(--g-muted);
+  text-align: center;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.side-menu a:hover {
+  background: var(--g-fill);
+  color: var(--g-text);
+}
+
+.side-menu a:focus-visible {
+  outline: 2px solid var(--g-accent);
+  outline-offset: -2px;
+}
+
+.side-menu a svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/*
+ * Nom piktogramma ostida. O'zbekcha nomlar uzun ("Bilimingizni sinang"),
+ * shuning uchun ikki qatorgacha o'raladi — eski `nowrap` bu yerda yaramaydi.
+ */
+.side-menu a span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-wrap: wrap;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+/*
+ * Faol element. Matn ilgari `#ddd` edi — yashil fonda kulrang bo'lib
+ * o'qilmasdi. Endi oq, ustiga yengil soya bilan ajralib turadi.
+ */
+.side-menu a.current,
+.side-menu a.current:hover {
+  background: var(--g-accent-grad);
+  color: #fff;
+  box-shadow: var(--g-shadow-1);
+}
+
+.side-menu a.current span {
+  font-weight: 600;
+}
+
+/* ---------- Yig'ilgan holat: panel butunlay yopiladi ---------- */
+
+/*
+ * Ilgari yig'ilganda tor "faqat piktogramma" ustuni qolardi. Endi panel
+ * to'liq yo'qoladi va kontent butun enni egallaydi — qaytarish sarlavhadagi
+ * tugma orqali.
+ */
+.side.side-mini {
+  width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  border-right: none;
+}
+
+/* Ichidagilari yopilish paytida siqilib ko'rinmasin. */
+.side.side-mini .side-content,
+.side.side-mini .side-logo {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+/* ---------- Mobil ---------- */
+
+/*
+ * Telefonda chap ustun yaramaydi — o'rnini `layouts/mobile-menu` bosadi.
+ * Ilgari bu qoida `main.scss` ning 1080px blokida edi, menyuning qolgan
+ * qoidalaridan uzoqda.
+ */
+@media (max-width: 1080px) {
+  .side {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side,
+  .side.side-mini .side-content,
+  .side.side-mini .side-logo {
+    transition: none;
+  }
+}

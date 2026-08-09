@@ -227,10 +227,21 @@ body.dark .scroll-top {
  * Ilgari yon-ma-yon beshta yorliqli tugma turardi va panel ikki qatorga
  * chiqib ketardi. Endi ular ixcham: yozuv kichik, oraliq tor.
  */
+/*
+ * Sarlavha qatori. Ilgari bu yerga 91px ketardi: 0.75rem padding, sarlavhaning
+ * o'z `h1` margini (~20px) va ostidan yana 1rem bo'shliq. Uchta tasma
+ * (sarlavha, mundarija, nom) birgalikda ekranning 29% ini yeb, o'qish
+ * maydonidan olib qo'ygan edi.
+ */
 .library .library-head {
   gap: var(--s-2);
-  margin-bottom: var(--s-4);
+  padding-top: var(--s-2);
+  padding-bottom: var(--s-2);
+  margin-bottom: var(--s-2);
   font-size: 0.78rem;
+  /* Mundarija tasmasi ham shu idishda yopishib turadi — bu qator uning
+     ostidan boshlansin, aks holda aylantirilganda ustiga chiqib ketardi. */
+  top: var(--toc-h);
 }
 
 .library .library-head__btn {
@@ -239,11 +250,12 @@ body.dark .scroll-top {
   border-radius: var(--r-sm);
 }
 
+/* `h1` ning tug'ma margini olib tashlanadi — u qatorni ~28px ga cho'zardi. */
 .library .library__title {
-  margin-bottom: var(--s-2);
-  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  margin: 0;
+  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 /* ---------- Sarlavha paneli: ixcham asboblar ---------- */

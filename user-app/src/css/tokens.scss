@@ -55,9 +55,25 @@
   --s-6: 1.75rem;
 
   /* ---------- Boshqaruv elementlari ---------- */
+  /* Yuqori sarlavha balandligi. `.content` o'z balandligini shundan ayiradi,
+     shuning uchun ikkalasi bitta manbadan oladi — ilgari `5.5rem` ikki joyda
+     qo'lda yozilgan edi. */
+  --header-h: 3rem;
+  /* Maqola mundarijasi tasmasi. Sarlavha qatori shu qiymatga yopishadi —
+     ikkalasi bitta aylanuvchi idishda va aks holda ustma-ust tushardi. */
+  --toc-h: 2.4rem;
   --ctl-h: 2.4rem; /* tugma va maydon balandligi */
   --ctl-h-sm: 2rem; /* ixcham variant */
   --ctl-pad-x: 0.9rem;
+
+  /*
+   * ---------- Chap menyu ----------
+   * Kenglikni `layouts/main` va boshqa layoutlar ham hisobga oladi, shuning
+   * uchun bitta joyda. `--side-item-h` — piktogramma + nom uchun eng kichik
+   * balandlik.
+   */
+  --side-w-rail: 6.75rem;
+  --side-item-h: 4.5rem;
 
   /* ---------- Matn ---------- */
   --fs-title: 1.5rem;

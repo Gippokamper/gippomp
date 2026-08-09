@@ -3,7 +3,7 @@ import ToggleIcon from '../../img/icons/ToggleIcon'
 import uz from '../../img/icons/uz.svg'
 import ru from '../../img/icons/ru.svg'
 import en from '../../img/icons/en.svg'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import GetContainer from '../../components/get-container'
 import Modal from '../../components/modal'
@@ -13,16 +13,20 @@ import { useMutation } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { request, logout, MEDIA_URL } from '../../helpers/request'
 import { RootState } from '../../store'
-import { setTheme } from '../../store/siteSlice/siteSlice'
+import { setSidebarCollapsed, setTheme } from '../../store/siteSlice/siteSlice'
 import { THEME_OPTIONS } from '../../data/theme_options'
 import Segmented from '../../components/segmented'
 import type { Theme } from '../../store/siteSlice/siteSlice'
 import { AuthContext } from '../../providers/auth-provider'
 import AccountIcon from '../../img/icons/AccountIcon'
+import SearchPalette from '../../components/search-palette'
 
+/*
+ * Menyuning yig'ilgan holati ilgari prop orqali kelardi va har layout uni o'z
+ * `useState` ida saqlardi. Endi u Redux'da (`site.sidebarCollapsed`) —
+ * sarlavha panelini to'rt layout ham bir xil chaqiradi.
+ */
 interface IProps {
-  isCollapsed: boolean
-  setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>
   openMobileMenu: () => void
 }
 
@@ -59,6 +63,31 @@ const HelpCircleIcon = () => (
   </svg>
 )
 
+/*
+ * Sarlavhaning chap tomoni — qayerdaligingiz. To'liq yo'l emas, faqat bo'lim
+ * nomi: kutubxona va maqola sahifalari to'liq mundarijani o'zi chizadi, uni
+ * ikki marta ko'rsatish ortiqcha edi.
+ */
+const SECTIONS: Array<[string, string]> = [
+  ['/library', 'Library'],
+  ['/article', 'Library'],
+  ['/quizzes', 'Test your knowledge'],
+  ['/detail', 'Test your knowledge'],
+  ['/videos', 'Videos'],
+  ['/news', 'News'],
+  ['/study-plan', 'Educational program'],
+  ['/saved', 'Saved'],
+  ['/account', 'Personal cabinet'],
+  ['/help', 'Help center']
+]
+
+const SearchIcon = () => (
+  <svg width={20} height={20} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <circle cx='11' cy='11' r='7' stroke='currentColor' strokeWidth='1.9' />
+    <path d='M20 20l-3.6-3.6' stroke='currentColor' strokeWidth='1.9' strokeLinecap='round' />
+  </svg>
+)
+
 const ExitIcon = () => (
   <svg width={20} height={20} viewBox='0 0 24 24' fill='none' aria-hidden='true'>
     <path
@@ -80,19 +109,27 @@ const ExitIcon = () => (
 
 function Navbar(props: IProps) {
   const { i18n , t } = useTranslation()
-  const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [visibleMenu, setVisibleMenu] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [notsShow, setNotsShow] = useState(false)
 
   /*
-   * Bosh sahifaning o'zi qidiruv ekrani — sarlavhada ikkinchi maydon
-   * ortiqcha, qaysi biriga yozish kerakligi ham tushunarsiz edi.
+   * Bosh sahifaning o'zi qidiruv ekrani — sarlavhada ikkinchi kirish nuqtasi
+   * ortiqcha, qaysi biriga yozish kerakligi ham tushunarsiz edi. Ctrl+K ni
+   * ham o'sha sahifaning o'zi ushlaydi.
    */
-  const showSearch = pathname !== '/home'
-  const { theme } = useSelector((state: RootState) => state.site)
+  const isHome = pathname === '/home'
+  const showSearch = !isHome
+
+  /** Qaysi bo'limdamiz — sarlavhaning chap tomonidagi yozuv. */
+  const section = useMemo(() => {
+    const found = SECTIONS.find(([prefix]) => pathname === prefix || pathname.startsWith(prefix + '/'))
+    return found ? t(found[1]) : ''
+  }, [pathname, t])
+  const { theme, sidebarCollapsed } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
   const userMenuRef = useRef<HTMLDivElement>(null)
   const notsRef = useRef<HTMLDivElement>(null)
@@ -132,6 +169,22 @@ function Navbar(props: IProps) {
         .join('') || '?',
     [user]
   )
+
+  /* Ctrl+K — qidiruv palitrasi. Bosh sahifada bu birikmani sahifaning o'zi
+     ushlaydi, shuning uchun u yerda tinglamaymiz. */
+  useEffect(() => {
+    if (!showSearch) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen(true)
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [showSearch])
 
   /* Menyu tashqariga bosilganda yoki Esc bosilganda yopilsin — aks holda
      boshqa joyni bosgandan keyin ham ochiq turib qolardi. */
@@ -185,7 +238,12 @@ function Navbar(props: IProps) {
         <ToggleIcon />
       </a>
       <div className='header-wrap'>
-        <button className='header__side' onClick={() => props.setIsCollapsed(!props.isCollapsed)}>
+        <button
+          className='header__side'
+          aria-expanded={!sidebarCollapsed}
+          aria-label={t('Main menu')}
+          onClick={() => dispatch(setSidebarCollapsed())}
+        >
           <svg width={30} height={36} viewBox='0 0 30 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <g clipPath='url(#clip0_2522_2651)'>
               <path
@@ -201,100 +259,28 @@ function Navbar(props: IProps) {
             </defs>
           </svg>
         </button>
-        {showSearch && (
-        <div className='header-search'>
-          <div className='header-search__input'>
-            <svg width={20} height={20} viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <g clipPath='url(#clip0_2522_8521)'>
-                <path
-                  d='M19.6334 17.871L15.7624 13.9984C18.6588 10.1278 17.8691 4.64195 13.9984 1.74551C10.1278 -1.15092 4.64195 -0.361157 1.74551 3.50949C-1.15092 7.38013 -0.361157 12.866 3.50949 15.7624C6.61871 18.0891 10.8892 18.0891 13.9984 15.7624L17.871 19.635C18.3577 20.1216 19.1467 20.1216 19.6333 19.635C20.12 19.1483 20.12 18.3593 19.6333 17.8727L19.6334 17.871ZM8.78623 15.015C5.34618 15.015 2.55751 12.2263 2.55751 8.78623C2.55751 5.34618 5.34618 2.55751 8.78623 2.55751C12.2263 2.55751 15.015 5.34618 15.015 8.78623C15.0113 12.2247 12.2248 15.0113 8.78623 15.015Z'
-                  fill='currentColor'
-                />
-              </g>
-              <defs>
-                <clipPath id='clip0_2522_8521'>
-                  <rect width={20} height={20} fill='white' />
-                </clipPath>
-              </defs>
-            </svg>
-            <input
-              style={{
-                paddingLeft: '2rem'
-              }}
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              type='search'
-              placeholder={t('Search')}
-            />
-            <svg
-              onClick={() => setSearch('')}
-              width={24}
-              height={25}
-              viewBox='0 0 24 25'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
-              <path
-                d='M8 8.5L16 16.5'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M16 8.5L8 16.5'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-            </svg>
-          </div>
-          {
-            <GetContainer
-              url={search?.length > 3 ? 'dashboard/user/search' : ''}
-              params={{
-                search: search
-              }}
-            >
-              {({ data }) => (
-                <div
-                  className='header-search__result'
-                  style={{
-                    display: data?.data ? 'block' : 'none',
-                    zIndex: 99
-                  }}
-                >
-                  <ul>
-                    {data?.data?.articles?.map((article: any) => (
-                      <li>
-                        <Link to={'/article/' + article?.slug} onClick={() => setSearch('')}>
-                          <div>{article?.name?.[i18n.language]}</div>
-                        </Link>
-                      </li>
-                    ))}
-                    {data?.data?.chapters?.map((chapter: any) =>
-                      chapter?.article_ids?.map((article: any) => (
-                        <li>
-                          <Link
-                            to={`/article/${article?.slug}?chapter_id=${chapter?.id}`}
-                            onClick={() => setSearch('')}
-                          >
-                            <div>{article?.title?.[i18n.language]}</div>
-                            <p dangerouslySetInnerHTML={{ __html: chapter?.title?.[i18n.language] }}></p>
-                          </Link>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                </div>
-              )}
-            </GetContainer>
-          }
-        </div>
-        )}
+        {/*
+          Keng qidiruv maydoni o'rniga — qayerdaligingiz. Maydonning o'zi
+          Ctrl+K palitrasiga ko'chdi (o'ngdagi lupa tugmasi).
+        */}
+        <span className='header__where'>
+          {isHome ? [t('Hello', 'Salom'), user?.firstname].filter(Boolean).join(', ') : section}
+        </span>
       </div>
       <div className='header-wrap'>
+        {/* Qidiruv — endi maydon emas, tugma: bosilsa markazda palitra ochiladi. */}
+        {showSearch && (
+          <button
+            type='button'
+            className='header__icon-btn'
+            title={`${t('Search')} · Ctrl + K`}
+            aria-label={t('Search')}
+            onClick={() => setPaletteOpen(true)}
+          >
+            <SearchIcon />
+          </button>
+        )}
+
         {/* Saqlanganlar — bildirishnomaning chapida. */}
         <NavLink
           className={({ isActive }) => `header__icon-btn ${isActive ? 'is-current' : ''}`}
@@ -544,6 +530,7 @@ function Navbar(props: IProps) {
           </svg>
         </div>
       </div>
+      <SearchPalette isOpen={paletteOpen} close={() => setPaletteOpen(false)} />
       <Modal
         isOpen={modalOpen}
         lightIcon={lightIcon}

@@ -7,14 +7,21 @@
  * Ranglar `tokens.scss` dan.
  */
 
+/*
+ * Sahifa qidiruvdan kengroq: ostida bo'limlar, modullar va yangiliklar
+ * bloklari turadi. Qidiruvning o'zi esa tor ustunda qoladi — uzun maydon
+ * o'qishga noqulay.
+ */
 .find {
-  max-width: 46rem;
+  max-width: 64rem;
   margin: 0 auto;
 }
 
 /* ---------- Sarlavha va maydon ---------- */
 
 .find-hero {
+  max-width: 46rem;
+  margin: 0 auto;
   padding: var(--s-6) 0 var(--s-5);
   text-align: center;
 }
@@ -158,6 +165,8 @@
 /* ---------- Natijalar ---------- */
 
 .find-results {
+  max-width: 46rem;
+  margin: 0 auto;
   padding-bottom: var(--s-6);
 }
 
@@ -191,6 +200,187 @@
   color: var(--g-muted);
 }
 
+/* ---------- Qidiruvsiz ko'rinish: bo'limlar, modullar, yangiliklar ---------- */
+
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  padding: var(--s-4) 0 var(--s-6);
+}
+
+.home-block__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.home-block__title {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--g-muted);
+}
+
+.home-block__more {
+  flex-shrink: 0;
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+
+.home-block__more:hover {
+  color: var(--g-accent);
+}
+
+/* Kartochka to'ri — bo'limlar va modullar uchun umumiy */
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.home-card {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: 100%;
+  padding: var(--s-3);
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface);
+  color: var(--g-text);
+  font-size: var(--fs-body);
+  text-decoration: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast);
+}
+
+.home-card:hover {
+  border-color: var(--g-accent);
+  box-shadow: var(--g-shadow-2);
+}
+
+.home-card__icon {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--g-muted);
+}
+
+.home-card__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.home-card:hover .home-card__icon {
+  color: var(--g-accent);
+}
+
+.home-card__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Modul kartochkasi — nom ostida bir qatorli izoh */
+.home-card__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.home-card__text b {
+  font-weight: 600;
+}
+
+.home-card__text small {
+  color: var(--g-muted);
+  font-size: var(--fs-xs);
+}
+
+/* Davom ettirish — ro'yxat, kartochka emas: bu tarix, katalog emas */
+
+.home-recent,
+.home-news {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-recent a,
+.home-news a {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 0.55rem var(--s-2);
+  border-bottom: 1px solid var(--g-border);
+  color: var(--g-text);
+  font-size: var(--fs-body);
+  text-decoration: none;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.home-recent li:last-child a,
+.home-news li:last-child a {
+  border-bottom: none;
+}
+
+.home-recent a:hover,
+.home-news a:hover {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+
+.home-recent a svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: var(--g-muted);
+}
+
+.home-recent a span,
+.home-news a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Yangilikda kichik surat — matnni bosib ketmasin */
+.home-news a img,
+.home-news__ph {
+  display: flex;
+  width: 3.5rem;
+  height: 2.4rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: var(--g-fill);
+  object-fit: cover;
+  color: var(--g-muted);
+}
+
+.home-news__ph svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 @media (max-width: 575.98px) {
   .find-hero {
     padding-top: var(--s-5);
@@ -198,5 +388,14 @@
 
   .find-box__kbd {
     display: none;
+  }
+
+  .home {
+    gap: var(--s-5);
+  }
+
+  .home-grid,
+  .home-grid--wide {
+    grid-template-columns: 1fr;
   }
 }

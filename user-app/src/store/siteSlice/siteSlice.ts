@@ -16,8 +16,16 @@ const readStoredTheme = (): Theme => {
   return THEMES.includes(stored as Theme) ? (stored as Theme) : 'light'
 }
 
+const SIDEBAR_KEY = 'sidebar-collapsed'
+
+const readStoredSidebar = (): boolean => window.localStorage.getItem(SIDEBAR_KEY) === '1'
+
 export interface siteState {
-  collapsed: boolean
+  /**
+   * Chap menyu yig'ilganmi. Ilgari har layout buni o'z `useState` ida
+   * saqlardi — sahifadan sahifaga o'tganda va yangilaganda unutilardi.
+   */
+  sidebarCollapsed: boolean
   theme: Theme
   /**
    * Eski kod uchun. Loyihaning ko'p joyida `isDark` o'qiladi, shuning uchun u
@@ -29,7 +37,7 @@ export interface siteState {
 const initialTheme = readStoredTheme()
 
 const initialState: siteState = {
-  collapsed: false,
+  sidebarCollapsed: readStoredSidebar(),
   theme: initialTheme,
   isDark: initialTheme === 'dark'
 }
@@ -49,11 +57,19 @@ export const siteSlice = createSlice({
       window.localStorage.setItem('theme', theme)
       state.theme = theme
       state.isDark = theme === 'dark'
+    },
+
+    /** Argumentsiz — almashtiradi, `boolean` bilan — aniq holatga qo'yadi. */
+    setSidebarCollapsed: (state, action: PayloadAction<boolean | undefined>) => {
+      const next = action.payload ?? !state.sidebarCollapsed
+
+      window.localStorage.setItem(SIDEBAR_KEY, next ? '1' : '0')
+      state.sidebarCollapsed = next
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setTheme } = siteSlice.actions
+export const { setTheme, setSidebarCollapsed } = siteSlice.actions
 
 export default siteSlice.reducer

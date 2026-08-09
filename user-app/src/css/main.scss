@@ -181,32 +181,8 @@ body.dark .p404__number .light, body.dark .p404__ico .light {
 body.dark .p404__number .dark, body.dark .p404__ico .dark {
   display: inline-block;
 }
-body.dark .side {
-  background: #121b2d;
-  border-right: 1px solid rgba(163, 178, 189, 0.5);
-}
-body.dark .side-logo {
-  color: #ddd;
-}
-body.dark .side-logo:hover {
-  color: #ddd;
-}
-body.dark .side-menu a {
-  color: #ddd;
-}
-body.dark .side-menu a:hover {
-  color: #f79f44;
-  background-color: #a3b2bd;
-}
-body.dark .side-menu a.current {
-  background: linear-gradient(133deg, #f8b042 0%, #f79f44 100%);
-}
-body.dark .side-menu a.current:hover {
-  color: #ddd;
-}
-body.dark .side__close:hover {
-  opacity: 1;
-}
+/* Chap menyuning tungi qoidalari `layouts/sidebar/sidebar.scss` ga ko'chdi —
+   u yerda rang tokenlardan olinadi va "o'qish" mavzusida ham to'g'ri chiqadi. */
 body.dark .side-mode {
   border: none;
   background: #1f2638;
@@ -396,9 +372,9 @@ body.dark .library-setting__title {
 body.dark .library-accordion {
   background: #1f2638;
 }
-body.dark .library-accordion__item.active .library-accordion__head {
-  background: linear-gradient(133deg, #f8b042 0%, #f79f44 100%);
-}
+/* Ochiq bo'lim ilgari to'q sariq gradient bilan bo'yalardi. Yorug' rejimda
+   bu allaqachon olib tashlangan (qalin matn + burilgan strelka yetarli),
+   tungi rejimda esa qolib ketib, maqolani chalg'itib turardi. */
 body.dark .library-accordion__head {
   border-color: rgba(163, 178, 189, 0.5);
 }
@@ -815,130 +791,19 @@ body.dark .footer-library .footer-menu a.disabled {
   display: flex;
 }
 
-.side {
-  width: 17.25rem;
-  flex-shrink: 0;
-  background: #fff;
-  padding: 2rem 1.5rem 2.5rem;
-  position: relative;
-  height: 100vh;
-}
-.side-content {
-  height: calc(100% - 10rem);
-  display: flex;
-  width: 100%;
-  transition: 0.6s all;
-}
-.side-wrap {
-  height: 100%;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  width: 100%;
-}
-.side-wrap__hidden {
-  width: 3.2rem;
-}
-.side-wrap__hidden .side-menu a span {
-  display: none;
-  text-wrap: nowrap;
-}
-.side-wrap__hidden .side-mode {
-  width: 100%;
-  padding: 0;
-  border: none;
-  height: 3.2rem;
-}
-.side-wrap__hidden .side-mode button {
-  display: none;
-  width: 100%;
-  height: 3.2rem;
-  border-radius: 0.5rem;
-}
-.side-wrap__hidden .side-mode button.current {
-  display: flex;
-}
-.side-wrap__hidden .side-mode button.current span {
-  display: none;
-}
-/* Ilgari bu 2.3x3.3rem li plita bo'lib, kontent ustiga chiqib turardi va
-   vertikal o'rni (top: 9rem) hech narsaga bog'lanmagan edi — sarlavha
-   panelining yoniga tushib, ko'rinishni buzardi. Endi — panel chekkasidagi
-   ixcham dumaloq "tutqich". */
-.side__close {
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.15);
-  position: absolute;
-  right: -0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-}
-.side__close svg {
-  width: 0.8rem;
-  transition: 0.6s all;
-}
-.side__close.closed svg {
-  transform: rotate(180deg);
-}
-.side-logo {
-  text-align: center;
-  color: #121b2d;
-  margin: 0 auto 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-.side-logo__ico {
-  width: 1.4rem;
-}
-.side-logo__ico svg {
-  width: 100%;
-}
-.side-logo__text {
-  width: 7.1rem;
-}
-.side-logo__text svg {
-  width: 100%;
-}
-.side-logo:hover {
-  color: #121b2d;
-}
-.side-menu a {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 1rem;
-  color: #121b2d;
-  gap: 0.8rem;
-  border-radius: 0.5rem;
-}
-.side-menu a span {
-  text-wrap: nowrap;
-  align-self: flex-end;
-  overflow: hidden;
-}
-.side-menu a:hover {
-  color: #4daf00;
-  background-color: #eef2f5;
-}
-.side-menu a svg {
-  width: 1.2rem;
-  height: 1.2rem;
-  transition: all 0s;
-}
-.side-menu a.current {
-  background: var(--g-accent-grad);
-  color: #ddd;
-}
+/*
+ * Chap menyu (`.side`, `.side-logo`, `.side-content`, `.side-wrap`,
+ * `.side-menu`) endi `layouts/sidebar/sidebar.scss` da. Bu yerdagi eski keng
+ * ustun qoidalari shu bilan kuch talashardi va natija import tartibiga
+ * bog'liq bo'lib qolgandi.
+ *
+ * `.side-wrap__hidden` va `.side__close` butunlay olib tashlandi: ularni
+ * ishlatgan markup (stats-layout, study_test) yagona `AppSidebar` ga o'tdi.
+ *
+ * `.side-mode` (kunduzgi/tungi almashtirgich) qoldi — uni `mobile-menu`
+ * ishlatadi. `.side-plan*` va `.side-stat*` ham qoldi: ular test yechish va
+ * statistika ustunlariniki.
+ */
 .side-mode {
   display: flex;
   width: 11.6rem;
@@ -977,10 +842,14 @@ body.dark .footer-library .footer-menu a.disabled {
   position: relative;
   min-width: 12.5rem;
 }
+/* Ilgari `right: -0.65rem` edi — tutqich panel chetidan tashqariga chiqib
+   turardi. Menyu yig'ilishi silliq bo'lishi uchun `.side` da
+   `overflow: hidden` bor, shuning uchun chiqib turgan qismi qirqilardi:
+   endi tutqich panel ichida. */
 .side-plan__close {
   position: absolute;
   top: 10rem;
-  right: -0.65rem;
+  right: 0.15rem;
   z-index: 2;
   background: #ccc;
   display: inline-flex;
@@ -1199,46 +1068,11 @@ body.dark .footer-library .footer-menu a.disabled {
   width: 0.8rem;
   height: 0.8rem;
 }
-.side.side-mini {
-  width: 6.2rem;
-}
-.side.side-mini .side-logo__text {
-  display: none;
-}
-.side.side-mini .side-wrap {
-  width: 3.2rem;
-}
-.side.side-mini .side-wrap .side-menu a span {
-  display: none;
-  text-wrap: nowrap !important;
-}
-.side.side-mini .side-wrap .side-mode {
-  width: 100%;
-  padding: 0;
-  border: none;
-}
-.side.side-mini .side-wrap .side-mode button {
-  display: none;
-  width: 100%;
-  height: 3.2rem;
-  border-radius: 0.5rem;
-}
-.side.side-mini .side-wrap .side-mode button.current {
-  display: flex;
-}
-.side.side-mini .side-wrap .side-mode button.current span {
-  display: none;
-}
-.side .novas {
-  display: block;
-}
-.side .novas svg {
-  display: block;
-  width: 100%;
-  max-width: 4.2rem;
-  height: auto;
-  margin: 0 auto;
-}
+/* `.side-mini` (yig'ilgan holat) `layouts/sidebar/sidebar.scss` da. Bu
+   yerdagi eski varianti panelni 6.2rem ga qisqartirardi — u paytda menyu
+   yig'ilganda tor ustun qolardi, hozir esa butunlay yopiladi.
+   `.side .novas` ham o'chirildi: `novas` sinfini hech bir komponent
+   chizmaydi. */
 
 .main {
   width: 100%;
@@ -1250,7 +1084,7 @@ body.dark .footer-library .footer-menu a.disabled {
   /* Yon padding o'zgaruvchida: sticky sarlavha uni teskari margin bilan
      qoplab, foni to'liq kenglikda cho'zilishi uchun kerak. */
   --content-pad-x: 1.5rem;
-  height: calc(100vh - 5.5rem);
+  height: calc(100vh - var(--header-h));
   padding: 2rem var(--content-pad-x);
   margin: 0 auto;
 }
@@ -1474,8 +1308,11 @@ body.dark .footer-library .footer-menu a.disabled {
 }
 
 .header {
-  height: 5.5rem;
+  height: var(--header-h);
   background: #fff;
+  /* Panel ingichka bo'lgani uchun kontentdan chiziq bilan ajraladi —
+     tungi va o'qish rejimlarida bu chiziq allaqachon bor edi. */
+  border-bottom: 1px solid var(--g-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1490,18 +1327,33 @@ body.dark .footer-library .footer-menu a.disabled {
   display: flex;
   align-items: center;
   gap: var(--s-1);
+  /* Bo'lim nomi uzun bo'lsa qisqarsin, o'ngdagi belgilarni surmasin. */
+  min-width: 0;
 }
 .header__side {
   color: #ccc;
-  margin-right: 1.5rem;
+  margin-right: var(--s-3);
 }
 .header__side:hover {
   color: #4daf00;
   background: transparent;
 }
 .header__side svg {
-  width: 1.5rem;
+  width: 1.25rem;
   display: block;
+}
+/*
+ * Qayerdaligingiz — ilgari shu joyda 24.5rem'lik qidiruv maydoni turardi.
+ * Yozuv susaygan va kichik: bu yo'l ko'rsatkichi, sahifa sarlavhasi emas
+ * (sarlavhani kontentning o'zi chizadi).
+ */
+.header__where {
+  overflow: hidden;
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .header-search {
   position: relative;
@@ -1816,7 +1668,7 @@ body.dark .footer-library .footer-menu a.disabled {
    * foydalanuvchida boshqa joyda turardi — ism uzunligiga qarab surilib.
    */
   width: 15rem;
-  padding: 0.3rem 0.55rem 0.3rem 0.3rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
   background: none;
   border-radius: var(--r-lg);
   color: var(--g-text);
@@ -1832,8 +1684,9 @@ body.dark .footer-library .footer-menu a.disabled {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2.15rem;
-  height: 2.15rem;
+  /* Panel 3rem — avatar va ichki masofalar shundan oshmasligi kerak. */
+  width: 1.9rem;
+  height: 1.9rem;
   border-radius: var(--r-circle);
   overflow: hidden;
 }
@@ -4448,9 +4301,8 @@ body.dark .library-head {
   .login-reg .login__logo {
     position: absolute;
   }
-  .side {
-    display: none;
-  }
+  /* `.side { display: none }` shu blokdan `layouts/sidebar/sidebar.scss` ga
+     ko'chdi — menyuning qolgan qoidalari bilan bir joyda tursin. */
   .content {
     height: auto;
     padding-bottom: 5rem;

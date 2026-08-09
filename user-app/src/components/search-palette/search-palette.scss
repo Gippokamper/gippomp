@@ -1,0 +1,172 @@
+/*
+ * Qidiruv palitrasi. Ranglar `tokens.scss` dan — uch mavzuda ham (kunduzgi,
+ * o'qish, tungi) alohida qoida yozish shart emas.
+ */
+
+.palette {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12vh var(--s-4) var(--s-4);
+  background: rgba(18, 27, 45, 0.35);
+  /* Ortidagi kontent ko'rinib tursin, lekin diqqatni tortmasin. */
+  backdrop-filter: blur(2px);
+}
+
+.palette__box {
+  display: flex;
+  width: 100%;
+  max-width: 34rem;
+  max-height: 70vh;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-lg);
+  background: var(--g-surface);
+  box-shadow: var(--g-shadow-3);
+}
+
+/* ---------- Kiritish qatori ---------- */
+
+.palette__field {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--g-border);
+}
+
+.palette__icon {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--g-muted);
+}
+
+.palette__field input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 1.9rem;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--g-text);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.palette__field input::placeholder {
+  color: var(--g-muted);
+}
+
+.palette__kbd,
+.palette__foot kbd {
+  flex-shrink: 0;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-sm);
+  background: var(--g-fill);
+  color: var(--g-muted);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+/* ---------- Natijalar ---------- */
+
+.palette__body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding: var(--s-2);
+}
+
+.palette__note {
+  margin: 0;
+  padding: var(--s-4) var(--s-2);
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.palette__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.palette__group {
+  display: block;
+  padding: var(--s-3) var(--s-2) var(--s-1);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--g-muted);
+}
+
+.palette__row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.5rem var(--s-2);
+  border: none;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--g-text);
+  font: inherit;
+  font-size: var(--fs-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Sichqoncha va klaviatura bitta ko'rsatkichni boshqaradi — ikki xil
+   ajratilgan qator bo'lib qolmasin. */
+.palette__row[data-active='true'] {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+
+.palette__row svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+  color: var(--g-muted);
+}
+
+.palette__row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Pastki maslahat qatori ---------- */
+
+.palette__foot {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--s-4);
+  padding: var(--s-2) var(--s-4);
+  border-top: 1px solid var(--g-border);
+  background: var(--g-surface-2);
+  color: var(--g-muted);
+  font-size: var(--fs-xs);
+}
+
+.palette__foot span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+@media (max-width: 575.98px) {
+  .palette {
+    padding-top: 6vh;
+  }
+
+  .palette__foot {
+    display: none;
+  }
+}

@@ -1,15 +1,12 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import Navbar from '../navbar'
-import LogoImage from '../../img/icons/LogoImage'
-import LogoText from '../../img/icons/LogoText'
-import LibrarySideMenu from '../library_side_menu'
+import AppSidebar from '../sidebar'
 import LibraryFooter from '../library_footer'
 import LibraryPlan from '../library_plan'
 import LibraryMobileHeader from '../library_mobile_header'
 import LibraryMobilePlan from '../library_mobile_plan'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { RootState } from '../../store'
-import { useTranslation } from 'react-i18next'
 import { useBodyTheme } from '../../hooks/use-body-theme'
 export const GET_THEME = () => {
   const theme = window.localStorage.getItem('theme')
@@ -17,11 +14,8 @@ export const GET_THEME = () => {
 }
 
 function LibraryLayout(props: any) {
-  const {t} = useTranslation();
-  const [isCollapsed, setIsCollapsed] = useState(false)
   const [openMobilePlan, setOpenMobilePlan] = useState(false)
   const { theme } = useSelector((state: RootState) => state.site)
-  const dispatch = useDispatch()
 
   useBodyTheme(theme)
 
@@ -29,27 +23,11 @@ function LibraryLayout(props: any) {
     <>
       <div className='app'>
         {/* SIDE */}
-        <aside className={`side side-rail ${isCollapsed ? 'side-mini' : ''}`}>
-          <a href='/' className='side-logo'>
-            <LogoImage />
-            <div className='side-logo__text'>
-              <LogoText />
-            </div>
-          </a>
-          <div className='side-content'>
-            <div className='side-wrap'>
-              {/*
-                Tungi rejim tugmasi bu yerdan olib tashlandi — u yuqoridagi
-                profil menyusida, ikki joyda turishi shart emas edi.
-              */}
-              <LibrarySideMenu />
-            </div>
-          </div>
-        </aside>
+        <AppSidebar />
         {/* MAIN */}
         <main className='main'>
           {/* HEADER */}
-          <Navbar openMobileMenu={() => {}} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <Navbar openMobileMenu={() => {}} />
           {/* MOBILE LIBRARY*/}
           <LibraryMobileHeader openPlan={() => setOpenMobilePlan(true)} />
           {/* CONTENT*/}
@@ -57,7 +35,9 @@ function LibraryLayout(props: any) {
             className='content content--article'
             style={{
               width: '100%',
-              height: '90dvh',
+              // Balandlik `.content` da: `100dvh - sarlavha`. Ilgari bu yerda
+              // `90dvh` turardi — idish ekrandan uzunroq bo'lib, tashqarida
+              // yana bir aylantirish paydo bo'lardi.
               // 'scroll' kontent kalta bo'lsa ham bo'sh scrollbar chizadi.
               overflowY: 'auto'
             }}

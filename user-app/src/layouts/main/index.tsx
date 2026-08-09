@@ -1,15 +1,14 @@
-import { useState } from 'react'
 import Navbar from '../../layouts/navbar'
-import Sidebar from '../../layouts/sidebar'
+import AppSidebar from '../../layouts/sidebar'
 import Footer from '../footer'
 import { MobileMenu } from '../mobile-menu'
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store'
 import { useBodyTheme } from '../../hooks/use-body-theme'
 
 export const MainLayout = (props: any) => {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const { isDark, theme } = useSelector((state: RootState) => state.site)
+  const { theme } = useSelector((state: RootState) => state.site)
   const [openMenu, setOpenMenu] = useState(false)
 
   useBodyTheme(theme)
@@ -20,11 +19,11 @@ export const MainLayout = (props: any) => {
       <MobileMenu isVisible={openMenu} hide={() => setOpenMenu(false)} />
       <div className='app'>
         {/* SIDE */}
-        <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+        <AppSidebar />
         {/* MAIN */}
         <main className='main'>
           {/* HEADER */}
-          <Navbar openMobileMenu={() => setOpenMenu(true)} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <Navbar openMobileMenu={() => setOpenMenu(true)} />
           {/* CONTENT*/}
           <div
             className='content'

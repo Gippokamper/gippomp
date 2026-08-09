@@ -1,16 +1,11 @@
 import React, { useState } from 'react'
-import LogoImage from '../../img/icons/LogoImage'
-import LogoText from '../../img/icons/LogoText'
-import LibrarySideMenu from '../library_side_menu'
-import SunIcon from '../../img/icons/SunIcon'
-import MoonIcon from '../../img/icons/MoonIcon'
+import AppSidebar from '../sidebar'
 import StudyTestPlan from '../study_test_plan'
 import Navbar from '../navbar'
 import StudyTestMobilePlan from '../study_test_mobile_plan'
 import { useStopwatch } from 'react-timer-hook'
 import LibraryMobileHeader from '../library_mobile_header'
 import { useDispatch, useSelector } from 'react-redux'
-import { setTheme } from '../../store/siteSlice/siteSlice'
 import { RootState } from '../../store'
 import { useTranslation } from 'react-i18next'
 import MinusIcon from '../../img/icons/MinusIcon'
@@ -19,13 +14,18 @@ import { decrement, increment } from '../../store/slices/htmlSlice'
 import { useBodyTheme } from '../../hooks/use-body-theme'
 
 function StudyTestLayout(props: any) {
-  const [isCollapsed, setIsCollapsed] = useState(true)
-  const [sideCollapsed, setSideCollapsed] = useState(false)
+  /*
+   * Savollar ro'yxati ustuni yig'ilganmi — o'z tutqichi bilan boshqariladi.
+   * Sarlavhadagi tugma esa chap menyuni yig'adi; ilgari ikkalasi bitta
+   * holatga bog'langan edi va test yechayotganda ro'yxat kutilmaganda
+   * yo'qolib qolardi.
+   */
+  const [planCollapsed, setPlanCollapsed] = useState(false)
   const [openMobileMenu, setOpenMobileMenu] = useState(false)
   const stopWatch = useStopwatch({
     autoStart: true
   })
-  const { isDark, theme } = useSelector((state: RootState) => state.site)
+  const { theme } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
   const { t } = useTranslation()
 
@@ -35,23 +35,15 @@ function StudyTestLayout(props: any) {
     <>
       <div className='app'>
         {/* SIDE */}
-        <aside
-          className={`side ${sideCollapsed ? 'side-mini' : ''}`}
-          style={{
-            paddingRight: 0
-          }}
-        >
-          <a href='/' className='side-logo'>
-            <LogoImage />
-            <div className='side-logo__text'>
-              <LogoText />
-            </div>
-          </a>
-          <div className='side-content'>
-            <div className={isCollapsed ? 'side-wrap side-wrap__hidden' : 'side-wrap'}>
-              <div
-                className={`side-plan__close ${sideCollapsed ? 'closed' : ''}`}
-                onClick={() => setSideCollapsed(!sideCollapsed)}
+        <AppSidebar
+          panel={
+            <>
+              <button
+                type='button'
+                className={`side-plan__close ${planCollapsed ? 'closed' : ''}`}
+                aria-expanded={!planCollapsed}
+                aria-label={t('Questions')}
+                onClick={() => setPlanCollapsed(!planCollapsed)}
               >
                 <svg width={16} height={16} viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
@@ -62,47 +54,15 @@ function StudyTestLayout(props: any) {
                     strokeLinejoin='round'
                   />
                 </svg>
-              </div>
-              <LibrarySideMenu />
-              <div className='side-mode'>
-                <button
-                  className={!isDark ? 'current light' : 'dark'}
-                  onClick={() => {
-                    isCollapsed ? dispatch(setTheme(!isDark)) : dispatch(setTheme(false))
-                  }}
-                >
-                  <SunIcon />
-                  <span>{t('Light')}</span>
-                </button>
-                <button
-                  className={isDark ? 'current dark' : 'light'}
-                  onClick={() => {
-                    isCollapsed ? dispatch(setTheme(!isDark)) : dispatch(setTheme(true))
-                  }}
-                >
-                  <MoonIcon />
-                  <span>{t('Dark')}</span>
-                </button>
-              </div>
-            </div>
-            {isCollapsed && <StudyTestPlan stopWatch={stopWatch} sideCollapsed={sideCollapsed} />}
-          </div>
-          <button className={`side__close btn  ${isCollapsed ? 'closed' : ''}`} style={{ display: 'none' }}>
-            <svg width={16} height={16} viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path
-                d='M10.5 3.625L6.125 8L10.5 12.375'
-                stroke='white'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-            </svg>
-          </button>
-        </aside>
+              </button>
+              <StudyTestPlan stopWatch={stopWatch} sideCollapsed={planCollapsed} />
+            </>
+          }
+        />
         {/* MAIN */}
         <main className='main test__layout'>
           {/* HEADER */}
-          <Navbar openMobileMenu={() => {}} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          <Navbar openMobileMenu={() => {}} />
           {/* MOBILE LIBRARY*/}
           <LibraryMobileHeader openPlan={() => setOpenMobileMenu(true)} />
           {/* CONTENT*/}
