@@ -1,9 +1,8 @@
-import { useContext, useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { useQueries } from 'react-query'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useQueries, useQuery } from 'react-query'
 import { useTranslation } from 'react-i18next'
 import Skeleton from 'react-loading-skeleton'
-import moment from 'moment'
 
 import { MainLayout } from '../../layouts/main'
 import Article from '../../img/icons/Article'
@@ -22,10 +21,6 @@ interface IAttempt {
   right_answer: number
   wrong_answer: number
   help_answer: number
-  no_answer: number
-  question_count?: number
-  created_at?: string
-  block_id?: { id: number; slug: string; name?: Record<string, string> }
 }
 
 const get = (url: string, params?: Record<string, unknown>) => async () => {
@@ -33,256 +28,213 @@ const get = (url: string, params?: Record<string, unknown>) => async () => {
   return response?.data
 }
 
-/** Foizni butun songa yaxlitlaydi, bo'luvchi nol bo'lsa 0 qaytaradi. */
 const percent = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0)
+
+const SearchIcon = () => (
+  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <circle cx='11' cy='11' r='7' stroke='currentColor' strokeWidth='2' />
+    <path d='M20 20l-3.5-3.5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+  </svg>
+)
+
+const ArrowIcon = () => (
+  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path d='M5 12h13M13 6l6 6-6 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+  </svg>
+)
 
 export const Dashboard = () => {
   const { t, i18n } = useTranslation()
   const { user } = useContext(AuthContext)
+  const navigate = useNavigate()
+
+  const [term, setTerm] = useState('')
+  const [debounced, setDebounced] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(term.trim()), 300)
+    return () => clearTimeout(timer)
+  }, [term])
+
+  /* Ctrl+K — qidiruvga o'tish. AMBOSS'dagi kabi, maydon yonida ko'rsatilgan. */
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  const { data: found, isFetching } = useQuery(
+    ['dash-search', debounced],
+    get('dashboard/user/search', { search: debounced }),
+    { enabled: debounced.length > 2, retry: false }
+  )
 
   /*
    * `user_test_attempt` tarif tekshiruvi ichida — tarifsiz foydalanuvchida
-   * xato qaytaradi. Shuning uchun bu yerda `onError` bilan to'xtatilmaydi:
-   * xato bo'lsa tahlil bloklari o'rniga "boshlash" holati ko'rsatiladi.
+   * xato qaytaradi, shuning uchun `retry: false` va xato sahifani buzmaydi.
    */
   const [attempts, quizzes, recent] = useQueries([
     { queryKey: ['dash-attempts'], queryFn: get('dashboard/user/user_test_attempt'), retry: false },
     { queryKey: ['dash-quiz-tree'], queryFn: get('dashboard/user/quizzes/tree'), retry: false },
-    { queryKey: ['dash-recent'], queryFn: get('dashboard/user/articles_recent', { limit: 4 }), retry: false }
+    { queryKey: ['dash-recent'], queryFn: get('dashboard/user/articles_recent', { limit: 5 }), retry: false }
   ]) as any[]
 
-  const firstName = user?.firstname || ''
-  const tariff = (user?.tariff ?? [])[0]
+  const list: IAttempt[] = attempts?.data?.data ?? []
+  const recentArticles: any[] = recent?.data?.data ?? []
 
-  const list: IAttempt[] = useMemo(() => attempts?.data?.data ?? [], [attempts?.data])
-
-  /** Bazadagi jami savollar — test daraxti ildizlaridan yig'iladi. */
   const totalQuestions = useMemo(() => {
     const roots: IQuizNode[] = quizzes?.data?.data ?? []
     return roots.reduce((sum, node) => sum + (node.total || 0), 0)
   }, [quizzes?.data])
 
-  /** Umumiy holat: nechta savol yechilgan va ulardan qanchasi to'g'ri. */
   const summary = useMemo(() => {
     const answered = list.reduce((s, a) => s + a.right_answer + a.wrong_answer + a.help_answer, 0)
     const right = list.reduce((s, a) => s + a.right_answer, 0)
-    // Sessiya deb faqat javob berilgan urinish sanaladi — bo'sh boshlanganlari emas.
-    const sessions = list.filter(a => a.right_answer + a.wrong_answer + a.help_answer > 0).length
-    return { answered, right, sessions, accuracy: percent(right, answered) }
+    return { answered, right, accuracy: percent(right, answered) }
   }, [list])
 
-  /**
-   * Zaif mavzular — blok bo'yicha to'g'ri javob ulushi. Bir blok bir necha
-   * marta yechilgan bo'lishi mumkin, shuning uchun urinishlar qo'shiladi.
-   */
-  const weakTopics = useMemo(() => {
-    const byBlock = new Map<number, { name: string; right: number; answered: number }>()
-
-    list.forEach(attempt => {
-      const block = attempt.block_id
-      if (!block) return
-
-      const answered = attempt.right_answer + attempt.wrong_answer + attempt.help_answer
-      if (!answered) return
-
-      const current = byBlock.get(block.id) ?? {
-        name: block.name?.[i18n.language] || block.slug,
-        right: 0,
-        answered: 0
-      }
-      current.right += attempt.right_answer
-      current.answered += answered
-      byBlock.set(block.id, current)
-    })
-
-    return Array.from(byBlock.values())
-      .map(item => ({ ...item, accuracy: percent(item.right, item.answered) }))
-      .sort((a, b) => a.accuracy - b.accuracy)
-      .slice(0, 3)
-  }, [list, i18n.language])
-
-  /*
-   * Oxirgi sessiyalar — API o'sish tartibida qaytaradi, teskarilaymiz.
-   *
-   * Javob berilmagan urinishlar tashlab yuboriladi: bazada boshlangan, lekin
-   * bironta savolga javob berilmagan yozuvlar ko'p (21 tadan aksariyati), ular
-   * ro'yxatni ma'nosiz "0/0 — 0%" qatorlar bilan to'ldirardi.
-   */
-  const recentSessions = useMemo(
-    () =>
-      [...list]
-        .filter(a => a.right_answer + a.wrong_answer + a.help_answer > 0)
-        .reverse()
-        .slice(0, 5),
-    [list]
-  )
-
-  const recentArticles: any[] = recent?.data?.data ?? []
-  const hasAttempts = list.length > 0
-  const attemptsBlocked = attempts?.isError
+  const articles: any[] = found?.data?.articles ?? []
+  const chapters: any[] = found?.data?.chapters ?? []
+  const hasResults = articles.length > 0 || chapters.length > 0
+  const showResults = debounced.length > 2
 
   return (
-    <MainLayout>
+    <MainLayout disablePadding>
       <section className='dash'>
-        <header className='dash-hello'>
-          <h1 className='ui-title'>{firstName ? `${t('Hello')}, ${firstName}` : t('Hello')}</h1>
-          <p className='dash-hello__sub'>{t('What are we learning today?')}</p>
-        </header>
+        {/* ---------- Qidiruv ---------- */}
+        <div className='dash-hero'>
+          <h1 className='dash-hero__title'>{t('What are you searching for?')}</h1>
+          <p className='dash-hero__sub'>{t('The library is constantly updated and expanded')}</p>
 
-        {!tariff && (
-          <div className='dash-banner'>
-            <div className='dash-banner__text'>
-              <b>{t('Active tariff not found')}</b>
-              <span>{t('Purchase a tariff to access all materials')}</span>
-            </div>
-            <Link className='ui-btn ui-btn--primary' to='/account?type=tariffs'>
-              {t('Manage tariffs')}
-            </Link>
-          </div>
-        )}
-
-        {/* ---------- O'quv xulosasi ---------- */}
-        <section className='dash-block'>
-          <div className='dash-block__head'>
-            <h2 className='dash-block__title'>{t('Study summary')}</h2>
-          </div>
-
-          {attempts?.isLoading ? (
-            <Skeleton height={120} borderRadius={14} />
-          ) : hasAttempts ? (
-            <div className='dash-summary'>
-              <div className='dash-summary__main'>
-                <span className='dash-summary__label'>{t('Correct answers')}</span>
-                <span className='dash-summary__accuracy'>{summary.accuracy}%</span>
-                <span className='dash-summary__bar'>
-                  <span style={{ width: `${summary.accuracy}%` }} />
-                </span>
-                <span className='dash-summary__note'>
-                  {summary.right} / {summary.answered}
-                </span>
-              </div>
-
-              <dl className='dash-summary__side'>
-                <div>
-                  <dt>{t('Solved questions')}</dt>
-                  <dd>
-                    {summary.answered}
-                    {totalQuestions > 0 && <i> / {totalQuestions}</i>}
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t('Sessions')}</dt>
-                  <dd>{summary.sessions}</dd>
-                </div>
-                <div>
-                  <dt>{t('My tariff')}</dt>
-                  <dd className={tariff ? '' : 'is-muted'}>{tariff ? tariff?.name?.[i18n.language] : '—'}</dd>
-                </div>
-              </dl>
-            </div>
-          ) : (
-            /* Hali test yechilmagan yoki tarif yo'q — nima qilish kerakligi aytiladi. */
-            <div className='dash-start'>
-              <b>{attemptsBlocked ? t('Active tariff not found') : t('You have not solved any tests yet')}</b>
-              <span>
-                {attemptsBlocked
-                  ? t('Purchase a tariff to access all materials')
-                  : t('Solve your first test and your progress will appear here')}
+          <div className='dash-search'>
+            <label className='dash-search__box'>
+              <span className='dash-search__icon'>
+                <SearchIcon />
               </span>
-              <Link className='ui-btn ui-btn--primary' to={attemptsBlocked ? '/account?type=tariffs' : '/quizzes'}>
-                {attemptsBlocked ? t('Manage tariffs') : t('Test your knowledge')}
-              </Link>
-            </div>
-          )}
-        </section>
+              <input
+                ref={inputRef}
+                type='search'
+                value={term}
+                placeholder={t('Find content')}
+                onChange={e => setTerm(e.target.value)}
+              />
+              <kbd className='dash-search__kbd'>Ctrl + K</kbd>
+              <button
+                type='button'
+                className='dash-search__go'
+                aria-label={t('Search')}
+                disabled={!articles.length}
+                onClick={() => articles[0] && navigate('/article/' + articles[0].slug)}
+              >
+                <ArrowIcon />
+              </button>
+            </label>
 
-        {/* ---------- Zaif mavzular ---------- */}
-        {weakTopics.length > 0 && (
-          <section className='dash-block'>
-            <div className='dash-block__head'>
-              <h2 className='dash-block__title'>{t('Focus on these')}</h2>
-              <Link className='dash-block__more' to='/quizzes'>
-                {t('Test your knowledge')}
-              </Link>
-            </div>
-            <ul className='dash-rows'>
-              {weakTopics.map(topic => (
-                <li className='dash-row' key={topic.name}>
-                  <span className='dash-row__name'>{topic.name}</span>
-                  <span className='dash-row__bar'>
-                    <span style={{ width: `${topic.accuracy}%` }} />
-                  </span>
-                  <span className={`dash-row__value ${topic.accuracy < 50 ? 'is-low' : ''}`}>
-                    {topic.accuracy}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+            {/* Natijalar maydon ostida ochiladi — sahifa o'zgarmaydi. */}
+            {showResults && (
+              <div className='dash-results'>
+                {isFetching && !hasResults ? (
+                  <div className='dash-results__empty'>{t('Loading...')}</div>
+                ) : hasResults ? (
+                  <ul>
+                    {articles.slice(0, 5).map(article => (
+                      <li key={`a-${article.id}`}>
+                        <Link to={'/article/' + article.slug} onClick={() => setTerm('')}>
+                          <Article />
+                          <span>{article?.name?.[i18n.language] || article.slug}</span>
+                        </Link>
+                      </li>
+                    ))}
+                    {chapters.slice(0, 3).map((chapter: any) =>
+                      (chapter?.article_ids ?? []).slice(0, 1).map((article: any) => (
+                        <li key={`c-${chapter.id}-${article.id}`}>
+                          <Link
+                            to={`/article/${article?.slug}?chapter_id=${chapter?.id}`}
+                            onClick={() => setTerm('')}
+                          >
+                            <Article />
+                            <span>{chapter?.title?.[i18n.language]}</span>
+                          </Link>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                ) : (
+                  <div className='dash-results__empty'>{t('Nothing found')}</div>
+                )}
+              </div>
+            )}
+          </div>
 
-        {/* ---------- Oxirgi sessiyalar ---------- */}
-        {recentSessions.length > 0 && (
-          <section className='dash-block'>
-            <div className='dash-block__head'>
-              <h2 className='dash-block__title'>{t('Recent sessions')}</h2>
-            </div>
-            <ul className='dash-rows'>
-              {recentSessions.map(session => {
-                const answered = session.right_answer + session.wrong_answer + session.help_answer
-                const accuracy = percent(session.right_answer, answered)
+          <a className='dash-hero__more' href='#dash-below'>
+            {t('Explore more')} ↓
+          </a>
+        </div>
 
-                return (
-                  <li className='dash-row' key={session.id}>
-                    <span className='dash-row__name'>
-                      {session.block_id?.name?.[i18n.language] || session.block_id?.slug || '—'}
-                      {!!session.created_at && (
-                        <i>{moment(session.created_at).format('DD.MM.YYYY')}</i>
-                      )}
-                    </span>
-                    <span className='dash-row__score'>
-                      {session.right_answer} / {answered}
-                    </span>
-                    <span className={`dash-row__value ${accuracy < 50 ? 'is-low' : ''}`}>{accuracy}%</span>
-                  </li>
-                )
-              })}
-            </ul>
-          </section>
-        )}
-
-        {/* ---------- Davom ettirish ---------- */}
-        {(recent?.isLoading || recentArticles.length > 0) && (
-          <section className='dash-block'>
-            <div className='dash-block__head'>
-              <h2 className='dash-block__title'>{t('Continue reading')}</h2>
-              <Link className='dash-block__more' to='/library'>
-                {t('Library')}
-              </Link>
-            </div>
+        {/* ---------- Pastdagi ikkita kartochka ---------- */}
+        <div className='dash-below' id='dash-below'>
+          <div className='dash-panel'>
+            <h2 className='dash-panel__title'>{t('Recently viewed articles')}</h2>
 
             {recent?.isLoading ? (
-              <div className='dash-cards'>
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} height={64} borderRadius={12} />
+              <div className='dash-list'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} height={40} />
                 ))}
               </div>
-            ) : (
-              <ul className='dash-cards'>
+            ) : recentArticles.length ? (
+              <ul className='dash-list'>
                 {recentArticles.map(article => (
                   <li key={article.id}>
-                    <Link className='dash-card' to={'/article/' + article.slug}>
-                      <span className='dash-card__icon'>
-                        <Article />
-                      </span>
-                      <span className='dash-card__label'>{article?.name?.[i18n.language] || article.slug}</span>
+                    <Link to={'/article/' + article.slug}>
+                      <Article />
+                      <span>{article?.name?.[i18n.language] || article.slug}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
+            ) : (
+              <p className='dash-panel__empty'>{t('This section is empty')}</p>
             )}
-          </section>
-        )}
+          </div>
+
+          {/* To'q fonli "o'quv" kartasi — referensdagi Learning bloki. */}
+          <div className='dash-panel dash-panel--accent'>
+            <h2 className='dash-panel__title'>{t('Learning')}</h2>
+
+            {attempts?.isError || !summary.answered ? (
+              <>
+                <p className='dash-panel__lead'>{t('Solve your first test and your progress will appear here')}</p>
+                <Link className='dash-panel__btn' to={attempts?.isError ? '/account?type=tariffs' : '/quizzes'}>
+                  {attempts?.isError ? t('Manage tariffs') : t('Test your knowledge')}
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className='dash-metric'>
+                  <span className='dash-metric__value'>{summary.accuracy}%</span>
+                  <span className='dash-metric__label'>{t('Correct answers')}</span>
+                </div>
+                <div className='dash-metric__bar'>
+                  <span style={{ width: `${summary.accuracy}%` }} />
+                </div>
+                <p className='dash-panel__lead'>
+                  {summary.answered}
+                  {totalQuestions > 0 && ` / ${totalQuestions}`} {t('Solved questions').toLowerCase()}
+                </p>
+                <Link className='dash-panel__btn' to='/quizzes'>
+                  {t('Test your knowledge')}
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
       </section>
     </MainLayout>
   )
