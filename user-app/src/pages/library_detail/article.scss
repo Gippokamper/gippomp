@@ -154,3 +154,94 @@ body.dark .scroll-top {
   outline: 2px solid #4daf00;
   outline-offset: -2px;
 }
+
+/*
+ * ============================================================
+ * MINIMAL KO'RINISH — bo'limlar ro'yxati
+ * ============================================================
+ *
+ * Referens (AMBOSS) tili: kartochka yo'q, soya yo'q, rangli to'ldirish yo'q.
+ * Faqat qatorlar, ingichka ajratgichlar va zich vertikal ritm.
+ *
+ * `main.scss` da ochiq bo'lim yashil gradient bilan to'ldirilib, matni
+ * `#ddd` bo'lardi — o'qilmasdi va sahifani chalg'itardi. Bu yerdagi
+ * qoidalar shundan kuchliroq (`.library` prefiksi bilan).
+ */
+
+.library .library-accordion {
+  background: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.library .library-accordion__head {
+  gap: var(--s-3);
+  padding: 0.7rem 0.25rem;
+  border-top: none;
+  border-bottom: 1px solid var(--g-border);
+  background: none;
+  color: var(--g-text);
+  font-size: 0.95rem;
+  text-align: left;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.library .library-accordion__item:first-child .library-accordion__head {
+  border-top: 1px solid var(--g-border);
+}
+
+.library .library-accordion__head:hover {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+
+.library .library-accordion__head svg {
+  margin-left: auto;
+  width: 1rem;
+  height: 1rem;
+  color: var(--g-muted);
+  transition: transform var(--t-fast);
+}
+
+/*
+ * Ochiq bo'lim: rangli to'ldirish o'rniga faqat qalinroq yozuv va
+ * aylantirilgan strelka — referensdagi kabi.
+ */
+.library .library-accordion__item.active .library-accordion__head {
+  background: none;
+  color: var(--g-text);
+  font-weight: 600;
+}
+
+.library .library-accordion__item.active .library-accordion__head svg {
+  color: var(--g-accent);
+}
+
+.library .library-accordion__content {
+  padding: var(--s-3) 0.25rem var(--s-5);
+}
+
+/* ---------- Sarlavha paneli ---------- */
+
+/*
+ * Ilgari yon-ma-yon beshta yorliqli tugma turardi va panel ikki qatorga
+ * chiqib ketardi. Endi ular ixcham: yozuv kichik, oraliq tor.
+ */
+.library .library-head {
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
+  font-size: 0.78rem;
+}
+
+.library .library-head__btn {
+  gap: 0.35rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--r-sm);
+}
+
+.library .library__title {
+  margin-bottom: var(--s-2);
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+}

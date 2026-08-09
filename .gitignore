@@ -71,3 +71,7 @@ yarn-error.log*
 
 # Cloudflare Wrangler lokal keshi
 .wrangler/
+
+# Windowsda `sass ... /dev/null` shunday nomli fayl yaratadi, git uni
+# indekslay olmaydi (zahiralangan qurilma nomi).
+nul
