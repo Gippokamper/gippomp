@@ -5,40 +5,79 @@
  * sinflarini yana uchta layout ishlatadi (maqola o'qish, statistika, test
  * yechish). Ular eski ko'rinishda qolishi kerak, shuning uchun bu yerdagi
  * qoidalar faqat `side-rail` ichida ishlaydi.
+ *
+ * Ranglar `tokens.scss` dan — mavzu (kunduzgi/o'qish/tungi) o'zi almashadi.
+ *
+ * Selektorlar ataylab `.side.side-rail` dan boshlanadi: `main.scss` da
+ * `body.dark .side-menu a:hover` kabi qoidalar bor va ular bilan kuch teng
+ * bo'lsa natija import tartibiga bog'liq bo'lib qolardi.
  */
 
 .side.side-rail {
-  width: 6.25rem;
-  padding: var(--s-5) var(--s-2) var(--s-6);
+  width: 6.75rem;
+  /*
+   * Yon to'ldirish ataylab kattaroq: faol element shu hisobga ichkariga
+   * suriladi. Ilgari 0.5rem edi va yashil blok panel qirralariga yopishib
+   * turardi.
+   */
+  padding: var(--s-4) var(--s-3) var(--s-5);
+  background: var(--g-surface);
+  border-right: 1px solid var(--g-border);
 }
 
-.side-rail .side-logo {
-  margin-bottom: var(--s-5);
+/* ---------- Logotip ---------- */
+
+.side.side-rail .side-logo {
+  margin: 0 0 var(--s-3);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--g-border);
 }
 
 /* Tor panelda logotip yozuvi sig'maydi — faqat belgisi qoladi. */
-.side-rail .side-logo__text {
+.side.side-rail .side-logo__text {
   display: none;
 }
 
-.side-rail .side-content {
-  height: calc(100% - 6rem);
+.side.side-rail .side-content {
+  height: calc(100% - 7rem);
 }
 
-.side-rail .side-menu li {
-  margin-bottom: var(--s-1);
+/* ---------- Elementlar ---------- */
+
+.side.side-rail .side-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
 }
 
-.side-rail .side-menu a {
+.side.side-rail .side-menu li {
+  margin-bottom: 0;
+}
+
+.side.side-rail .side-menu a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--s-2);
-  padding: var(--s-3) var(--s-1);
+  gap: 0.4rem;
+  min-height: 4.5rem;
+  padding: var(--s-2) 0.3rem;
+  border-radius: var(--r-lg);
+  color: var(--g-muted);
   text-align: center;
+  transition: background var(--t-fast), color var(--t-fast);
 }
 
-.side-rail .side-menu a svg {
+.side.side-rail .side-menu a:hover {
+  background: var(--g-fill);
+  color: var(--g-text);
+}
+
+.side.side-rail .side-menu a:focus-visible {
+  outline: 2px solid var(--g-accent);
+  outline-offset: -2px;
+}
+
+.side.side-rail .side-menu a svg {
   width: 1.5rem;
   height: 1.5rem;
 }
@@ -47,22 +86,40 @@
  * Nom piktogramma ostida. O'zbekcha nomlar uzun ("Bilimingizni sinang"),
  * shuning uchun ikki qatorgacha o'raladi — eski `nowrap` bu yerda yaramaydi.
  */
-.side-rail .side-menu a span {
+.side.side-rail .side-menu a span {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   align-self: auto;
   text-wrap: wrap;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 500;
   line-height: 1.2;
   word-break: break-word;
+}
+
+/*
+ * Faol element. Matn ilgari `#ddd` edi — yashil fonda kulrang bo'lib
+ * o'qilmasdi. Endi oq, ustiga yengil soya bilan ajralib turadi.
+ */
+.side.side-rail .side-menu a.current,
+.side.side-rail .side-menu a.current:hover {
+  background: var(--g-accent-grad);
+  color: #fff;
+  box-shadow: var(--g-shadow-1);
+}
+
+.side.side-rail .side-menu a.current span {
+  font-weight: 600;
 }
 
 /* ---------- Yig'ilgan holat: faqat piktogrammalar ---------- */
 
 .side.side-rail.side-mini {
-  width: 4.5rem;
+  width: 4.75rem;
+  padding-left: var(--s-2);
+  padding-right: var(--s-2);
 }
 
 .side.side-rail.side-mini .side-wrap {
@@ -70,7 +127,8 @@
 }
 
 .side.side-rail.side-mini .side-menu a {
-  padding: var(--s-3) var(--s-1);
+  min-height: 3.25rem;
+  padding: var(--s-2) 0.25rem;
 }
 
 .side.side-rail.side-mini .side-menu a span {
