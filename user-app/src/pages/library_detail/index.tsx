@@ -16,6 +16,7 @@ import FeedbackModal from '../../components/feedback-modal'
 import Success from '../../components/notifications/Success'
 import WithTooltip from '../../components/with-html/WithTooltip'
 import { request } from '../../helpers/request'
+import { rememberArticle } from '../../helpers/recent-articles'
 import SaveButton from '../../components/save-button'
 import { useApiErrorHandler } from '../../hooks/use-api-error-handler'
 import { RootState } from '../../store'
@@ -75,6 +76,15 @@ export const LibraryDetail = () => {
     },
     { onError: handleApiError, enabled: !!id }
   )
+
+  /*
+   * Bosh sahifadagi "Davom ettirish" bloki shu tarixdan o'qiydi.
+   * Havolalar `/article/<slug>` ko'rinishida, ya'ni URL'dagi `id` — slug.
+   */
+  useEffect(() => {
+    const name = data?.data?.name
+    if (id && name) rememberArticle({ slug: id, name })
+  }, [id, data])
 
   // Sahifadan chiqilganda chap mundarija eski maqolaniki bo'lib qolmasin.
   useEffect(() => {

@@ -3,7 +3,7 @@ import ToggleIcon from '../../img/icons/ToggleIcon'
 import uz from '../../img/icons/uz.svg'
 import ru from '../../img/icons/ru.svg'
 import en from '../../img/icons/en.svg'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import GetContainer from '../../components/get-container'
 import Modal from '../../components/modal'
@@ -84,7 +84,14 @@ function Navbar(props: IProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const [visibleMenu, setVisibleMenu] = useState(false)
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const [notsShow, setNotsShow] = useState(false)
+
+  /*
+   * Bosh sahifaning o'zi qidiruv ekrani — sarlavhada ikkinchi maydon
+   * ortiqcha, qaysi biriga yozish kerakligi ham tushunarsiz edi.
+   */
+  const showSearch = pathname !== '/home'
   const { theme } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -194,6 +201,7 @@ function Navbar(props: IProps) {
             </defs>
           </svg>
         </button>
+        {showSearch && (
         <div className='header-search'>
           <div className='header-search__input'>
             <svg width={20} height={20} viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -284,6 +292,7 @@ function Navbar(props: IProps) {
             </GetContainer>
           }
         </div>
+        )}
       </div>
       <div className='header-wrap'>
         {/* Saqlanganlar — bildirishnomaning chapida. */}

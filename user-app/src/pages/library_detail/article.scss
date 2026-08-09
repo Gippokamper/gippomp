@@ -245,3 +245,58 @@ body.dark .scroll-top {
   font-weight: 700;
   line-height: 1.2;
 }
+
+/* ---------- Sarlavha paneli: ixcham asboblar ---------- */
+
+/*
+ * Har tugmada `margin-right: 2rem` bor edi va oltita boshqaruv panel
+ * bo'ylab cho'zilib ketardi. Endi ular o'ngda bitta ixcham guruh.
+ */
+.library .library-head__wrap {
+  gap: var(--s-1);
+  margin-left: auto;
+}
+
+.library .library-head__wrap > * {
+  margin-right: 0;
+}
+
+.library .library-head__btn {
+  gap: 0.4rem;
+  margin-right: 0;
+  padding: 0.35rem 0.55rem;
+  border-radius: var(--r-sm);
+  color: var(--g-muted);
+  white-space: nowrap;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.library .library-head__btn:hover {
+  background: var(--g-fill);
+  color: var(--g-text);
+}
+
+/* Yoqilgan holat — checkbox belgisi emas, tugmaning o'zi bo'yaladi. */
+.library .library-head__btn:has(.checkbox:checked) {
+  background: var(--g-fill);
+  color: var(--g-accent);
+}
+
+.library .library-head__lang {
+  margin-right: 0;
+  padding-right: var(--s-2);
+  border-right: 1px solid var(--g-border);
+}
+
+.library .library-head__lang button {
+  margin-right: 0;
+  gap: 0.3rem;
+}
+
+/* Shrift o'lchami — chegara bilan ajratilgan kichik guruh */
+.library .library-head__wrap > .library-head__btn:last-child {
+  gap: 0.15rem;
+  padding-left: var(--s-2);
+  border-left: 1px solid var(--g-border);
+  border-radius: 0;
+}
