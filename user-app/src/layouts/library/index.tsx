@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import Navbar from '../navbar'
 import LogoImage from '../../img/icons/LogoImage'
 import LogoText from '../../img/icons/LogoText'
-import CloseIcon from '../../img/icons/CloseIcon'
 import LibrarySideMenu from '../library_side_menu'
 import LibraryFooter from '../library_footer'
 import LibraryPlan from '../library_plan'
@@ -30,7 +29,7 @@ function LibraryLayout(props: any) {
     <>
       <div className='app'>
         {/* SIDE */}
-        <aside className={`side ${isCollapsed ? 'side-mini' : ''}`}>
+        <aside className={`side side-rail ${isCollapsed ? 'side-mini' : ''}`}>
           <a href='/' className='side-logo'>
             <LogoImage />
             <div className='side-logo__text'>
@@ -38,7 +37,7 @@ function LibraryLayout(props: any) {
             </div>
           </a>
           <div className='side-content'>
-            <div className='side-wrap side-wrap__hidden'>
+            <div className='side-wrap'>
               {/*
                 Tungi rejim tugmasi bu yerdan olib tashlandi — u yuqoridagi
                 profil menyusida, ikki joyda turishi shart emas edi.
@@ -46,12 +45,6 @@ function LibraryLayout(props: any) {
               <LibrarySideMenu />
             </div>
           </div>
-          <button
-            className={`side__close btn  ${isCollapsed ? 'closed' : ''}`}
-            onClick={() => setIsCollapsed(!isCollapsed)}
-          >
-            <CloseIcon />
-          </button>
         </aside>
         {/* MAIN */}
         <main className='main'>

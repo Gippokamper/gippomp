@@ -75,3 +75,9 @@ yarn-error.log*
 # Windowsda `sass ... /dev/null` shunday nomli fayl yaratadi, git uni
 # indekslay olmaydi (zahiralangan qurilma nomi).
 nul
+
+# Brauzerdan olingan suratlar (tekshirish uchun)
+.screenshots/
+
+# Playwright sessiyasi (token saqlaydi)
+state.json

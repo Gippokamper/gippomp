@@ -63,11 +63,24 @@ class SearchController extends UserBaseController
             $byText = Chapter::with(['articles'])
                 ->where('description', 'LIKE', $like)
                 ->whereNotIn('id', $chapterResults->pluck('id'))
-                ->limit(5 - $chapterResults->count())
+                ->limit(20)
                 ->get();
 
             $chapterResults = $chapterResults->concat($byText);
         }
+
+        /*
+         * Maqolaning o'zi topilgan bo'lsa, uning boblari ro'yxatda takror
+         * bo'lmasin: "gastrit" so'roviga "Gastrit" maqolasi va uning ostidan
+         * "Umumiy ma'lumot", "Ta'rif", "Etiologiyasi" chiqib, natija
+         * ma'nosiz to'lib ketardi.
+         */
+        $foundArticleIds = $articleResults->pluck('id');
+
+        $chapterResults = $chapterResults
+            ->reject(fn ($chapter) => $chapter->articles->pluck('id')->intersect($foundArticleIds)->isNotEmpty())
+            ->take(5)
+            ->values();
 
         $videoResults = Video::with('categories')
             ->where('name', 'LIKE', $like)
