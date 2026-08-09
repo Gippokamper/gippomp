@@ -1,0 +1,55 @@
+/*
+ * Maqola mundarijasi — gorizontal lenta.
+ *
+ * Referensdagi (AMBOSS) yuqori yorliqlar kabi: bo'limlar yonma-yon, joriysi
+ * ostiga chiziq tortiladi. Ilgari chapda ustun bo'lib, o'qish maydonini
+ * toraytirardi.
+ */
+
+.toc {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin-bottom: var(--s-4);
+  border-bottom: 1px solid var(--g-border);
+  background: var(--g-bg);
+}
+
+.toc__list {
+  display: flex;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+/* Aylantirgich ko'rinmasin — lenta o'zi surilaveradi. */
+.toc__list::-webkit-scrollbar {
+  display: none;
+}
+
+.toc__item {
+  display: block;
+  flex-shrink: 0;
+  padding: 0.6rem 0.65rem;
+  border-bottom: 2px solid transparent;
+  color: var(--g-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+
+.toc__item:hover {
+  color: var(--g-text);
+}
+
+.toc__item.is-active {
+  border-bottom-color: var(--g-accent);
+  color: var(--g-accent);
+  font-weight: 600;
+}

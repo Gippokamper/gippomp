@@ -1,30 +1,17 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from 'react-query'
 import { useTranslation } from 'react-i18next'
 
 import { MainLayout } from '../../layouts/main'
 import Article from '../../img/icons/Article'
 import VideoCard from '../../components/vedio-card'
 import TestIcon from '../../img/icons/TestIcon'
-import { AuthContext } from '../../providers/auth-provider'
 import { request } from '../../helpers/request'
 import './dashboard.scss'
 
-/** Suhbatdagi bitta almashuv: talaba savoli va unga topilgan materiallar. */
-interface IExchange {
-  id: number
-  question: string
-  status: 'loading' | 'done' | 'error'
-  result?: {
-    articles: any[]
-    chapters: any[]
-    videos: any[]
-    blocks: any[]
-  }
-}
-
-const HISTORY_KEY = 'gippokamp:chat-history'
-const HISTORY_LIMIT = 8
+const HISTORY_KEY = 'gippokamp:search-history'
+const HISTORY_LIMIT = 6
 
 const readHistory = (): string[] => {
   try {
@@ -35,9 +22,10 @@ const readHistory = (): string[] => {
   }
 }
 
-const SendIcon = () => (
-  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <path d='M5 12h13M13 6l6 6-6 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+const SearchIcon = () => (
+  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <circle cx='11' cy='11' r='7' stroke='currentColor' strokeWidth='2' />
+    <path d='M20 20l-3.5-3.5' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
   </svg>
 )
 
@@ -50,25 +38,20 @@ const ClockIcon = () => (
 
 export const Dashboard = () => {
   const { t, i18n } = useTranslation()
-  const { user } = useContext(AuthContext)
 
   const [term, setTerm] = useState('')
-  const [exchanges, setExchanges] = useState<IExchange[]>([])
+  const [query, setQuery] = useState('')
   const [history, setHistory] = useState<string[]>(readHistory)
-  /** Klaviatura bilan tarixdan tanlash uchun joriy o'rin (-1 = tanlanmagan). */
   const [cursor, setCursor] = useState(-1)
-
   const inputRef = useRef<HTMLInputElement>(null)
-  const feedRef = useRef<HTMLDivElement>(null)
 
-  const firstName = user?.firstname || ''
-
-  /* Yangi javob kelganda suhbat oxiriga suriladi. */
+  /* Yozilayotgan paytda har harfga so'rov ketmasin. */
   useEffect(() => {
-    feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'smooth' })
-  }, [exchanges])
+    const timer = setTimeout(() => setQuery(term.trim()), 300)
+    return () => clearTimeout(timer)
+  }, [term])
 
-  /* Ctrl+K — yozish maydoniga o'tish. */
+  /* Ctrl+K — qidiruvga o'tish. */
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -80,58 +63,35 @@ export const Dashboard = () => {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const remember = (question: string) => {
-    const next = [question, ...history.filter(h => h !== question)].slice(0, HISTORY_LIMIT)
+  const { data, isFetching } = useQuery(
+    ['home-search', query],
+    async () => {
+      const response: any = await request({
+        url: 'dashboard/user/search',
+        method: 'GET',
+        params: { search: query }
+      })
+      return response?.data?.data ?? {}
+    },
+    { enabled: query.length > 2, retry: false }
+  )
+
+  const remember = (value: string) => {
+    const q = value.trim()
+    if (q.length < 3) return
+    const next = [q, ...history.filter(h => h !== q)].slice(0, HISTORY_LIMIT)
     setHistory(next)
     try {
       window.localStorage.setItem(HISTORY_KEY, JSON.stringify(next))
     } catch {
-      // xotira to'lgan yoki taqiqlangan bo'lishi mumkin — jim o'tamiz
+      // xotira taqiqlangan bo'lishi mumkin — jim o'tamiz
     }
   }
 
-  const ask = async (raw: string) => {
-    const question = raw.trim()
-    if (!question) return
-
-    const id = Date.now()
-    setExchanges(prev => [...prev, { id, question, status: 'loading' }])
-    setTerm('')
-    setCursor(-1)
-    remember(question)
-
-    try {
-      const response: any = await request({
-        url: 'dashboard/user/search',
-        method: 'GET',
-        params: { search: question }
-      })
-      const data = response?.data?.data ?? {}
-      setExchanges(prev =>
-        prev.map(item =>
-          item.id === id
-            ? {
-                ...item,
-                status: 'done',
-                result: {
-                  articles: data.articles ?? [],
-                  chapters: data.chapters ?? [],
-                  videos: data.videos ?? [],
-                  blocks: data.blocks ?? []
-                }
-              }
-            : item
-        )
-      )
-    } catch {
-      setExchanges(prev => prev.map(item => (item.id === id ? { ...item, status: 'error' } : item)))
-    }
-  }
-
-  /* ↑/↓ — oldingi savollar bo'ylab yurish, Esc — tozalash. */
+  /* ↑/↓ — oldingi so'rovlar bo'ylab yurish, Esc — tozalash. */
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      ask(term)
+      remember(term)
       return
     }
     if (e.key === 'Escape') {
@@ -155,184 +115,143 @@ export const Dashboard = () => {
     }
   }
 
-  const isEmpty = exchanges.length === 0
+  const articles: any[] = data?.articles ?? []
+  const chapters: any[] = data?.chapters ?? []
+  const videos: any[] = data?.videos ?? []
+  const blocks: any[] = data?.blocks ?? []
+  const total = articles.length + chapters.length + videos.length + blocks.length
 
-  const renderAnswer = (exchange: IExchange) => {
-    if (exchange.status === 'loading') {
-      return <div className='chat-answer__wait'>{t('Loading...')}</div>
-    }
-
-    if (exchange.status === 'error') {
-      return <div className='chat-answer__wait'>{t('Failed to load')}</div>
-    }
-
-    const { articles = [], chapters = [], videos = [], blocks = [] } = exchange.result ?? {}
-    const total = articles.length + chapters.length + videos.length + blocks.length
-
-    if (!total) {
-      return (
-        <>
-          <p className='chat-answer__text'>{t('Nothing found')}</p>
-          <p className='chat-answer__hint'>{t('Try another word or check the spelling')}</p>
-        </>
-      )
-    }
-
-    return (
-      <>
-        <p className='chat-answer__text'>
-          {t('Found materials')}: <b>{total}</b>
-        </p>
-
-        {articles.length > 0 && (
-          <div className='chat-group'>
-            <span className='chat-group__label'>{t('Library')}</span>
-            <ul>
-              {articles.map((article: any) => (
-                <li key={`a-${article.id}`}>
-                  <Link to={'/article/' + article.slug}>
-                    <Article />
-                    <span>{article?.name?.[i18n.language] || article.slug}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {chapters.length > 0 && (
-          <div className='chat-group'>
-            <span className='chat-group__label'>{t('Topics')}</span>
-            <ul>
-              {chapters.map((chapter: any) =>
-                (chapter?.article_ids ?? []).slice(0, 1).map((article: any) => (
-                  <li key={`c-${chapter.id}`}>
-                    <Link to={`/article/${article?.slug}?chapter_id=${chapter?.id}`}>
-                      <Article />
-                      <span>{chapter?.title?.[i18n.language]}</span>
-                    </Link>
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
-        )}
-
-        {videos.length > 0 && (
-          <div className='chat-group'>
-            <span className='chat-group__label'>{t('Videos')}</span>
-            <ul>
-              {videos.map((video: any) => (
-                <li key={`v-${video.id}`}>
-                  <Link to='/videos'>
-                    <VideoCard />
-                    <span>{video?.name?.[i18n.language] || video.slug}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {blocks.length > 0 && (
-          <div className='chat-group'>
-            <span className='chat-group__label'>{t('Test your knowledge')}</span>
-            <ul>
-              {blocks.map((block: any) => (
-                <li key={`b-${block.id}`}>
-                  <Link to='/quizzes'>
-                    <TestIcon />
-                    <span>
-                      {block?.name?.[i18n.language] || block.slug}
-                      {!!block.count && <i> · {block.count}</i>}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </>
-    )
-  }
+  const showResults = query.length > 2
 
   return (
-    <MainLayout disablePadding>
-      <section className={`chat ${isEmpty ? 'is-empty' : ''}`}>
-        <div className='chat-feed' ref={feedRef}>
-          {isEmpty ? (
-            <div className='chat-intro'>
-              <h1 className='chat-intro__title'>
-                {firstName ? `${t('Hello')}, ${firstName}` : t('Hello')}
-              </h1>
-              <p className='chat-intro__sub'>{t('Ask about any topic — I will find the materials')}</p>
+    <MainLayout>
+      <section className='find'>
+        <div className='find-hero'>
+          <h1 className='find-hero__title'>{t('What are you searching for?')}</h1>
+          <p className='find-hero__sub'>{t('The library is constantly updated and expanded')}</p>
 
-              {history.length > 0 && (
-                <div className='chat-history'>
-                  <span className='chat-history__label'>{t('Your recent questions')}</span>
-                  <ul>
-                    {history.map(item => (
-                      <li key={item}>
-                        <button type='button' onClick={() => ask(item)}>
-                          <ClockIcon />
-                          <span>{item}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className='chat-thread'>
-              {exchanges.map(exchange => (
-                <div className='chat-turn' key={exchange.id}>
-                  <div className='chat-question'>{exchange.question}</div>
-                  <div className='chat-answer'>{renderAnswer(exchange)}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ---------- Yozish maydoni ---------- */}
-        <div className='chat-composer'>
-          <div className='chat-composer__box'>
+          <div className='find-box'>
+            <span className='find-box__icon'>
+              <SearchIcon />
+            </span>
             <input
               ref={inputRef}
               type='text'
               value={term}
-              placeholder={t('Ask a question')}
+              placeholder={t('Find content')}
               onChange={e => {
                 setTerm(e.target.value)
                 setCursor(-1)
               }}
               onKeyDown={onKeyDown}
+              onBlur={() => remember(term)}
             />
-            <button
-              type='button'
-              className='chat-composer__send'
-              aria-label={t('Search')}
-              disabled={!term.trim()}
-              onClick={() => ask(term)}
-            >
-              <SendIcon />
-            </button>
+            <kbd className='find-box__kbd'>Ctrl + K</kbd>
           </div>
 
-          {/* Referensdagi kabi klaviatura yorliqlari */}
-          <div className='chat-composer__hints'>
-            <span>
-              <kbd>Ctrl</kbd> + <kbd>K</kbd> {t('Open')}
-            </span>
-            <span>
-              <kbd>↑</kbd> <kbd>↓</kbd> {t('Recent questions')}
-            </span>
-            <span>
-              <kbd>Enter</kbd> {t('Send')}
-            </span>
-          </div>
+          {/* Oxirgi so'rovlar — faqat qidiruv boshlanmagan bo'lsa */}
+          {!showResults && history.length > 0 && (
+            <div className='find-history'>
+              <span className='find-history__label'>{t('Recent questions')}</span>
+              <ul>
+                {history.map(item => (
+                  <li key={item}>
+                    <button type='button' onClick={() => setTerm(item)}>
+                      <ClockIcon />
+                      <span>{item}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
+
+        {/* ---------- Natijalar ---------- */}
+        {showResults && (
+          <div className='find-results'>
+            {isFetching && !total ? (
+              <p className='find-results__note'>{t('Loading...')}</p>
+            ) : !total ? (
+              <p className='find-results__note'>{t('Nothing found')}</p>
+            ) : (
+              <>
+                <p className='find-results__note'>
+                  {t('Found materials')}: <b>{total}</b>
+                </p>
+
+                {articles.length > 0 && (
+                  <div className='find-group'>
+                    <span className='find-group__label'>{t('Library')}</span>
+                    <ul>
+                      {articles.map((article: any) => (
+                        <li key={`a-${article.id}`}>
+                          <Link to={'/article/' + article.slug}>
+                            <Article />
+                            <span>{article?.name?.[i18n.language] || article.slug}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {chapters.length > 0 && (
+                  <div className='find-group'>
+                    <span className='find-group__label'>{t('Topics')}</span>
+                    <ul>
+                      {chapters.map((chapter: any) =>
+                        (chapter?.article_ids ?? []).slice(0, 1).map((article: any) => (
+                          <li key={`c-${chapter.id}`}>
+                            <Link to={`/article/${article?.slug}?chapter_id=${chapter?.id}`}>
+                              <Article />
+                              <span>{chapter?.title?.[i18n.language]}</span>
+                            </Link>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {videos.length > 0 && (
+                  <div className='find-group'>
+                    <span className='find-group__label'>{t('Videos')}</span>
+                    <ul>
+                      {videos.map((video: any) => (
+                        <li key={`v-${video.id}`}>
+                          <Link to='/videos'>
+                            <VideoCard />
+                            <span>{video?.name?.[i18n.language] || video.slug}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {blocks.length > 0 && (
+                  <div className='find-group'>
+                    <span className='find-group__label'>{t('Test your knowledge')}</span>
+                    <ul>
+                      {blocks.map((block: any) => (
+                        <li key={`b-${block.id}`}>
+                          <Link to='/quizzes'>
+                            <TestIcon />
+                            <span>
+                              {block?.name?.[i18n.language] || block.slug}
+                              {!!block.count && <i> · {block.count}</i>}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </section>
     </MainLayout>
   )
