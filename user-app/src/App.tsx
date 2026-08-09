@@ -41,7 +41,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Routes>
-            <Route path='/' element={<Navigate to='/library' replace />} />
+            <Route path='/' element={<Navigate to='/home' replace />} />
             {router_data.map(route => (
               <Route {...route} key={route.path} />
             ))}

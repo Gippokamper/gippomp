@@ -253,6 +253,9 @@ Route::group(['prefix' => 'v1'], function () {
 
 //            Articles
                 Route::get('/articles', [Backend\User\ArticleController::class, 'index'])->name('articles.index');
+                // Bosh sahifadagi "Davom ettirish" bloki uchun. Tarif tekshiruvidan
+                // tashqarida: ro'yxat ko'rinadi, maqolaning o'zi baribir tekshiriladi.
+                Route::get('/articles_recent', [Backend\User\ArticleController::class, 'recent'])->name('articles.recent');
 
 //            Video Category
                 Route::get('/video_categories', [Backend\User\VideoCategoryController::class, 'index'])->name('video_categories.index');

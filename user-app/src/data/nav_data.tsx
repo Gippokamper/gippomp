@@ -1,3 +1,4 @@
+import HomeIcon from '../img/icons/HomeIcon'
 import LibraryIcon from '../img/icons/LibraryIcon'
 import NewsIcon from '../img/icons/NewsIcon'
 import StudyIcon from '../img/icons/StudyIcon'
@@ -13,6 +14,11 @@ import VediosIcon from '../img/icons/VediosIcon'
  * bildirishnoma tugmasining chapida.
  */
 export const nav_data = [
+  {
+    to: '/home',
+    text: 'Home',
+    icon: <HomeIcon />
+  },
   {
     to: '/library',
     text: 'Library',

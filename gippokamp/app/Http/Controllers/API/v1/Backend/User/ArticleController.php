@@ -36,6 +36,39 @@ class ArticleController extends UserBaseController
         }
     }
 
+    /**
+     * Oxirgi o'qilgan maqolalar — bosh sahifadagi "Davom ettirish" bloki uchun.
+     *
+     * `article_reads` da faqat foydalanuvchi va maqola bog'lanishi bor, shuning
+     * uchun tartib yozuv qo'shilgan vaqt bo'yicha (eng oxirgisi birinchi).
+     */
+    public function recent(Request $request)
+    {
+        $limit = min((int) $request->get('limit', 6), 20);
+
+        $articleIds = ArticleRead::where('user_id', auth('sanctum')->id())
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->pluck('article_id');
+
+        if ($articleIds->isEmpty()) {
+            return $this->successResponse('success', []);
+        }
+
+        $articles = Article::with('categories')
+            ->whereIn('id', $articleIds)
+            ->get()
+            ->keyBy('id');
+
+        // `whereIn` tartibni saqlamaydi — o'qilgan tartibiga qaytaramiz.
+        $ordered = $articleIds
+            ->map(fn ($id) => $articles->get($id))
+            ->filter()
+            ->values();
+
+        return $this->successResponse('success', ArticleResource::collection($ordered));
+    }
+
     public function read(int $id)
     {
         try {
