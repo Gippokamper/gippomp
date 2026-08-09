@@ -105,9 +105,28 @@ export const Account = () => {
                   <Overview onManageTariffs={() => go('tariffs')} onEdit={() => go('settings')} />
                 )}
                 {activeTab === 'devices' && <Devices />}
+
+                {/* Tariflar o'z sarlavhasi va tartibiga ega — panel qo'shilmaydi. */}
                 {activeTab === 'tariffs' && <Tariffs />}
-                {activeTab === 'payments' && <Payments />}
-                {activeTab === 'messages' && <Messages />}
+
+                {activeTab === 'payments' && (
+                  <div className='acc-panel'>
+                    <div className='acc-panel__head'>
+                      <h2 className='acc-panel__title'>{t('Payments')}</h2>
+                    </div>
+                    <Payments />
+                  </div>
+                )}
+
+                {activeTab === 'messages' && (
+                  <div className='acc-panel'>
+                    <div className='acc-panel__head'>
+                      <h2 className='acc-panel__title'>{t('Messages')}</h2>
+                    </div>
+                    <Messages />
+                  </div>
+                )}
+
                 {activeTab === 'settings' && <Settings userData={user} />}
               </motion.div>
             </AnimatePresence>

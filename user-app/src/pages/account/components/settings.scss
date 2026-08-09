@@ -1,45 +1,113 @@
 /*
- * Sozlamalar tabi: <a> dan <button> ga o'tgan "ma'lumot" havolasi va
- * Tariflar tabidan ko'chirilgan "Qurilmalar" bo'limi.
+ * Sozlamalar formasi.
+ *
+ * Qurilmalar bo'limi bu yerdan olib tashlandi — u endi kabinetning alohida
+ * bo'limi. Uning `.acc-devices` qoidalari ham o'chirildi: yangi qurilmalar
+ * ro'yxati ham xuddi shu sinfni ishlatadi va ikkalasi bir-biriga tegib,
+ * ro'yxatga keraksiz chegara qo'shib qo'yardi.
  */
 
-/* Tugmaga aylandi — eski havola ko'rinishini saqlab qolamiz. */
-.account-settings__info {
-  border: none;
-  background: none;
+/* Rasm tanlash qatori */
+.acc-form__avatar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding-bottom: var(--s-5);
+  margin-bottom: var(--s-5);
+  border-bottom: 1px solid var(--g-border);
+}
+
+.acc-form__avatar-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  align-items: flex-start;
+}
+
+.acc-form__hint {
+  color: var(--g-muted);
+  font-size: var(--fs-xs);
+}
+
+/* Brauzerning xom fayl tugmasi ko'rinmaydi — uni tugma orqali chaqiramiz. */
+.acc-form__file {
+  display: none;
+}
+
+/* ---------- Maydonlar ---------- */
+
+.acc-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.acc-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.acc-form__field > span {
+  color: var(--g-muted);
+  font-size: var(--fs-sm);
+}
+
+.acc-form__field input,
+.acc-form__field select {
+  width: 100%;
+  min-height: var(--ctl-h);
+  padding: 0 0.75rem;
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-md);
+  background: var(--g-surface);
+  color: var(--g-text);
   font: inherit;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
+  font-size: var(--fs-body);
+  transition: border-color var(--t-fast);
 }
 
-.acc-devices {
-  margin-top: 1.2rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(18, 27, 45, 0.1);
+.acc-form__field input::placeholder {
+  color: var(--g-muted);
 }
 
-body.dark .acc-devices {
-  border-top-color: rgba(255, 255, 255, 0.1);
+.acc-form__field input:focus,
+.acc-form__field select:focus {
+  outline: none;
+  border-color: var(--g-accent);
 }
 
-.acc-devices__title {
-  margin: 0 0 0.25rem;
-  font-size: 0.98rem;
-  font-weight: 700;
-  color: #121b2d;
+.acc-form__field input:focus-visible,
+.acc-form__field select:focus-visible {
+  outline: 2px solid var(--g-accent);
+  outline-offset: 2px;
 }
 
-body.dark .acc-devices__title {
-  color: #ddd;
+.acc-form__field input:disabled {
+  background: var(--g-fill);
+  color: var(--g-muted);
+  cursor: not-allowed;
 }
 
-.acc-devices__hint {
-  margin: 0 0 0.7rem;
-  font-size: 0.7rem;
-  color: #6b7785;
+.acc-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--g-border);
 }
 
-body.dark .acc-devices__hint {
-  color: #a3b2bd;
+@media (max-width: 767.98px) {
+  .acc-form {
+    grid-template-columns: 1fr;
+  }
+
+  .acc-form__footer {
+    justify-content: stretch;
+  }
+
+  .acc-form__footer .ui-btn {
+    width: 100%;
+  }
 }
