@@ -198,7 +198,13 @@
  * Ochiq — to'la oltin: mukofot, "bu yerda ustama material bor".
  * Yopiq — faqat ramka: taklif, e'tiborni matndan tortib olmaydi.
  */
+/*
+ * Ramka ataylab: yorqin oltin fon och sahifa foni bilan atigi 1.66:1
+ * beradi, ya'ni belgi qirrasi yo'qoladi. Matn ichida kontrast yetarli
+ * (7.6:1), lekin shaklning o'zi ham ko'rinib tursin.
+ */
 .section-premium__badge.is-open {
+  border: 1px solid var(--g-lock);
   background: var(--g-lock-grad);
   color: var(--g-lock-on);
   box-shadow: 0 1px 3px var(--g-lock-border);
