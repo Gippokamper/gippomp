@@ -198,6 +198,17 @@ export function prepareArticleHtml(html: string | undefined, options: IPrepareOp
     .replaceAll('color: windowtext;', '')
     .replaceAll('color: rgb(0, 0, 0);', '')
     .replaceAll('background: white;', '')
+    /*
+     * Muharrir qo'shimcha ma'lumotni CMS'da qo'lda to'q sariqqa bo'yagan.
+     * Endi belgini CSS beradi (`content.scss`, gold rels + fon), bu rang esa
+     * kunduzgi fonda 2.53:1, sepiada 2.42:1 — o'qish uchun kerakli 4.5:1 dan
+     * ikki barobar past, tungi mavzuda esa allaqachon `#ddd !important`
+     * bilan o'chiriladi. Ya'ni u hech bir mavzuda ishlamayotgan edi.
+     *
+     * Regex ataylab tor — faqat shu aniq tus. Muharrir boshqa sariq yozgan
+     * bo'lsa tegilmaydi, kutilmagan rang o'chib ketmasin.
+     */
+    .replace(/color:\s*(rgb\(\s*230\s*,\s*126\s*,\s*35\s*\)|#e67e23)\s*;?/gi, '')
     // Keng jadvallar gorizontal scroll uchun o'raladi. Ilgari bu yerda id
     // berilardi — bir maqolada bir nechta jadval bo'lsa ID takrorlanardi.
     .replace(/<table/g, '<div class="table-wrapper"><table')

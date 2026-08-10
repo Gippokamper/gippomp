@@ -148,6 +148,7 @@
  * qo'yib bo'lmaydi. Bosilganda bo'lim ochiladi, ichida to'liq tugma turadi.
  */
 .section-premium__badge {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -157,22 +158,106 @@
    * o'rtasiga uchirib yuborardi. Endi belgi sarlavha yonida turadi,
    * strelka esa o'ng chekkada.
    */
-  padding: 0.1rem 0.45rem 0.1rem 0.35rem;
-  border: 1px solid var(--g-lock-border);
+  padding: 0.12rem 0.5rem 0.12rem 0.4rem;
   border-radius: var(--r-pill);
-  background: var(--g-lock-fill);
-  color: var(--g-lock);
   /* Sarlavha shrift shkalasidan o'sadi; belgi esa interfeys elementi. */
   font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   white-space: nowrap;
   flex-shrink: 0;
+  /* Yaltirash `::after` orqali chetidan chiqib ketmasin. */
+  overflow: hidden;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
 }
 
-.section-premium__badge svg {
-  width: 0.65rem;
-  height: 0.65rem;
+/*
+ * `color: inherit` shart: `article.scss` dagi
+ * `.library-accordion__head svg { color: var(--g-muted) }` strelka uchun
+ * yozilgan, lekin sarlavha ichidagi HAR QANDAY svg'ga tegadi — belgidagi
+ * uchqun ham kulrang bo'lib qolardi.
+ *
+ * `margin-left: 0` ham shu sababdan: o'sha qoidada `margin-left: auto` bor
+ * va u uchqunni belgi ichida o'ngga uchirib yuborardi.
+ */
+.library .library-accordion__head .section-premium__badge svg {
+  /* 0.65rem da uchqunning to'rt nuri qo'shuv belgisiga o'xshab qolardi. */
+  width: 0.8rem;
+  height: 0.8rem;
+  flex-shrink: 0;
+  margin-left: 0;
+  color: inherit;
+}
+
+/*
+ * ---------- Ikki holat ----------
+ *
+ * Ilgari ikkalasida ham qulf turardi: obuna to'lagan odam o'ziga ochiq
+ * bo'lgan bo'lim yonida "yopiq" belgisini ko'rardi.
+ *
+ * Ochiq — to'la oltin: mukofot, "bu yerda ustama material bor".
+ * Yopiq — faqat ramka: taklif, e'tiborni matndan tortib olmaydi.
+ */
+.section-premium__badge.is-open {
+  background: var(--g-lock-grad);
+  color: var(--g-lock-on);
+  box-shadow: 0 1px 3px var(--g-lock-border);
+}
+
+.section-premium__badge.is-locked {
+  border: 1px solid var(--g-lock-border);
+  background: var(--g-lock-fill);
+  color: var(--g-lock);
+}
+
+/* ---------- Yaltirash ---------- */
+
+/*
+ * Sarlavha ustiga sichqoncha kelganda belgidan bir marta yorug' o'tadi.
+ * Doimiy animatsiya emas: uzun maqolada o'nlab qator bor, ularning har biri
+ * o'z-o'zidan miltillasa matn o'qib bo'lmas holga kelardi.
+ */
+.section-premium__badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: translateX(0);
+  pointer-events: none;
+}
+
+.library-accordion__head:hover .section-premium__badge {
+  transform: translateY(-1px);
+}
+
+.library-accordion__head:hover .section-premium__badge.is-open {
+  box-shadow: 0 2px 8px var(--g-lock-border);
+}
+
+.library-accordion__head:hover .section-premium__badge::after {
+  animation: premium-sheen 0.75s ease-out;
+}
+
+@keyframes premium-sheen {
+  to {
+    transform: translateX(400%);
+  }
+}
+
+/* Harakatni kamaytirish so'ralganda — na siljish, na yaltirash. */
+@media (prefers-reduced-motion: reduce) {
+  .section-premium__badge,
+  .library-accordion__head:hover .section-premium__badge {
+    transform: none;
+    transition: none;
+  }
+
+  .library-accordion__head:hover .section-premium__badge::after {
+    animation: none;
+  }
 }
 
 /*

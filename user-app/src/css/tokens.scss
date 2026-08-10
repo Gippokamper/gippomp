@@ -33,9 +33,23 @@
    * Ataylab urg'u rangidan boshqa — "bu yerda yana narsa bor" degani
    * xato yoki xavf emas, shuning uchun `--g-danger` ham to'g'ri kelmaydi.
    */
-  --g-lock: #b8860b;
+  /* `#b8860b` edi — o'qish foni (`#eef2f5`) ustida atigi 2.89:1 berardi,
+     ya'ni grafik element uchun kerak bo'lgan 3:1 dan ham past. Bu 4.73:1;
+     oq yuza ustida 5.3:1, ya'ni kichik yozuvlar ham 4.5:1 ni o'tadi. */
+  --g-lock: #8a6508;
   --g-lock-fill: rgba(214, 158, 46, 0.1);
   --g-lock-border: rgba(214, 158, 46, 0.38);
+  /* Ochilgan qo'shimcha ma'lumot ostidagi fon. `--g-lock-fill` dan
+     kuchliroq: u ramkali kartochka ICHIDA ishlaydi, bu esa yalang'och
+     o'qish foni ustida turadi. */
+  --g-lock-wash: rgba(214, 158, 46, 0.14);
+  /* To'la bo'yalgan premium belgisi uchun — ochiq obunada ishlatiladi.
+     `--g-lock-on` shu gradient ustidagi matn rangi.
+     Stoplar `--g-lock` bilan bir oilada va ataylab to'q: och oltinda
+     (`#d9a520`) oq yozuv atigi 2.25:1 berardi. Bu yerda eng och nuqta ham
+     4.65:1, to'q nuqtasi 5.32:1 — ikkalasi ham 4.5:1 dan yuqori. */
+  --g-lock-grad: linear-gradient(135deg, #936f0e 0%, #8a6508 100%);
+  --g-lock-on: #fff;
   --g-shadow-1: 0 1px 2px rgba(18, 27, 45, 0.04);
   --g-shadow-2: 0 4px 14px rgba(18, 27, 45, 0.07);
   --g-shadow-3: 0 0.75rem 2rem rgba(18, 27, 45, 0.14), 0 0.125rem 0.375rem rgba(18, 27, 45, 0.06);
@@ -114,6 +128,10 @@ body.dark {
   --g-lock: #e8b964;
   --g-lock-fill: rgba(232, 185, 100, 0.1);
   --g-lock-border: rgba(232, 185, 100, 0.3);
+  --g-lock-wash: rgba(232, 185, 100, 0.1);
+  /* Tungi fonda oltin yorug' — matn esa qorong'i, aks holda o'qilmaydi. */
+  --g-lock-grad: linear-gradient(135deg, #f5d089 0%, #e0aa4e 100%);
+  --g-lock-on: #241a08;
   --g-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
   --g-shadow-2: 0 6px 20px rgba(0, 0, 0, 0.45);
   --g-shadow-3: 0 0.75rem 2rem rgba(0, 0, 0, 0.5), 0 0.125rem 0.375rem rgba(0, 0, 0, 0.3);
@@ -136,9 +154,14 @@ body.sepia {
   --g-danger-fill: rgba(178, 58, 58, 0.12);
   /* Fonning o'zi iliq qog'oz rangida — qulf ramkasi shunga yarasha
      to'yingroq, aks holda kartochka fondan ajralmaydi. */
-  --g-lock: #9a6f13;
+  /* `#9a6f13` edi — 3.83:1. Bu 5.34:1. */
+  --g-lock: #7d5a0f;
   --g-lock-fill: rgba(154, 111, 19, 0.1);
   --g-lock-border: rgba(154, 111, 19, 0.32);
+  --g-lock-wash: rgba(154, 111, 19, 0.13);
+  /* Kunduzgidagi kabi: och stopda ham oq yozuv 5.03:1, to'qida 6.28:1. */
+  --g-lock-grad: linear-gradient(135deg, #8e690e 0%, #7d5a0f 100%);
+  --g-lock-on: #fffaf0;
   --g-shadow-1: 0 1px 2px rgba(84, 66, 40, 0.08);
   --g-shadow-2: 0 6px 20px rgba(84, 66, 40, 0.14);
   --g-shadow-3: 0 0.75rem 2rem rgba(84, 66, 40, 0.16), 0 0.125rem 0.375rem rgba(84, 66, 40, 0.09);

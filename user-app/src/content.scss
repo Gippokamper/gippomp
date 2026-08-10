@@ -496,39 +496,72 @@ span {
  * Endi holat konteynerdagi sinf bilan beriladi, qolganini CSS hal qiladi.
  * --------------------------------------------------------------------------- */
 
-/* Ikkala rejim ham o'chiq: qo'shimcha matn yashirin. */
+/* ---------- 1. Yopiq holat (sukut) ---------- */
+
+.dangerous {
+  /* Rels qalinligi va uning matndan qanchalik chapda turishi.
+     Ikkalasi ham `calc()` ichida kerak, shuning uchun o'zgaruvchida. */
+  --addinfo-rail: 2px;
+  --addinfo-gutter: 0.75rem;
+}
+
 .dangerous u {
   display: none;
 }
 
-.dangerous.show-addinfo u {
-  display: inline;
-  border: none;
-  text-decoration: none;
-}
+/* ---------- 2. Kim ochadi ---------- */
 
-.dangerous.show-marker u {
-  display: inline;
-  text-decoration: none;
-  border-bottom: 2px solid rgba(249, 194, 6, 1);
-}
-
-.dangerous.show-addinfo.show-marker u {
-  display: inline;
-  text-decoration: none;
-  border-bottom: 2px solid rgba(249, 194, 6, 1);
-}
-
-/* Test (quiz) rejimida qo'shimcha matn doim ko'rinadi. */
+/*
+ * `show-marker` bu ro'yxatda ATAYLAB yo'q. Uning boshqaruvi interfeysdan
+ * olib tashlangan, lekin `htmlSlice` uni localStorage'dan tiklaydi va
+ * sinf HTML'ga qo'yilaveradi. Ilgari markerni yoqqan foydalanuvchida u
+ * qo'shimcha ma'lumotni RUXSATDAN QAT'I NAZAR ochib qo'yardi va uni
+ * ilova ichida o'chirishning yo'li yo'q edi.
+ */
+.dangerous.show-addinfo u,
 .dangerous.is-quiz u {
   display: inline;
+}
+
+/* ---------- 3. Test (quiz) rejimi — neytral ---------- */
+
+/*
+ * Testda `<u>` "kalit so'z", premium emas: u yerda kontent ruxsatdan qat'i
+ * nazar ochiq. Premium belgisi to'lov devori bo'lmagan joyda to'lov devori
+ * taassurotini berardi, shuning uchun quyidagi belgilash qoidalari
+ * `:not(.is-quiz)` bilan yuradi va bu yerda eski, neytral ko'rinish qoladi.
+ */
+.dangerous.is-quiz u {
   border: none;
   text-decoration: none;
 }
 
+/* "Kalit so'zlar" — testdagi tirik marker. */
 .dangerous.is-quiz.show-marker u {
-  text-decoration: none;
   border-bottom: 2px solid rgba(249, 194, 6, 1);
+}
+
+/* ---------- 4. Jumla o'rtasidagi <u> ---------- */
+
+/*
+ * Bu yerda blok mumkin emas: `<u>` ni blokka aylantirish paragrafni uch
+ * qatorga bo'lib, jumlani o'rtasidan uzardi.
+ *
+ * `box-decoration-break` ataylab standart `slice` da: chegara faqat
+ * parchaning boshida va oxirida chiziladi, ya'ni qavs bir marta ochilib
+ * bir marta yopiladi. `clone` da har qator o'z qavsini olib, besh qatorli
+ * parcha panjaraga o'xshab qolardi.
+ *
+ * Faqat gorizontal padding: inline elementda vertikal padding qator
+ * balandligini oshirmaydi va `line-height: 120%` da qo'shni qatorlar
+ * ustiga chiqib ketardi.
+ */
+.dangerous.show-addinfo:not(.is-quiz) u {
+  padding-inline: 0.12em;
+  border-inline: var(--addinfo-rail) solid var(--g-lock);
+  background-image: linear-gradient(var(--g-lock-wash), var(--g-lock-wash));
+  /* `<u>` ning brauzerdagi tug'ma ostki chizig'i. */
+  text-decoration: none;
 }
 
 /*
@@ -542,11 +575,109 @@ span {
 }
 
 .dangerous.show-addinfo .addinfo-only,
-.dangerous.show-marker .addinfo-only,
 .dangerous.is-quiz .addinfo-only {
   /* revert — brauzerning o'z qiymatiga qaytaradi: li uchun list-item,
      p/div/ul uchun block. */
   display: revert;
+}
+
+/* ---------- 5. Blok darajasi ---------- */
+
+/* Fon — belgilangan har qanday blokka. */
+.dangerous.show-addinfo:not(.is-quiz) .addinfo-only,
+.dangerous.show-addinfo:not(.is-quiz) [id='info'] {
+  background-image: linear-gradient(var(--g-lock-wash), var(--g-lock-wash));
+}
+
+/*
+ * Rels — matn ustunining ICHIDA emas, gutterida: salbiy margin padding bilan
+ * aynan qoplanadi, ya'ni matnning chap chekkasi premium blokda ham,
+ * oddiysida ham bir xil joyda qoladi. Chap chekka — har qator o'ralganda
+ * ko'z qaytadigan yagona langar; uni 20-30 marta surish o'qishda eng
+ * charchatadigan narsa.
+ *
+ * `ul`/`ol`/`li` ATAYLAB chetda: ularda gutter allaqachon band, marker aynan
+ * o'sha maydonda o'tiradi. `blockquote` ham chetda — uning o'z chap chizig'i
+ * va chekinmasi bor, rels uni buzardi.
+ */
+.dangerous.show-addinfo:not(.is-quiz) .addinfo-only:not(ul):not(ol):not(li):not(blockquote),
+.dangerous.show-addinfo:not(.is-quiz) [id='info'] {
+  margin-inline-start: calc(-1 * var(--addinfo-gutter));
+  padding-inline-start: calc(var(--addinfo-gutter) - var(--addinfo-rail));
+  padding-block: 0.3rem;
+  border-inline-start: var(--addinfo-rail) solid var(--g-lock);
+}
+
+/*
+ * Ro'yxat bandi: yangi obyekt qo'shmaymiz — MAVJUD markerning o'zi belgi
+ * bo'ladi. `list-style: none` ishlatilmaydi, ya'ni `<ol>` raqamlari
+ * buzilmaydi; `::before` ishlatilmaydi, ya'ni marker sarlavha qatoriga
+ * ko'chmaydi. Markerni inline uslub nishonga ololmaydi.
+ */
+.dangerous.show-addinfo:not(.is-quiz) li.addinfo-only::marker {
+  color: var(--g-lock);
+}
+
+/*
+ * Ketma-ket bloklar bitta uzluksiz relsga tutashadi — real kontentda bir
+ * joyda to'qqiztagacha yashirin band uchraydi va ular orasidagi oraliq
+ * relsni bo'lak-bo'lak qilib ko'rsatardi.
+ *
+ * `li` chetda: ro'yxatning o'z zich ritmi buzilmasin. `:has()`
+ * qo'llab-quvvatlanmasa bo'laklar orasida oddiy paragraf oralig'i qoladi —
+ * boshqa hech narsa buzilmaydi.
+ */
+.dangerous.show-addinfo:not(.is-quiz) .addinfo-only:not(li):has(+ .addinfo-only) {
+  margin-block-end: 0;
+}
+
+.dangerous.show-addinfo:not(.is-quiz) .addinfo-only:not(li) + .addinfo-only:not(li) {
+  margin-block-start: 0;
+}
+
+/*
+ * ICHMA-ICH BELGILANGAN BLOKLAR. Hamma bandi qo'shimcha ma'lumot bo'lgan
+ * `<ul>` ning o'ziga ham `addinfo-only` tushadi, ya'ni `<ul class="addinfo-only">`
+ * ichida `<li class="addinfo-only">` bo'ladi. Belgini faqat eng tashqisi
+ * beradi. Gold `::marker` esa qoladi — u alohida qoidada.
+ */
+.dangerous.show-addinfo:not(.is-quiz) .addinfo-only .addinfo-only,
+.dangerous.show-addinfo:not(.is-quiz) [id='info'] .addinfo-only {
+  margin-inline-start: 0;
+  padding-inline-start: 0;
+  padding-block: 0;
+  border-inline-start: none;
+  background-image: none;
+}
+
+/* Blok allaqachon belgilangan — ichidagi `<u>` ikkinchi qatlam fon va
+   o'z qavsini qo'ymasin. */
+.dangerous.show-addinfo:not(.is-quiz) .addinfo-only u,
+.dangerous.show-addinfo:not(.is-quiz) [id='info'] u {
+  padding-inline: 0;
+  border-inline: none;
+  background-image: none;
+}
+
+/* ---------- 6. Yuqori kontrast rejimi (Windows HCM) ---------- */
+
+/*
+ * HCM da fon va gradient butunlay olib tashlanadi, `border` esa qoladi
+ * (tizim rangiga majburlanadi) — ya'ni rels omon qoladi, uni
+ * qalinlashtiramiz. Ro'yxatda marker rangi ham yo'qoladi, shuning uchun u
+ * yerda istisno tariqasida rels qo'yiladi: HCM da aniqlik ritmdan muhimroq.
+ */
+@media (forced-colors: active) {
+  .dangerous.show-addinfo:not(.is-quiz) u,
+  .dangerous.show-addinfo:not(.is-quiz) .addinfo-only:not(ul):not(ol):not(li):not(blockquote),
+  .dangerous.show-addinfo:not(.is-quiz) [id='info'] {
+    --addinfo-rail: 3px;
+  }
+
+  .dangerous.show-addinfo:not(.is-quiz) li.addinfo-only {
+    border-inline-start: 3px solid;
+    padding-inline-start: 0.4rem;
+  }
 }
 
 /* Rasm havolasi — ilgari rangi va kursori JS'da inline yozilardi. */
@@ -612,10 +743,16 @@ span {
 .dark .dangerous span {
   color: #ddd !important;
 }
-.dark .dangerous li:has(> u) {
-  display: none !important;
-  /* styles to apply to the li tag */
-}
+/*
+ * Bu yerda `.dark .dangerous li:has(> u) { display: none !important }` turardi.
+ *
+ * `!important` `display: revert` ni yengardi, ya'ni tungi mavzuda
+ * `<li><u>…</u></li>` shaklidagi bandlar almashtirgich yoqilganda ham
+ * ochilmasdi; aralash bandda esa (`<li>matn <u>premium</u></li>`) butun band
+ * yo'qolardi — oddiy matni bilan qo'shib. Bo'sh nuqta muammosini
+ * `prepare-html.ts` dagi `markAddInfoOnlyBlocks` uchala mavzuda hal qiladi,
+ * shuning uchun bu qoida ortiqcha edi.
+ */
 .dark .dangerous::-webkit-scrollbar {
   display: none;
 }
