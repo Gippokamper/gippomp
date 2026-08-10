@@ -4,7 +4,7 @@ import { RootState } from '../../store'
 import { Tooltip } from 'react-tooltip'
 import TooltipHtml from '../tooltip/TooltipHtml'
 import parse from 'html-react-parser'
-import { articleModeClasses, prepareArticleHtml } from './prepare-html'
+import { articleModeClasses, prepareArticleHtml, ILockLabels } from './prepare-html'
 import { useArticlePhotos } from './use-article-photos'
 import '../../content.scss'
 
@@ -12,6 +12,14 @@ interface IProps {
   html: string
   isQuiz?: boolean
   openMarker?: boolean
+  /**
+   * `info` ruxsati yo'q foydalanuvchi uchun yorliqlar. Berilsa, qo'shimcha
+   * ma'lumot bloklari taklif elementlariga almashadi va almashtirgich ularni
+   * ocholmaydi.
+   */
+  lockLabels?: ILockLabels
+  /** Taklif bosilganda — odatda tariflar sahifasiga o'tish. */
+  onLockClick?: () => void
 }
 
 function WithTooltip(props: IProps) {
@@ -19,7 +27,8 @@ function WithTooltip(props: IProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const cleanHtml = useMemo(() => prepareArticleHtml(props?.html), [props?.html])
+  const { lockLabels } = props
+  const cleanHtml = useMemo(() => prepareArticleHtml(props?.html, { lockLabels }), [props?.html, lockLabels])
 
   useArticlePhotos(containerRef, cleanHtml)
 
@@ -27,8 +36,25 @@ function WithTooltip(props: IProps) {
     isQuiz: props.isQuiz,
     openMarker: props.openMarker,
     showMarker,
-    showAddInfo
+    // Qulflanganda almashtirgich qo'shimcha ma'lumotni ochmasligi kerak:
+    // bloklar allaqachon taklifga almashgan, `<u>` esa yashirin qolsin.
+    showAddInfo: !lockLabels && showAddInfo
   })
+
+  /*
+   * Taklif tugmalari HTML sifatida joylashtirilgani uchun ularga to'g'ridan
+   * to'g'ri React ishlov beruvchisini bog'lab bo'lmaydi — hodisa konteynerda
+   * ushlanadi.
+   */
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!props.onLockClick) {
+      return
+    }
+
+    if ((event.target as HTMLElement)?.closest?.('[data-addinfo-lock]')) {
+      props.onLockClick()
+    }
+  }
 
   return (
     <>
@@ -53,6 +79,7 @@ function WithTooltip(props: IProps) {
         style={{
           fontSize: fontSize
         }}
+        onClick={handleClick}
       >
         {parse(cleanHtml)}
       </div>

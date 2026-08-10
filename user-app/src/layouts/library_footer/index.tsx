@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { toggleAddInfo, toggleAllChapter, toggleShowMarker } from '../../store/slices/htmlSlice'
+import { toggleAddInfo, toggleAllChapter } from '../../store/slices/htmlSlice'
 import { useTranslation } from 'react-i18next'
 import LibrarySetting from '../../components/library-setting'
 import { RootState } from '../../store'
@@ -11,7 +11,7 @@ import { request } from '../../helpers/request'
 function LibraryFooter() {
   const { t } = useTranslation()
   const dispatch = useDispatch()
-  const { showAddInfo, chapters, showMarker } = useSelector((state: RootState) => state.html)
+  const { showAddInfo, chapters } = useSelector((state: RootState) => state.html)
   const [open, setOpen] = useState(false)
   const { id } = useParams()
   const { data } = useQuery(['articl(e', id], async () => {
@@ -33,14 +33,7 @@ function LibraryFooter() {
         <li>
           <a
             className={showAddInfo ? 'current' : ''}
-            onClick={() => {
-              if (showAddInfo && showMarker) {
-                dispatch(toggleAddInfo())
-                dispatch(toggleShowMarker())
-              } else {
-                dispatch(toggleAddInfo())
-              }
-            }}
+            onClick={() => dispatch(toggleAddInfo())}
           >
             <svg width={25} height={24} viewBox='0 0 25 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path

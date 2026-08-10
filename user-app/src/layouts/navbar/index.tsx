@@ -241,7 +241,7 @@ function Navbar(props: IProps) {
         <button
           className='header__side'
           aria-expanded={!sidebarCollapsed}
-          aria-label={t('Main menu')}
+          aria-label={t('Main menu', 'Asosiy menyu')}
           onClick={() => dispatch(setSidebarCollapsed())}
         >
           <svg width={30} height={36} viewBox='0 0 30 36' fill='none' xmlns='http://www.w3.org/2000/svg'>

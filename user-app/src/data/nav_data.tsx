@@ -20,6 +20,24 @@ import VediosIcon from '../img/icons/VediosIcon'
  * yozilmasin.
  */
 
+/*
+ * Guruhlar. Oltita element bir tekis ro'yxatda turganda "Yangiliklar" bilan
+ * "Kutubxona" bir xil vaznda ko'rinardi, holbuki biri kunlik o'quv ishi,
+ * biri xabar. Bosh sahifa guruhga kirmaydi — u eng tepada, alohida.
+ */
+export type NavGroup = 'learn' | 'practice' | 'updates'
+
+/*
+ * `fallback` — tarjima lug'ati backenddan keladi (`/vocabulary`), ya'ni yangi
+ * kalitlar migratsiya ishlagandan keyingina paydo bo'ladi. Usiz kalitning
+ * o'zi, ya'ni inglizcha so'z chiqib qolardi.
+ */
+export const nav_groups: { id: NavGroup; label: string; fallback: string }[] = [
+  { id: 'learn', label: 'Learning', fallback: "O'rganish" },
+  { id: 'practice', label: 'Practice', fallback: 'Sinov' },
+  { id: 'updates', label: 'Updates', fallback: 'Xabar' }
+]
+
 export interface NavItem {
   /**
    * Barqaror kalit. `to` emas: yo'l o'zgarishi mumkin, id esa tugmalar
@@ -30,6 +48,8 @@ export interface NavItem {
   /** i18n kaliti — chizishdan oldin `t()` dan o'tkaziladi. */
   text: string
   icon: ReactNode
+  /** Guruhsiz element sarlavhasiz, ro'yxatning boshida chiziladi. */
+  group?: NavGroup
 }
 
 export const nav_data: NavItem[] = [
@@ -43,30 +63,35 @@ export const nav_data: NavItem[] = [
     id: 'library',
     to: '/library',
     text: 'Library',
-    icon: <LibraryIcon />
-  },
-  {
-    id: 'quizzes',
-    to: '/quizzes',
-    text: 'Test your knowledge',
-    icon: <TestIcon />
+    icon: <LibraryIcon />,
+    group: 'learn'
   },
   {
     id: 'videos',
     to: '/videos',
     text: 'Videos',
-    icon: <VediosIcon />
-  },
-  {
-    id: 'news',
-    to: '/news',
-    text: 'News',
-    icon: <NewsIcon />
+    icon: <VediosIcon />,
+    group: 'learn'
   },
   {
     id: 'study-plan',
     to: '/study-plan',
     text: 'Educational program',
-    icon: <StudyIcon />
+    icon: <StudyIcon />,
+    group: 'learn'
+  },
+  {
+    id: 'quizzes',
+    to: '/quizzes',
+    text: 'Test your knowledge',
+    icon: <TestIcon />,
+    group: 'practice'
+  },
+  {
+    id: 'news',
+    to: '/news',
+    text: 'News',
+    icon: <NewsIcon />,
+    group: 'updates'
   }
 ]

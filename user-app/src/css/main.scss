@@ -2126,26 +2126,8 @@ body.dark .library-head {
   border-radius: 0.2rem;
   transition: none;
 }
-.library-head__lang {
-  display: flex;
-  margin-right: 2rem;
-}
-.library-head__lang button {
-  margin-right: 0.75rem;
-  display: flex;
-  align-items: center;
-}
-.library-head__lang button:last-child {
-  margin-right: 0.75rem;
-}
-.library-head__lang button img {
-  width: 1.1rem;
-  margin-right: 0.25rem;
-}
-.library-head__lang button.current {
-  color: #4daf00;
-  text-decoration: underline;
-}
+/* .library-head__lang olib tashlandi: maqolalar faqat o'zbekcha edi va
+   tanlagichda bitta variant turardi. */
 .library-head__btn {
   display: flex;
   align-items: center;

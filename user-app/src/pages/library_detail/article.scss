@@ -250,22 +250,59 @@ body.dark .scroll-top {
   border-radius: var(--r-sm);
 }
 
+/*
+ * ---------- Shrift shkalasi ----------
+ *
+ * `--reader-fs` ni React beradi (`pages/library_detail`, Redux'dagi
+ * `fontSize`). Zaxira qiymat shu yerda: sozlama hali o'qilmagan bir zumda
+ * sarlavha o'lchamsiz qolmasin.
+ *
+ * "Tt" tugmalari ilgari faqat matn tanasiga ta'sir qilardi — sarlavhalar
+ * qotib turardi va kattalashtirilgan matn ustida ular kichkina bo'lib
+ * ko'rinardi. Endi ular ham shu shkaladan o'lchanadi.
+ */
+.library {
+  --reader-fs: 1rem;
+}
+
 /* `h1` ning tug'ma margini olib tashlanadi — u qatorni ~28px ga cho'zardi. */
 .library .library__title {
   margin: 0;
-  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+  font-size: calc(var(--reader-fs) * 1.5);
   font-weight: 700;
   line-height: 1.25;
+  transition: font-size 0.15s ease-out;
 }
 
-/* ---------- Sarlavha paneli: ixcham asboblar ---------- */
+/*
+ * Bo'lim sarlavhasi. `span` ga qo'yiladi, chunki umumiy `span { font-size:
+ * 1rem }` qoidasi (content.scss) uni rem'ga qulflab qo'yardi va u
+ * shkalaga ergashmasdi.
+ */
+.library .library-accordion__head span {
+  font-size: calc(var(--reader-fs) * 1.08);
+  font-weight: 600;
+  transition: font-size 0.15s ease-out;
+}
+
+/* ---------- Sarlavha paneli: yassi belgi qatori ---------- */
 
 /*
- * Har tugmada `margin-right: 2rem` bor edi va oltita boshqaruv panel
- * bo'ylab cho'zilib ketardi. Endi ular o'ngda bitta ixcham guruh.
+ * Yorliqli tugmalar qatorning yarmini olardi va uzun maqola nomi ikkinchi
+ * qatorga tushardi. Endi o'ngda uchta ixcham guruh: saqlash | rejimlar |
+ * shrift.
+ *
+ * MUHIM: bu blokda `display` ATAYLAB berilmagan. `.library-head__wrap` uchun
+ * `display: flex` main.scss'da (0,1,0) kuch bilan turadi, uni esa o'sha
+ * fayldagi `@media (max-width: 1080px) { display: none }` bosadi — u ham
+ * (0,1,0), lekin manbada keyinroq. Bu yerga (0,2,0) bilan `display` yozilsa,
+ * media-so'rov solishtiruv kuchida yutqazadi (media-so'rov kuch qo'shmaydi)
+ * va butun belgi qatori telefonda ham chiqib qolardi — ya'ni bir xil
+ * almashtirgich uchta joyda: bu qatorda, footer'da va sozlamalar varag'ida.
+ * Fayl oxiridagi media-blok — o'sha holatning ikkinchi qulfi.
  */
 .library .library-head__wrap {
-  gap: var(--s-1);
+  gap: var(--s-2);
   margin-left: auto;
 }
 
@@ -273,42 +310,214 @@ body.dark .scroll-top {
   margin-right: 0;
 }
 
-.library .library-head__btn {
-  gap: 0.4rem;
-  margin-right: 0;
-  padding: 0.35rem 0.55rem;
+/*
+ * Ajratgich alohida element emas, guruhning chap chegarasi — shunda bo'sh
+ * <span> lar qatorda yotmaydi va SaveButton hali yuklanmaganda osilib qolgan
+ * chiziq ko'rinmaydi.
+ */
+.library .reader-tools__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.library .reader-tools__group + .reader-tools__group {
+  padding-left: var(--s-2);
+  border-left: 1px solid var(--g-border);
+}
+
+/*
+ * Belgi tugmasi. `.save-btn.is-inline` bilan bitta ro'yxatda: shunda
+ * geometriya bir joydan keladi va qator tekis chiqadi. Ikki sinfli selektor
+ * (0,3,0) `save-button.scss` dagi `.save-btn:hover:not(:disabled)` (0,3,0)
+ * bilan tenglashmasligi uchun `.library` bilan boshlanadi.
+ */
+.library .reader-tools__btn,
+.library .reader-tools .save-btn.is-inline {
+  position: relative; /* maslahat oynachasi shu tugmaga bog'lanadi */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.2rem;
+  height: 2.2rem;
+  /* Ildiz shrifti bu ilovada ekran kengligiga qarab o'zgaradi: qator
+     ko'rinadigan eng tor oraliqda 2.2rem atigi ~26px bo'lib qolardi. */
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: none;
   border-radius: var(--r-sm);
+  background: none;
   color: var(--g-muted);
-  white-space: nowrap;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  /* Global `button { transition: 0.6s all }` bu yerda juda sekin. */
   transition: background var(--t-fast), color var(--t-fast);
 }
 
-.library .library-head__btn:hover {
+.library .reader-tools svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  min-width: 17px;
+  min-height: 17px;
+  flex-shrink: 0;
+}
+
+/* "A" va "AA" — belgi emas, harfning o'zi. */
+.library .reader-tools__btn--text {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}
+
+.library .reader-tools__btn--lg {
+  letter-spacing: -0.04em;
+}
+
+.library .reader-tools__btn:hover,
+.library .reader-tools .save-btn.is-inline:hover:not(:disabled) {
   background: var(--g-fill);
+  border-color: transparent;
   color: var(--g-text);
 }
 
-/* Yoqilgan holat — checkbox belgisi emas, tugmaning o'zi bo'yaladi. */
-.library .library-head__btn:has(.checkbox:checked) {
-  background: var(--g-fill);
-  color: var(--g-accent);
+/*
+ * Yoqilgan holat. Uchta signal birga: belgi to'ldiriladi (shakl o'zgarishi,
+ * rangdan mustaqil), fon `--g-fill-strong` ga kuchayadi, matn rangi
+ * `--g-muted` dan `--g-text` ga chiqadi.
+ *
+ * Urg'u rangi ataylab fon uchun ishlatilmadi: kunduzgi mavzuda `--g-accent`
+ * panel foniga nisbatan 3:1 dan past — "yoqilgan" belgi "o'chiq" belgidan
+ * ko'ra ko'rinmasroq bo'lib qolardi. Urg'u faqat ostidagi ingichka chiziqda.
+ *
+ * `--g-fill*` alfa-tokenlar bo'lgani uchun panelning foniga uchala mavzuda
+ * ham to'g'ri qo'shiladi — bu yerda birorta mavzu bloki kerak emas.
+ */
+.library .reader-tools__btn[aria-pressed='true'],
+.library .reader-tools .save-btn.is-inline[aria-pressed='true'] {
+  background: var(--g-fill-strong);
+  color: var(--g-text);
 }
 
-.library .library-head__lang {
-  margin-right: 0;
-  padding-right: var(--s-2);
-  border-right: 1px solid var(--g-border);
+.library .reader-tools__btn[aria-pressed='true']::before,
+.library .reader-tools .save-btn.is-inline[aria-pressed='true']::before {
+  content: '';
+  position: absolute;
+  left: 28%;
+  right: 28%;
+  bottom: 0.2rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--g-accent);
 }
 
-.library .library-head__lang button {
-  margin-right: 0;
-  gap: 0.3rem;
+/* Qulflangan "Qo'shimcha ma'lumot" — qulf rangi tokendan. */
+.library .reader-tools__btn--locked svg {
+  color: var(--g-lock);
 }
 
-/* Shrift o'lchami — chegara bilan ajratilgan kichik guruh */
-.library .library-head__wrap > .library-head__btn:last-child {
-  gap: 0.15rem;
-  padding-left: var(--s-2);
-  border-left: 1px solid var(--g-border);
-  border-radius: 0;
+/*
+ * Chegaraga yetgan qadam tugmasi. `disabled` emas — u fokusni <body> ga
+ * uchirib yuboradi va maslahat oynachasini ham o'chiradi.
+ */
+.library .reader-tools__btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.library .reader-tools__btn[aria-disabled='true']:hover {
+  background: none;
+  color: var(--g-muted);
+}
+
+/* Fokus halqasi ham `--g-text` da — `--g-accent` kunduzgi mavzuda 3:1 dan past. */
+.library .reader-tools__btn:focus-visible,
+.library .reader-tools .save-btn.is-inline:focus-visible {
+  outline: 2px solid var(--g-text);
+  outline-offset: -2px;
+}
+
+/* ---------- Maslahat oynachasi ---------- */
+
+/*
+ * Yozuv yo'q — demak nom ko'rinadigan bo'lishi kerak. Brauzerning `title` i
+ * yaramaydi: u klaviatura fokusida umuman chiqmaydi, ya'ni Tab bilan yurgan
+ * odam nomsiz belgilar oldida qolardi.
+ *
+ * Oynacha hamma joyda o'ngga tekislanadi (`right: 0`) va chapga o'sadi:
+ * qator o'ng chekkada turadi, markazga tekislansa matn konteynerdan chiqib
+ * gorizontal scrollbar chiqarardi.
+ */
+.library .reader-tools [data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  z-index: 2;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-sm);
+  background: var(--g-surface);
+  color: var(--g-text);
+  box-shadow: var(--g-shadow-2);
+  /* Piksel: ildiz shrifti 12px gacha tushadi, `--fs-xs` esa 9px bo'lib qolardi. */
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: normal;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--t-fast), visibility var(--t-fast);
+}
+
+.library .reader-tools [data-tip]:hover::after,
+.library .reader-tools [data-tip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Faqat ekran o'quvchilari uchun (shrift o'lchami e'loni). */
+.library .reader-tools__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+ * Yuqori kontrast rejimi (Windows HCM): fon va soya olib tashlanadi, rang
+ * tizim rangiga majburlanadi — yoqilgan/o'chiq farqi yo'qolardi. Belgining
+ * to'ldirilishi qoladi, ustiga ramka qo'shamiz.
+ */
+@media (forced-colors: active) {
+  .library .reader-tools__btn[aria-pressed='true'],
+  .library .reader-tools .save-btn.is-inline[aria-pressed='true'] {
+    outline: 2px solid;
+    outline-offset: -2px;
+  }
+
+  .library .reader-tools__btn[aria-disabled='true'] {
+    opacity: 1;
+    color: GrayText;
+  }
+}
+
+/*
+ * Mobil qulfning ikkinchi nusxasi — main.scss dagi qoida (0,1,0) bilan
+ * ishlaydi, bu esa (0,2,0). Kelajakda kimdir `.library .library-head__wrap`
+ * ga `display` yozib qo'ysa ham qator telefonda ochilib ketmaydi.
+ */
+@media (max-width: 1080px) {
+  .library .library-head__wrap {
+    display: none;
+  }
 }

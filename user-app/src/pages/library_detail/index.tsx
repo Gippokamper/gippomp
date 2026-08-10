@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,10 +6,7 @@ import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 
 import LibraryLayout from '../../layouts/library'
-import uz from '../../img/icons/uz.svg'
 import MarkerIcon from '../../img/icons/MarkerIcon'
-import MinusIcon from '../../img/icons/MinusIcon'
-import PlusIcon from '../../img/icons/PlusIcon'
 import DropDownIcon from '../../img/icons/DropDownIcon'
 import Play from '../../img/icons/Play'
 import FeedbackModal from '../../components/feedback-modal'
@@ -19,6 +16,7 @@ import { request } from '../../helpers/request'
 import { rememberArticle } from '../../helpers/recent-articles'
 import SaveButton from '../../components/save-button'
 import { useApiErrorHandler } from '../../hooks/use-api-error-handler'
+import { AuthContext } from '../../providers/auth-provider'
 import { RootState } from '../../store'
 import {
   decrement,
@@ -27,10 +25,10 @@ import {
   setChapters,
   toggleAddInfo,
   toggleAllChapter,
-  toggleChapter,
-  toggleShowMarker
+  toggleChapter
 } from '../../store/slices/htmlSlice'
 import './article.scss'
+import './addinfo-lock.scss'
 
 /** LibraryLayout'dagi scroll konteyneri. */
 const SCROLL_CONTAINER_ID = 'nestedRelativeContainerElement'
@@ -39,6 +37,88 @@ const CopyIcon = () => (
   <svg width='14' height='14' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
     <rect x='9' y='9' width='11' height='11' rx='2' stroke='currentColor' strokeWidth='2' />
     <path d='M5 15V5a2 2 0 0 1 2-2h10' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+  </svg>
+)
+
+/*
+ * `img/icons/LockIcon` bu yerga to'g'ri kelmaydi: uning rangi `fill="url(#a)"`
+ * bilan qizil gradientga qattiq bog'langan va mavzu almashganda o'zgarmaydi.
+ * Bu belgi `currentColor` dan rang oladi.
+ */
+const LockGlyph = () => (
+  <svg width='13' height='13' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <rect x='3' y='11' width='18' height='11' rx='2' stroke='currentColor' strokeWidth='2.2' />
+    <path d='M7 11V7a5 5 0 0 1 10 0v4' stroke='currentColor' strokeWidth='2.2' strokeLinecap='round' />
+  </svg>
+)
+
+/*
+ * Shrift chegaralari — `htmlSlice` dagi `increment`/`decrement` ham aynan shu
+ * qiymatlarda to'xtaydi. Bu yerda ular tugmani so'ndirish uchun kerak: aks
+ * holda chegaraga yetgan odam bosaveradi va nega hech narsa o'zgarmayotganini
+ * bilmaydi.
+ */
+const FONT_MIN = 10
+const FONT_MAX = 30
+
+/**
+ * Bo'lim ichida qo'shimcha (premium) ma'lumot bormi.
+ *
+ * Qo'shimcha ma'lumot maqola HTML'ida `<u>` bilan yoziladi — `prepare-html`
+ * ham aynan shu belgidan yuradi, shuning uchun shart bir xil. Qo'pol
+ * tekshiruv yetarli: noto'g'ri "bor" degan holatda bo'lim tepasida taklif
+ * chiqadi, lekin u baribir qo'shimcha ma'lumot almashtirgichini boshqaradi.
+ */
+const hasAddInfo = (html?: string): boolean => !!html && /<u[\s>]/i.test(html)
+
+/*
+ * Panel belgilari shu faylda — `CopyIcon` va `LockGlyph` ham shu yo'lda
+ * yozilgan. `img/icons` dagi tayyorlari to'g'ri kelmadi: `InfoIcon` va
+ * `DropDownIcon` props umuman qabul qilmaydi, ya'ni holatga qarab
+ * o'zgara olmaydi.
+ *
+ * Yoqilgan holat `filled` orqali SHAKLNI o'zgartiradi, faqat rangni emas —
+ * rangning o'zi yetarli emas (WCAG 1.4.1).
+ */
+const InfoToggleIcon = ({ filled }: { filled: boolean }) => (
+  <svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <circle
+      cx='12'
+      cy='12'
+      r='9'
+      fill='currentColor'
+      fillOpacity={filled ? 0.22 : 0}
+      stroke='currentColor'
+      strokeWidth='1.6'
+    />
+    <path d='M12 11.1v5.1' stroke='currentColor' strokeWidth={filled ? 2.4 : 1.8} strokeLinecap='round' />
+    <circle cx='12' cy='7.8' r={filled ? 1.3 : 1.05} fill='currentColor' />
+  </svg>
+)
+
+/*
+ * Yoyish/yig'ish — almashtirgich emas, buyruq: "hozir hammasini och" yoki
+ * "hozir hammasini yop". Shuning uchun belgi ham, nomi ham holatga qarab
+ * almashadi, `aria-pressed` esa yo'q — u bo'lganda ekran o'quvchisi
+ * "Matnni berkitish, bosilgan" degan qarama-qarshi gapni aytardi.
+ */
+const ToggleAllIcon = ({ open }: { open: boolean }) => (
+  <svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path
+      d={open ? 'M8 8.6 12 4.6l4 4' : 'M8 4.6 12 8.6l4-4'}
+      stroke='currentColor'
+      strokeWidth='1.8'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+    <path d='M4 12h16' stroke='currentColor' strokeWidth='1.6' strokeLinecap='round' opacity='0.5' />
+    <path
+      d={open ? 'M8 15.4 12 19.4l4-4' : 'M8 19.4 12 15.4l4 4'}
+      stroke='currentColor'
+      strokeWidth='1.8'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
   </svg>
 )
 
@@ -54,7 +134,36 @@ export const LibraryDetail = () => {
   const { id } = useParams()
   const dispatch = useDispatch()
   const handleApiError = useApiErrorHandler()
-  const { chapters, showAddInfo, showMarker, lang } = useSelector((state: RootState) => state.html)
+  const { userPermissions } = useContext(AuthContext)
+  const { chapters, showAddInfo, lang, fontSize } = useSelector((state: RootState) => state.html)
+
+  /*
+   * Qo'shimcha ma'lumot — `info` ruxsatiga bog'liq. Backend uni sinov
+   * muddatida va Premium tarifda beradi, oddiy tarifda esa bermaydi
+   * (PermissionController). Ilgari bu faqat serverda hisoblanardi, interfeys
+   * esa hammaga bir xil almashtirgich ko'rsatardi.
+   */
+  const canSeeAddInfo = !!userPermissions?.some((item: string) => item === 'info')
+
+  /*
+   * Ruxsat yo'q bo'lsa — bloklar o'rniga taklif ko'rsatiladi. Yorliqlar shu
+   * yerda tayyorlanadi: `prepare-html` i18n'ga bog'lanmasin.
+   * `Upgrade` kaliti lug'atda allaqachon bor ("Premiumga o'tish").
+   */
+  const lockLabels = useMemo(
+    () =>
+      canSeeAddInfo
+        ? undefined
+        : {
+            title: t('Additional Information'),
+            note: t('Available in Premium'),
+            cta: t('Upgrade'),
+            more: t('More hidden items')
+          },
+    [canSeeAddInfo, t]
+  )
+
+  const goToTariffs = useCallback(() => navigate('/account?type=tariffs'), [navigate])
 
   const [openFeedback, setOpenFeedback] = useState(false)
   const [chapterId, setChapterId] = useState(0)
@@ -156,50 +265,144 @@ export const LibraryDetail = () => {
 
   return (
     <LibraryLayout>
-      <div className='library'>
+      {/*
+        Shrift shkalasi butun maqolaga tarqaladi. Ilgari `fontSize` faqat
+        `WithHtml` ichidagi matnga berilardi — maqola sarlavhasi va bo'lim
+        sarlavhalari React tomonidan shu idishdan tashqarida chiziladi va
+        "Tt" tugmalariga umuman javob bermasdi.
+      */}
+      <div className='library' style={{ '--reader-fs': `${fontSize}px` } as React.CSSProperties}>
         <div className='library-head'>
           <h1 className='library__title section-title'>{article?.name?.[lang]}</h1>
-          <div className='library-head__wrap'>
-            {/* Maqolani "Saqlanganlar"ga qo'shish. */}
-            {!!article?.id && <SaveButton type='article' id={article.id} saved={article.is_saved} />}
+          {/*
+            O'qish asboblari — yassi belgi qatori (AMBOSS referensi bo'yicha).
+            Yozuvlar olib tashlandi: to'rtta yorliqli tugma qatorning yarmini
+            yeb, uzun maqola nomini ikkinchi qatorga tushirardi.
+
+            Hech narsa menyu ostiga yashirilmadi. "Qo'shimcha ma'lumot" va
+            "Matnni yoyish" — o'qish paytida qayta-qayta bosiladigan
+            boshqaruvlar; menyuga solinsa har almashtirish ikki bosishga
+            aylanardi va ochilgan menyu aynan tekshirilayotgan matnni yopib
+            qo'yardi. Ustiga, "Qo'shimcha ma'lumot" localStorage'da saqlanadi —
+            yopiq menyu uning o'tgan safardan beri yoqiq ekanini ayta olmaydi,
+            ochiq qator esa aytib turadi.
+
+            Yozuv yo'qolgani uchun har tugmada `data-tip` bor: u CSS
+            oynachasini chizadi va — brauzerning `title` idan farqli o'laroq —
+            Tab bilan fokus kelganda ham chiqadi.
+          */}
+          <div className='library-head__wrap reader-tools' role='group' aria-label={t('Reading tools', "O'qish asboblari")}>
             {/*
-              Faqat o'zbek tili qoldirildi. RU/EN tugmalari olib tashlandi;
-              setLang mexanizmi va Redux'dagi `lang` o'z joyida — kerak bo'lsa
-              tugmalarni qaytarish oson.
+              Guruh maqola kelgandagina chiziladi. Bo'sh <div> qoldirilsa,
+              ajratgich (`group + group` ning chap chegarasi) yuklanish paytida
+              hech narsaga tegib turmagan yetim chiziq bo'lib ko'rinardi.
             */}
-            <div className='library-head__lang'>
-              <button type='button' className='current' aria-current='true'>
-                <img src={uz} alt='lang' />
-                <span>UZ</span>
+            {!!article?.id && (
+              <div className='reader-tools__group'>
+                {/* Maqolani "Saqlanganlar"ga qo'shish. */}
+                <SaveButton inline type='article' id={article.id} saved={article.is_saved} />
+              </div>
+            )}
+            {/*
+              Til tanlagich va "Marker" almashtirgichi olib tashlandi.
+              Til: maqolalar faqat o'zbekcha, tanlagichda bitta variant bo'lib
+              hech qachon o'zgarmasdi. Marker: paneldagi to'rtta almashtirgich
+              orasida eng kam ishlatilgani edi.
+              Mexanizm o'z joyida (`setLang`, Redux'dagi `lang` va
+              `showMarker`) — kerak bo'lsa boshqaruvni qaytarish oson.
+            */}
+            <div className='reader-tools__group'>
+              {/*
+                Ruxsat bo'lmaganda almashtirgich o'rniga qulf: bosilsa tariflarga
+                olib boradi. Ilgari bu tugma hammaga ko'rinardi va bosilganda
+                hech narsa ochilmasdi — sabab ko'rsatilmasdi.
+              */}
+              {canSeeAddInfo ? (
+                <button
+                  type='button'
+                  className='reader-tools__btn'
+                  aria-pressed={showAddInfo}
+                  aria-label={t('Additional Information')}
+                  data-tip={t('Additional Information')}
+                  onClick={() => dispatch(toggleAddInfo())}
+                >
+                  <InfoToggleIcon filled={showAddInfo} />
+                </button>
+              ) : (
+                <button
+                  type='button'
+                  className='reader-tools__btn reader-tools__btn--locked'
+                  aria-label={`${t('Additional Information')} — ${t('Available in Premium')}`}
+                  data-tip={t('Available in Premium')}
+                  onClick={goToTariffs}
+                >
+                  <LockGlyph />
+                </button>
+              )}
+
+              <button
+                type='button'
+                className='reader-tools__btn'
+                aria-label={allOpen ? t('Close text') : t('Open text')}
+                data-tip={allOpen ? t('Close text') : t('Open text')}
+                onClick={() => dispatch(toggleAllChapter(!allOpen))}
+              >
+                <ToggleAllIcon open={allOpen} />
               </button>
             </div>
-            <button
-              className='library-head__btn'
-              onClick={() => {
-                if (showAddInfo && showMarker) {
-                  dispatch(toggleAddInfo())
-                  dispatch(toggleShowMarker())
-                } else {
-                  dispatch(toggleAddInfo())
-                }
-              }}
-            >
-              <span>{t('Additional Information')}</span>
-              <input checked={showAddInfo} readOnly type='checkbox' className='checkbox' />
-            </button>
-            <button className='library-head__btn' onClick={() => dispatch(toggleShowMarker())}>
-              <span>{t('Marker')}</span>
-              <input checked={showMarker} readOnly type='checkbox' className='checkbox' />
-            </button>
-            <button className='library-head__btn' onClick={() => dispatch(toggleAllChapter(!allOpen))}>
-              <span>{allOpen ? t('Close text') : t('Open text')}</span>
-              <input checked={allOpen} readOnly type='checkbox' className='checkbox' />
-            </button>
-            <div className='library-head__btn'>
-              <MinusIcon onClick={() => dispatch(decrement())} />
-              <span>{t('Tt')}</span>
-              <PlusIcon onClick={() => dispatch(increment())} />
+
+            {/*
+              Shrift shkalasi. Ilgari bu ikkita yalang'och <svg onClick> edi:
+              Tab bilan fokus olmasdi, Enter/Space bilan ishlamasdi va 10/30
+              chegarasida jimgina hech nima qilmasdi. Endi haqiqiy tugmalar.
+
+              Belgi o'rniga harfning o'zi — referensdagidek: bitta "A"
+              kichraytiradi, ikkita "A" kattalashtiradi. Farq harf
+              O'LCHAMIDA emas, SONIDA: bir xil harfning ikki o'lchami yonma-yon
+              turganda deyarli ajralmasdi.
+
+              Chegarada `disabled` emas, `aria-disabled`: `disabled` element
+              fokusni <body> ga uchiradi va keyingi Tab sahifa boshidan
+              boshlanardi — uzun maqolada bu joyni yo'qotish demak.
+            */}
+            <div className='reader-tools__group'>
+              <button
+                type='button'
+                className='reader-tools__btn reader-tools__btn--text'
+                aria-disabled={fontSize <= FONT_MIN}
+                aria-label={t('Decrease text size', 'Shriftni kichraytirish')}
+                data-tip={t('Decrease text size', 'Shriftni kichraytirish')}
+                onClick={() => {
+                  if (fontSize <= FONT_MIN) return
+                  dispatch(decrement())
+                }}
+              >
+                A
+              </button>
+
+              <button
+                type='button'
+                className='reader-tools__btn reader-tools__btn--text reader-tools__btn--lg'
+                aria-disabled={fontSize >= FONT_MAX}
+                aria-label={t('Increase text size', 'Shriftni kattalashtirish')}
+                data-tip={t('Increase text size', 'Shriftni kattalashtirish')}
+                onClick={() => {
+                  if (fontSize >= FONT_MAX) return
+                  dispatch(increment())
+                }}
+              >
+                AA
+              </button>
             </div>
+
+            {/*
+              Shrift o'zgargani ekran o'quvchisiga ham eshitilsin — tugmalarda
+              ko'rinadigan qiymat yo'q, mobil varaqdagi <input type='range'>
+              esa o'z qiymatini o'zi aytadi.
+            */}
+            <span className='reader-tools__live' aria-live='polite'>
+              {`${t('Text size', "Matn o'lchami")}: ${fontSize}px`}
+            </span>
           </div>
 
           {/* O'qish progressi — panelning pastki chekkasida. */}
@@ -245,7 +448,37 @@ export const LibraryDetail = () => {
                   </button>
 
                   <div className='library-accordion__content'>
-                    {shouldRender && <WithTooltip html={chapter?.description?.[lang]} />}
+                    {/*
+                      Bo'limda premium ma'lumot borligini bo'limning o'zida
+                      aytamiz. Ilgari buni faqat sarlavha panelidagi kichkina
+                      belgidan bilish mumkin edi — o'quvchi uzun maqolani
+                      aylantirib o'qiyotganda u ko'z oldida bo'lmaydi.
+
+                      Tugma qo'shimcha ma'lumot almashtirgichi bilan bir xil
+                      ishlaydi: ruxsat bo'lsa — yoqadi/o'chiradi, bo'lmasa —
+                      tariflarga olib boradi.
+                    */}
+                    {hasAddInfo(chapter?.description?.[lang]) && (
+                      <button
+                        type='button'
+                        className={`section-premium ${canSeeAddInfo && showAddInfo ? 'is-on' : ''}`}
+                        aria-pressed={canSeeAddInfo ? showAddInfo : undefined}
+                        onClick={() => (canSeeAddInfo ? dispatch(toggleAddInfo()) : goToTariffs())}
+                      >
+                        <LockGlyph />
+                        <span>
+                          {t('This section contains premium information', "Ushbu bo'limda premium ma'lumot mavjud")}
+                        </span>
+                      </button>
+                    )}
+
+                    {shouldRender && (
+                      <WithTooltip
+                        html={chapter?.description?.[lang]}
+                        lockLabels={lockLabels}
+                        onLockClick={goToTariffs}
+                      />
+                    )}
 
                     <div className='chapter-actions'>
                       <button

@@ -288,9 +288,8 @@ img,
   animation: fade 0.5s ease-in-out;
 }
 
-.side {
-  transition: all 0.5s ease-in-out;
-}
+/* Chap menyuning o'z animatsiyasi `layouts/sidebar/sidebar.scss` da —
+   `transition: width`. Bu yerdagi `all 0.5s` u bilan kuch talashardi. */
 
 .open-modal {
   display: block;
@@ -344,8 +343,17 @@ img,
 }
 /* Ilgari `#tinymce` edi — u har bo'lim uchun takrorlanib, bitta hujjatda
    bir nechta bir xil ID hosil qilardi. Endi sinf. */
+/*
+ * Ilgari `transition: all 0.5s` edi. `all` — bu maqolaning butun daraxtida
+ * har bir xossa (rang, chegara, joylashuv, `font-size`) yarim soniya
+ * davomida animatsiya qilinishi degani; `font-size` esa har kadrda to'liq
+ * reflow keltirib chiqaradi, shuning uchun shrift o'lchamini o'zgartirish
+ * uzun maqolada sakrab-sakrab ishlardi.
+ *
+ * Endi faqat `font-size` va qisqa muddat.
+ */
 .dangerous {
-  transition: all 0.5s ease-in-out;
+  transition: font-size 0.15s ease-out;
 }
 
 span {
@@ -665,10 +673,9 @@ span {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.side-mini *,
-.side * {
-  transition: all 0.1s ease-in-out;
-}
+/* `.side *` ga `transition: all` berilgani ham olib tashlandi: menyudagi
+   har bir element (havola, belgi, sarlavha) o'z animatsiyasini `sidebar.scss`
+   dan oladi. */
 
 .tooltip-html {
   transition: all 1s ease-in-out;

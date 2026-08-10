@@ -28,6 +28,14 @@
   --g-fill-strong: rgba(18, 27, 45, 0.09);
   --g-danger: #e24a4a;
   --g-danger-fill: rgba(226, 74, 74, 0.1);
+  /*
+   * Qulflangan kontent (premiumda ochiladigan qo'shimcha ma'lumot).
+   * Ataylab urg'u rangidan boshqa — "bu yerda yana narsa bor" degani
+   * xato yoki xavf emas, shuning uchun `--g-danger` ham to'g'ri kelmaydi.
+   */
+  --g-lock: #b8860b;
+  --g-lock-fill: rgba(214, 158, 46, 0.1);
+  --g-lock-border: rgba(214, 158, 46, 0.38);
   --g-shadow-1: 0 1px 2px rgba(18, 27, 45, 0.04);
   --g-shadow-2: 0 4px 14px rgba(18, 27, 45, 0.07);
   --g-shadow-3: 0 0.75rem 2rem rgba(18, 27, 45, 0.14), 0 0.125rem 0.375rem rgba(18, 27, 45, 0.06);
@@ -72,8 +80,9 @@
    * uchun bitta joyda. `--side-item-h` — piktogramma + nom uchun eng kichik
    * balandlik.
    */
-  --side-w-rail: 6.75rem;
-  --side-item-h: 4.5rem;
+  --side-w: 16.5rem; /* keng holat: piktogramma + nom yonma-yon */
+  --side-w-rail: 4.5rem; /* tor holat: faqat piktogramma */
+  --side-item-h: 2.6rem;
 
   /* ---------- Matn ---------- */
   --fs-title: 1.5rem;
@@ -100,6 +109,11 @@ body.dark {
   --g-fill-strong: rgba(255, 255, 255, 0.13);
   --g-danger: #ff7a7a;
   --g-danger-fill: rgba(255, 122, 122, 0.14);
+  /* Tungi urg'u ham to'q sariq — qulf rangi undan sovuqroq va so'ngroq
+     olinadi, aks holda "Premiumga o'tish" tugmasi fonga qo'shilib ketadi. */
+  --g-lock: #e8b964;
+  --g-lock-fill: rgba(232, 185, 100, 0.1);
+  --g-lock-border: rgba(232, 185, 100, 0.3);
   --g-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
   --g-shadow-2: 0 6px 20px rgba(0, 0, 0, 0.45);
   --g-shadow-3: 0 0.75rem 2rem rgba(0, 0, 0, 0.5), 0 0.125rem 0.375rem rgba(0, 0, 0, 0.3);
@@ -120,6 +134,11 @@ body.sepia {
   --g-fill-strong: rgba(124, 104, 74, 0.18);
   --g-danger: #b23a3a;
   --g-danger-fill: rgba(178, 58, 58, 0.12);
+  /* Fonning o'zi iliq qog'oz rangida — qulf ramkasi shunga yarasha
+     to'yingroq, aks holda kartochka fondan ajralmaydi. */
+  --g-lock: #9a6f13;
+  --g-lock-fill: rgba(154, 111, 19, 0.1);
+  --g-lock-border: rgba(154, 111, 19, 0.32);
   --g-shadow-1: 0 1px 2px rgba(84, 66, 40, 0.08);
   --g-shadow-2: 0 6px 20px rgba(84, 66, 40, 0.14);
   --g-shadow-3: 0 0.75rem 2rem rgba(84, 66, 40, 0.16), 0 0.125rem 0.375rem rgba(84, 66, 40, 0.09);

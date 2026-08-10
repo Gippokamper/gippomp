@@ -15,6 +15,12 @@ interface IProps {
   saved?: boolean
   /** Kartochka ustida turganda kichikroq bo'lsin. */
   compact?: boolean
+  /**
+   * Maqola asboblar qatorida — faqat belgi, lekin oqimda turadi.
+   * `compact` dan farqi shu: u `position: absolute` bilan muqova burchagiga
+   * yopishadi, bu esa oddiy flex elementi.
+   */
+  inline?: boolean
 }
 
 const BookmarkIcon = ({ filled }: { filled: boolean }) => (
@@ -35,7 +41,7 @@ const BookmarkIcon = ({ filled }: { filled: boolean }) => (
  * Holat darrov almashadi (optimistik), server javob bermasa — qaytariladi.
  * Aks holda tugma bosilgandan keyin bir zum javobsiz turardi.
  */
-function SaveButton({ type, id, saved = false, compact }: IProps) {
+function SaveButton({ type, id, saved = false, compact, inline }: IProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const handleApiError = useApiErrorHandler()
@@ -62,13 +68,28 @@ function SaveButton({ type, id, saved = false, compact }: IProps) {
     }
   )
 
+  const actionLabel = isSaved ? t('Remove from saved') : t('Save')
+
   return (
     <button
       type='button'
-      className={`save-btn ${isSaved ? 'is-saved' : ''} ${compact ? 'is-compact' : ''}`}
+      className={`save-btn ${isSaved ? 'is-saved' : ''} ${compact ? 'is-compact' : ''} ${inline ? 'is-inline' : ''}`}
       aria-pressed={isSaved}
+      /*
+       * Yorliqsiz variantda tugmaning nomi o'zgarmas bo'lishi kerak — holatni
+       * `aria-pressed` aytadi. Almashinuvchi nom bilan ekran o'quvchi
+       * "Saqlanganlardan olib tashlash, bosilgan" degan qarama-qarshi gap
+       * tuzardi.
+       */
+      aria-label={inline ? t('Save') : undefined}
+      /*
+       * Ixcham qatorda maslahat oynachasini CSS chizadi (`data-tip`) — u,
+       * brauzerning `title` idan farqli o'laroq, klaviatura fokusida ham
+       * chiqadi. Ikkalasi bir vaqtda chiqmasin.
+       */
+      title={inline ? undefined : actionLabel}
+      data-tip={inline ? actionLabel : undefined}
       disabled={isLoading}
-      title={isSaved ? t('Remove from saved') : t('Save')}
       onClick={event => {
         // Kartochka ichida bo'lsa — bosish materialni ochib yubormasin.
         event.preventDefault()
@@ -78,7 +99,7 @@ function SaveButton({ type, id, saved = false, compact }: IProps) {
       }}
     >
       <BookmarkIcon filled={isSaved} />
-      {!compact && <span>{isSaved ? t('Saved') : t('Save')}</span>}
+      {!compact && !inline && <span>{isSaved ? t('Saved') : t('Save')}</span>}
     </button>
   )
 }

@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import Modal from '../../components/modal'
 import lightIcon from '../../img/icons/exit-light.svg'
 import darkIcon from '../../img/icons/exit-dark.svg'
+import { nav_data } from '../../data/nav_data'
 
 interface IProps {
   isVisible: boolean
@@ -184,88 +185,26 @@ export const MobileMenu = (props: IProps) => {
         </div>
       </div>
 
+      {/*
+        O'quv modullari chap menyudagi bilan bitta manbadan — `nav_data`.
+        Ilgari bu yerda faqat uchta havola qo'lda yozilgan edi (Yangiliklar,
+        Kabinet, Yordam) va telefonda Kutubxona, Test, Videolar, O'quv
+        dasturiga menyudan umuman kirib bo'lmasdi: 1080px dan past ekranda
+        chap ustun yashiriladi va o'rnini shu ro'yxat bosadi.
+      */}
       <ul className='mobile-menu__list'>
+        {nav_data.map(nav => (
+          <li key={nav.id}>
+            {/* Havola bosilganda panel yopilsin — aks holda u yangi sahifa
+                ustida ochiq turib qolardi. */}
+            <Link to={nav.to} onClick={props.hide}>
+              {nav.icon}
+              <span>{t(nav.text)}</span>
+            </Link>
+          </li>
+        ))}
         <li>
-          <Link to='/news'>
-            <svg width={24} height={24} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path
-                d='M8.99884 21.0037H5.99759C4.34004 21.0037 2.99634 19.66 2.99634 18.0025V5.99747C2.99634 4.33992 4.34004 2.99622 5.99759 2.99622H18.0026C19.6601 2.99622 21.0038 4.33992 21.0038 5.99747V8.99872'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                fillRule='evenodd'
-                clipRule='evenodd'
-                d='M14.7231 20.7107C14.5356 20.8983 14.2811 21.0038 14.0158 21.0038H12V18.988C12 18.7227 12.1055 18.4682 12.2931 18.2807L18.2196 12.3492C18.5425 12.0263 18.9804 11.8448 19.4371 11.8448C19.8938 11.8448 20.3317 12.0263 20.6546 12.3492V12.3492C20.9778 12.672 21.1594 13.11 21.1594 13.5667C21.1594 14.0234 20.9778 14.4615 20.6546 14.7842L14.7231 20.7107Z'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M16.0127 14.5631L18.4437 16.9941'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M20.1686 15.2694L21.0689 16.1698V16.1698C21.5429 16.6447 21.5429 17.4136 21.0689 17.8885L19.9795 18.979'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M9.24902 10.9996H14.001'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M9.24902 7.12301H16.0018'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M6.12277 11.1247C6.19183 11.1247 6.24782 11.0687 6.24782 10.9996C6.24782 10.9305 6.19183 10.8745 6.12277 10.8745C6.0537 10.8745 5.99771 10.9305 5.99771 10.9996C5.99771 11.0687 6.0537 11.1247 6.12277 11.1247'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M6.12277 7.24806C6.19183 7.24806 6.24782 7.19208 6.24782 7.12301C6.24782 7.05395 6.19183 6.99796 6.12277 6.99796C6.0537 6.99796 5.99771 7.05395 5.99771 7.12301C5.99771 7.19208 6.0537 7.24806 6.12277 7.24806'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M9.24902 14.8762H10.9998'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-              <path
-                d='M6.12277 15.0012C6.19183 15.0012 6.24782 14.9452 6.24782 14.8762C6.24782 14.8071 6.19183 14.7511 6.12277 14.7511C6.0537 14.7511 5.99771 14.8071 5.99771 14.8762C5.99771 14.9452 6.0537 15.0012 6.12277 15.0012'
-                stroke='currentColor'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-            </svg>
-            <span>{t('News')}</span>
-          </Link>
-        </li>
-        <li>
-          <Link to='/account'>
+          <Link to='/account' onClick={props.hide}>
             <svg width={24} height={24} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 d='M18 20V19.25C18 16.9028 16.0972 15 13.75 15H6.25C3.90279 15 2 16.9028 2 19.25V20'
@@ -296,7 +235,7 @@ export const MobileMenu = (props: IProps) => {
           </Link>
         </li>
         <li>
-          <Link to='/help'>
+          <Link to='/help' onClick={props.hide}>
             <svg width={24} height={24} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'

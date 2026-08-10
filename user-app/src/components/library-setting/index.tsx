@@ -4,7 +4,7 @@ import ShareIcon from '../../img/icons/ShareIcon'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { RootState } from '../../store'
-import { setFontSize, toggleAddInfo, toggleShowMarker } from '../../store/slices/htmlSlice'
+import { setFontSize, toggleAddInfo } from '../../store/slices/htmlSlice'
 import { setTheme } from '../../store/siteSlice/siteSlice'
 import { THEME_OPTIONS } from '../../data/theme_options'
 import Segmented from '../segmented'
@@ -17,7 +17,7 @@ interface IProps {
 
 function LibrarySetting(props: IProps) {
   const { t } = useTranslation()
-  const { showMarker, showAddInfo, fontSize } = useSelector((state: RootState) => state.html)
+  const { showAddInfo, fontSize } = useSelector((state: RootState) => state.html)
   const { theme } = useSelector((state: RootState) => state.site)
   const dispatch = useDispatch()
   return (
@@ -87,30 +87,15 @@ function LibrarySetting(props: IProps) {
             </div>
             <input
               checked={showAddInfo}
-              onClick={() => {
-                if (showAddInfo && showMarker) {
-                  dispatch(toggleAddInfo())
-                  dispatch(toggleShowMarker())
-                } else {
-                  dispatch(toggleAddInfo())
-                }
-              }}
+              onChange={() => dispatch(toggleAddInfo())}
               type='checkbox'
               className='checkbox'
             />
           </div>
-          <div className='library-setting__item'>
-            <div className='library-setting__item-wrap'>
-              <div className='library-setting__item-title'>{t('Marker')}</div>
-              <div className='library-setting__item-text'>{t('This function displays the basic information')}</div>
-            </div>
-            <input
-              checked={showMarker}
-              onChange={e => dispatch(toggleShowMarker())}
-              type='checkbox'
-              className='checkbox'
-            />
-          </div>
+          {/*
+            "Marker" almashtirgichi olib tashlandi — maqola sahifasidagi
+            asboblar panelidan ham. Mexanizm (`showMarker`) o'z joyida.
+          */}
           <div className='library-setting__item'>
             <div className='library-setting__item-wrap'>
               <div className='library-setting__item-title'>{t('Text size')}</div>
