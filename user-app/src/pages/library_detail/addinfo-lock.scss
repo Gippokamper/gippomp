@@ -144,199 +144,56 @@
  * Yopiq bo'limda ham ko'rinadi — o'quvchi qaysi bo'limda premium ma'lumot
  * borligini har birini ochib chiqmasdan biladi.
  *
+ * Ataylab yalang'och: to'ldirish, ramka, soya va animatsiya yo'q. Ilgari bu
+ * to'la oltin "chip" edi va bo'limlar ro'yxatidagi eng baland ovozli narsaga
+ * aylanib qolgandi — holbuki ro'yxatning o'zi ataylab minimal (`article.scss`
+ * ga qarang: kartochka yo'q, soya yo'q, rangli to'ldirish yo'q). Endi u
+ * shunchaki belgi va so'z.
+ *
  * Sarlavhaning o'zi <button>, shuning uchun bu <span>: ichiga ikkinchi tugma
- * qo'yib bo'lmaydi. Bosilganda bo'lim ochiladi, ichida to'liq tugma turadi.
+ * qo'yib bo'lmaydi. Bosilganda bo'lim ochiladi.
  */
 .section-premium__badge {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
   /*
    * Ataylab `margin-left: auto` YO'Q: strelkada (`__head svg`) u allaqachon
    * bor va ikkita `auto` bo'sh joyni o'zaro bo'lib olib, belgini qator
-   * o'rtasiga uchirib yuborardi. Endi belgi sarlavha yonida turadi,
-   * strelka esa o'ng chekkada.
+   * o'rtasiga uchirib yuborardi.
    */
-  padding: 0.12rem 0.5rem 0.12rem 0.4rem;
-  border-radius: var(--r-pill);
+  color: var(--g-lock);
   /* Sarlavha shrift shkalasidan o'sadi; belgi esa interfeys elementi. */
   font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   flex-shrink: 0;
-  /* Yaltirash `::after` orqali chetidan chiqib ketmasin. */
-  overflow: hidden;
-  transition: transform var(--t-fast), box-shadow var(--t-fast);
 }
 
 /*
  * `color: inherit` shart: `article.scss` dagi
  * `.library-accordion__head svg { color: var(--g-muted) }` strelka uchun
- * yozilgan, lekin sarlavha ichidagi HAR QANDAY svg'ga tegadi — belgidagi
- * uchqun ham kulrang bo'lib qolardi.
+ * yozilgan, lekin sarlavha ichidagi HAR QANDAY svg'ga tegadi — qulf ham
+ * kulrang bo'lib qolardi.
  *
  * `margin-left: 0` ham shu sababdan: o'sha qoidada `margin-left: auto` bor
- * va u uchqunni belgi ichida o'ngga uchirib yuborardi.
+ * va u qulfni belgi ichida o'ngga uchirib yuborardi.
  */
 .library .library-accordion__head .section-premium__badge svg {
-  /* 0.65rem da uchqunning to'rt nuri qo'shuv belgisiga o'xshab qolardi. */
-  width: 0.8rem;
-  height: 0.8rem;
+  width: 0.72rem;
+  height: 0.72rem;
   flex-shrink: 0;
   margin-left: 0;
   color: inherit;
 }
 
 /*
- * ---------- Ikki holat ----------
- *
- * Ilgari ikkalasida ham qulf turardi: obuna to'lagan odam o'ziga ochiq
- * bo'lgan bo'lim yonida "yopiq" belgisini ko'rardi.
- *
- * Ochiq — to'la oltin: mukofot, "bu yerda ustama material bor".
- * Yopiq — faqat ramka: taklif, e'tiborni matndan tortib olmaydi.
- */
-/*
- * Ramka ataylab: yorqin oltin fon och sahifa foni bilan atigi 1.66:1
- * beradi, ya'ni belgi qirrasi yo'qoladi. Matn ichida kontrast yetarli
- * (7.6:1), lekin shaklning o'zi ham ko'rinib tursin.
- */
-.section-premium__badge.is-open {
-  border: 1px solid var(--g-lock);
-  background: var(--g-lock-grad);
-  color: var(--g-lock-on);
-  box-shadow: 0 1px 3px var(--g-lock-border);
-}
-
-.section-premium__badge.is-locked {
-  border: 1px solid var(--g-lock-border);
-  background: var(--g-lock-fill);
-  color: var(--g-lock);
-}
-
-/* ---------- Yaltirash ---------- */
-
-/*
- * Sarlavha ustiga sichqoncha kelganda belgidan bir marta yorug' o'tadi.
- * Doimiy animatsiya emas: uzun maqolada o'nlab qator bor, ularning har biri
- * o'z-o'zidan miltillasa matn o'qib bo'lmas holga kelardi.
- */
-.section-premium__badge::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -60%;
-  width: 45%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.65), transparent);
-  transform: translateX(0);
-  pointer-events: none;
-}
-
-.library-accordion__head:hover .section-premium__badge {
-  transform: translateY(-1px);
-}
-
-.library-accordion__head:hover .section-premium__badge.is-open {
-  box-shadow: 0 2px 8px var(--g-lock-border);
-}
-
-.library-accordion__head:hover .section-premium__badge::after {
-  animation: premium-sheen 0.75s ease-out;
-}
-
-@keyframes premium-sheen {
-  to {
-    transform: translateX(400%);
-  }
-}
-
-/* Harakatni kamaytirish so'ralganda — na siljish, na yaltirash. */
-@media (prefers-reduced-motion: reduce) {
-  .section-premium__badge,
-  .library-accordion__head:hover .section-premium__badge {
-    transform: none;
-    transition: none;
-  }
-
-  .library-accordion__head:hover .section-premium__badge::after {
-    animation: none;
-  }
-}
-
-/*
- * Sarlavha bo'sh joyni o'zi egallaydi. Busiz strelkadagi `margin-left: auto`
- * (article.scss) bo'sh joyni yutib, belgi bilan strelkani ikkalasini
- * sarlavha yoniga — qatorning chap yarmiga — tortib kelardi.
- *
- * `> span:first-child` ataylab: belgi ham `<span>`, uni ushlamasin.
- */
-.library .library-accordion__head > span:first-child {
-  flex: 1;
-  min-width: 0;
-}
-
-/*
- * Bo'lim ochilganda belgi ketadi: darhol ostida to'liq tugma turadi va
- * ikkalasi bir vaqtda takror bo'lib ko'rinardi.
+ * Bo'lim ochilganda belgi ketadi: bo'lim allaqachon ko'z oldida va qulflangan
+ * bandlar matn ichida o'z o'rnida taklif bilan almashtirilgan.
  */
 .library-accordion__item.active .section-premium__badge {
   display: none;
-}
-
-/* ---------- Bo'lim tepasidagi xabar ---------- */
-
-/*
- * "Ushbu bo'limda premium ma'lumot mavjud". Bo'lim ochilganda birinchi bo'lib
- * ko'rinadi va qo'shimcha ma'lumot almashtirgichini boshqaradi.
- *
- * `--inline` lentasi bilan bir tilda, lekin bo'lim kengligida — bu bitta
- * band o'rnidagi izoh emas, butun bo'limga tegishli xabar.
- */
-.section-premium {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  width: 100%;
-  margin: 0 0 var(--s-3);
-  padding: 0.45rem 0.7rem;
-  border: 1px solid var(--g-lock-border);
-  border-radius: var(--r-md);
-  background: var(--g-lock-fill);
-  color: var(--g-text);
-  font: inherit;
-  /* Maqola matni foydalanuvchi shkalasidan o'sadi; bu esa interfeys
-     elementi — u bilan birga kattalashmasin. */
-  font-size: 0.85rem;
-  line-height: 1.4;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color var(--t-fast), background var(--t-fast);
-}
-
-.section-premium:hover {
-  border-color: var(--g-lock);
-}
-
-.section-premium:focus-visible {
-  outline: 2px solid var(--g-lock);
-  outline-offset: 2px;
-}
-
-.section-premium svg {
-  flex-shrink: 0;
-  color: var(--g-lock);
-}
-
-/*
- * Yoqilgan holat. Rangning o'zi yetarli emas (WCAG 1.4.1), shuning uchun
- * chegara ham qalinlashadi.
- */
-.section-premium.is-on {
-  border-color: var(--g-lock);
-  box-shadow: inset 0 0 0 1px var(--g-lock-border);
 }
 
 /* ---------- Asboblar panelidagi qulflangan almashtirgich ---------- */

@@ -43,17 +43,6 @@
      kuchliroq: u ramkali kartochka ICHIDA ishlaydi, bu esa yalang'och
      o'qish foni ustida turadi. */
   --g-lock-wash: rgba(214, 158, 46, 0.14);
-  /*
-   * To'la bo'yalgan premium belgisi — ochiq obunada ishlatiladi.
-   * `--g-lock-on` shu gradient ustidagi matn rangi.
-   *
-   * Oltin YORQIN qoladi, matn esa to'q: oq yozuv bilan kontrastni yig'ish
-   * uchun fonni bronzagacha to'qlashtirishga to'g'ri kelardi va belgi
-   * jonsiz chiqardi (oq/och oltin atigi 2.25:1). To'q yozuv bilan esa
-   * 7.63–9.19:1 — tungi mavzu ham aynan shu yo'ldan ketadi.
-   */
-  --g-lock-grad: linear-gradient(135deg, #f0b429 0%, #d9a520 100%);
-  --g-lock-on: #241a08;
   --g-shadow-1: 0 1px 2px rgba(18, 27, 45, 0.04);
   --g-shadow-2: 0 4px 14px rgba(18, 27, 45, 0.07);
   --g-shadow-3: 0 0.75rem 2rem rgba(18, 27, 45, 0.14), 0 0.125rem 0.375rem rgba(18, 27, 45, 0.06);
@@ -133,9 +122,6 @@ body.dark {
   --g-lock-fill: rgba(232, 185, 100, 0.1);
   --g-lock-border: rgba(232, 185, 100, 0.3);
   --g-lock-wash: rgba(232, 185, 100, 0.1);
-  /* Tungi fonda oltin yorug' — matn esa qorong'i, aks holda o'qilmaydi. */
-  --g-lock-grad: linear-gradient(135deg, #f5d089 0%, #e0aa4e 100%);
-  --g-lock-on: #241a08;
   --g-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
   --g-shadow-2: 0 6px 20px rgba(0, 0, 0, 0.45);
   --g-shadow-3: 0 0.75rem 2rem rgba(0, 0, 0, 0.5), 0 0.125rem 0.375rem rgba(0, 0, 0, 0.3);
@@ -163,9 +149,6 @@ body.sepia {
   --g-lock-fill: rgba(154, 111, 19, 0.1);
   --g-lock-border: rgba(154, 111, 19, 0.32);
   --g-lock-wash: rgba(154, 111, 19, 0.13);
-  /* Kunduzgidagi kabi yorqin oltin + to'q yozuv: 5.87–8.06:1. */
-  --g-lock-grad: linear-gradient(135deg, #e0a92c 0%, #c08f22 100%);
-  --g-lock-on: #241a08;
   --g-shadow-1: 0 1px 2px rgba(84, 66, 40, 0.08);
   --g-shadow-2: 0 6px 20px rgba(84, 66, 40, 0.14);
   --g-shadow-3: 0 0.75rem 2rem rgba(84, 66, 40, 0.16), 0 0.125rem 0.375rem rgba(84, 66, 40, 0.09);

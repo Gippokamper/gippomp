@@ -54,24 +54,6 @@ const LockGlyph = () => (
 )
 
 /*
- * Premium ochiq bo'lganda qulf yaramaydi: obuna to'lagan odamga "bu yer
- * yopiq" degan belgi ko'rsatiladi. Uchqun esa qulflanmagan qo'shimchani
- * bildiradi — "bu bo'limda ustama material bor".
- *
- * Katta yulduz va ikkita kichigi: bittasining o'zi nuqtaga o'xshab qolardi.
- */
-const SparkGlyph = () => (
-  <svg width='13' height='13' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <path
-      d='M12 3.2 13.7 8.6a3 3 0 0 0 1.9 1.9l5.4 1.7-5.4 1.7a3 3 0 0 0-1.9 1.9L12 21.2l-1.7-5.4a3 3 0 0 0-1.9-1.9L3 12.2l5.4-1.7a3 3 0 0 0 1.9-1.9L12 3.2Z'
-      fill='currentColor'
-    />
-    <circle cx='19.4' cy='5.1' r='1.5' fill='currentColor' opacity='.75' />
-    <circle cx='5.2' cy='18.6' r='1.1' fill='currentColor' opacity='.55' />
-  </svg>
-)
-
-/*
  * Shrift chegaralari — `htmlSlice` dagi `increment`/`decrement` ham aynan shu
  * qiymatlarda to'xtaydi. Bu yerda ular tugmani so'ndirish uchun kerak: aks
  * holda chegaraga yetgan odam bosaveradi va nega hech narsa o'zgarmayotganini
@@ -486,16 +468,14 @@ export const LibraryDetail = () => {
 
                       Ataylab <span>: sarlavhaning o'zi <button>, ichiga
                       ikkinchi tugma qo'yib bo'lmaydi. Bosilganda bo'lim
-                      ochiladi va ichida to'liq tugma turadi.
+                      ochiladi.
                     */}
                     {chapterHasAddInfo && (
                       <span
-                        className={`section-premium__badge ${canSeeAddInfo ? 'is-open' : 'is-locked'}`}
+                        className='section-premium__badge'
                         title={t('This section contains premium information', "Ushbu bo'limda premium ma'lumot mavjud")}
                       >
-                        {/* Ochiq bo'lsa uchqun, yopiq bo'lsa qulf — obuna
-                            to'lagan odamga "yopiq" belgisi ko'rsatilmasin. */}
-                        {canSeeAddInfo ? <SparkGlyph /> : <LockGlyph />}
+                        <LockGlyph />
                         <b>Premium</b>
                       </span>
                     )}
@@ -504,29 +484,12 @@ export const LibraryDetail = () => {
 
                   <div className='library-accordion__content'>
                     {/*
-                      Bo'limda premium ma'lumot borligini bo'limning o'zida
-                      aytamiz. Ilgari buni faqat sarlavha panelidagi kichkina
-                      belgidan bilish mumkin edi — o'quvchi uzun maqolani
-                      aylantirib o'qiyotganda u ko'z oldida bo'lmaydi.
-
-                      Tugma qo'shimcha ma'lumot almashtirgichi bilan bir xil
-                      ishlaydi: ruxsat bo'lsa — yoqadi/o'chiradi, bo'lmasa —
-                      tariflarga olib boradi.
+                      Bo'lim ichidagi keng lenta olib tashlandi: matn ustida
+                      to'ldirilgan blok bo'lib turardi va o'qishga xalaqit
+                      berardi. Premium borligi sarlavhadagi belgidan
+                      ko'rinadi, qulflangan bandlar esa matn ichida o'z
+                      o'rnida taklif bilan almashtiriladi (`prepare-html`).
                     */}
-                    {chapterHasAddInfo && (
-                      <button
-                        type='button'
-                        className={`section-premium ${canSeeAddInfo && showAddInfo ? 'is-on' : ''}`}
-                        aria-pressed={canSeeAddInfo ? showAddInfo : undefined}
-                        onClick={() => (canSeeAddInfo ? dispatch(toggleAddInfo()) : goToTariffs())}
-                      >
-                        <LockGlyph />
-                        <span>
-                          {t('This section contains premium information', "Ushbu bo'limda premium ma'lumot mavjud")}
-                        </span>
-                      </button>
-                    )}
-
                     {shouldRender && (
                       <WithTooltip
                         html={chapter?.description?.[lang]}
