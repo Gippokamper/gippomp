@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 
 import LibraryLayout from '../../layouts/library'
+import uz from '../../img/icons/uz.svg'
 import MarkerIcon from '../../img/icons/MarkerIcon'
 import DropDownIcon from '../../img/icons/DropDownIcon'
 import Play from '../../img/icons/Play'
@@ -25,7 +26,8 @@ import {
   setChapters,
   toggleAddInfo,
   toggleAllChapter,
-  toggleChapter
+  toggleChapter,
+  toggleShowMarker
 } from '../../store/slices/htmlSlice'
 import './article.scss'
 import './addinfo-lock.scss'
@@ -97,6 +99,24 @@ const InfoToggleIcon = ({ filled }: { filled: boolean }) => (
 )
 
 /*
+ * Marker — qo'shimcha ma'lumot ostidagi sariq chiziq. Belgi yoqilganda
+ * to'ldiriladi va ostidagi chiziq qalinlashadi.
+ */
+const MarkerToggleIcon = ({ filled }: { filled: boolean }) => (
+  <svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+    <path
+      d='M14.9 4.2a1.9 1.9 0 0 1 2.7 0l2.2 2.2a1.9 1.9 0 0 1 0 2.7l-7.9 7.9H8.3l-1.4-1.4v-3.6l8-7.8Z'
+      fill='currentColor'
+      fillOpacity={filled ? 0.22 : 0}
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinejoin='round'
+    />
+    <path d='M4 20.4h16' stroke='currentColor' strokeWidth={filled ? 2.8 : 1.6} strokeLinecap='round' />
+  </svg>
+)
+
+/*
  * Yoyish/yig'ish — almashtirgich emas, buyruq: "hozir hammasini och" yoki
  * "hozir hammasini yop". Shuning uchun belgi ham, nomi ham holatga qarab
  * almashadi, `aria-pressed` esa yo'q — u bo'lganda ekran o'quvchisi
@@ -135,7 +155,7 @@ export const LibraryDetail = () => {
   const dispatch = useDispatch()
   const handleApiError = useApiErrorHandler()
   const { userPermissions } = useContext(AuthContext)
-  const { chapters, showAddInfo, lang, fontSize } = useSelector((state: RootState) => state.html)
+  const { chapters, showAddInfo, showMarker, lang, fontSize } = useSelector((state: RootState) => state.html)
 
   /*
    * Qo'shimcha ma'lumot — `info` ruxsatiga bog'liq. Backend uni sinov
@@ -304,13 +324,17 @@ export const LibraryDetail = () => {
               </div>
             )}
             {/*
-              Til tanlagich va "Marker" almashtirgichi olib tashlandi.
-              Til: maqolalar faqat o'zbekcha, tanlagichda bitta variant bo'lib
-              hech qachon o'zgarmasdi. Marker: paneldagi to'rtta almashtirgich
-              orasida eng kam ishlatilgani edi.
-              Mexanizm o'z joyida (`setLang`, Redux'dagi `lang` va
-              `showMarker`) — kerak bo'lsa boshqaruvni qaytarish oson.
+              Maqola tili. Hozircha bitta variant, shuning uchun bosiladigan
+              tugma emas — ko'rsatkich: qaysi tilda o'qiyotganingiz ko'rinib
+              tursin. Ikkinchi til qo'shilganda `setLang` bilan tanlagichga
+              aylantiriladi.
             */}
+            <div className='reader-tools__group'>
+              <span className='reader-tools__lang' title={t('Language')}>
+                <img src={uz} alt='' />
+                {lang.toUpperCase()}
+              </span>
+            </div>
             <div className='reader-tools__group'>
               {/*
                 Ruxsat bo'lmaganda almashtirgich o'rniga qulf: bosilsa tariflarga
@@ -324,7 +348,20 @@ export const LibraryDetail = () => {
                   aria-pressed={showAddInfo}
                   aria-label={t('Additional Information')}
                   data-tip={t('Additional Information')}
-                  onClick={() => dispatch(toggleAddInfo())}
+                  /*
+                    Qo'shimcha ma'lumot o'chirilayotganda marker ham birga
+                    o'chadi — aks holda u "yoqiq" bo'lib qolar va keyingi
+                    bosishda kutilmaganda ikkalasi yonardi. Bu mantiq
+                    yorliqli paneldan o'zgarmagan holda ko'chirildi.
+                  */
+                  onClick={() => {
+                    if (showAddInfo && showMarker) {
+                      dispatch(toggleAddInfo())
+                      dispatch(toggleShowMarker())
+                    } else {
+                      dispatch(toggleAddInfo())
+                    }
+                  }}
                 >
                   <InfoToggleIcon filled={showAddInfo} />
                 </button>
@@ -339,6 +376,17 @@ export const LibraryDetail = () => {
                   <LockGlyph />
                 </button>
               )}
+
+              <button
+                type='button'
+                className='reader-tools__btn'
+                aria-pressed={showMarker}
+                aria-label={t('Marker')}
+                data-tip={t('Marker')}
+                onClick={() => dispatch(toggleShowMarker())}
+              >
+                <MarkerToggleIcon filled={showMarker} />
+              </button>
 
               <button
                 type='button'

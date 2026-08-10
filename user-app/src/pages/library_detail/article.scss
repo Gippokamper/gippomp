@@ -366,6 +366,32 @@ body.dark .scroll-top {
   flex-shrink: 0;
 }
 
+/*
+ * Til ko'rsatkichi — tugma emas, shuning uchun hover/fokus effekti yo'q va
+ * kursor ham o'zgarmaydi. Balandligi tugmalarniki bilan bir xil, aks holda
+ * qator notekis bo'lardi.
+ */
+.library .reader-tools__lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 2.2rem;
+  min-height: 34px;
+  padding: 0 0.15rem;
+  color: var(--g-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.library .reader-tools__lang img {
+  width: 1rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
 /* "A" va "AA" — belgi emas, harfning o'zi. */
 .library .reader-tools__btn--text {
   font-size: 12px;
