@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
@@ -81,21 +81,40 @@ const hasAddInfo = (html?: string): boolean => !!html && /<u[\s>]/i.test(html)
  * Yoqilgan holat `filled` orqali SHAKLNI o'zgartiradi, faqat rangni emas —
  * rangning o'zi yetarli emas (WCAG 1.4.1).
  */
-const InfoToggleIcon = ({ filled }: { filled: boolean }) => (
-  <svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <circle
-      cx='12'
-      cy='12'
-      r='9'
-      fill='currentColor'
-      fillOpacity={filled ? 0.22 : 0}
-      stroke='currentColor'
-      strokeWidth='1.6'
-    />
-    <path d='M12 11.1v5.1' stroke='currentColor' strokeWidth={filled ? 2.4 : 1.8} strokeLinecap='round' />
-    <circle cx='12' cy='7.8' r={filled ? 1.3 : 1.05} fill='currentColor' />
-  </svg>
-)
+const InfoToggleIcon = ({ filled }: { filled: boolean }) => {
+  /*
+   * Yoqilgan holatda doira TO'LIQ bo'yaladi, "i" esa undan o'yib olinadi
+   * (mask): belgi ijobiydan salbiyga o'tadi. Ilgari to'ldirish 22% shaffof
+   * edi va yonidagi o'chiq belgidan deyarli farq qilmasdi.
+   *
+   * O'yish `fill` bilan emas, mask bilan: "i" ning o'rni SHAFFOF qoladi va
+   * ostidagi fon ko'rinadi — shu sababli uchala mavzuda ham ishlaydi,
+   * hech qayerda fon rangini qo'lda takrorlash kerak emas.
+   */
+  const maskId = useId()
+
+  if (!filled) {
+    return (
+      <svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+        <circle cx='12' cy='12' r='9' stroke='currentColor' strokeWidth='1.6' />
+        <circle cx='12' cy='7.8' r='1.05' fill='currentColor' />
+        <path d='M12 11.1v5.1' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round' />
+      </svg>
+    )
+  }
+
+  return (
+    <svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+      <mask id={maskId}>
+        {/* Oq — qoladigan joy, qora — o'yiladigan joy. */}
+        <rect width='24' height='24' fill='white' />
+        <circle cx='12' cy='7.7' r='1.35' fill='black' />
+        <rect x='10.85' y='10.5' width='2.3' height='6.3' rx='1.15' fill='black' />
+      </mask>
+      <circle cx='12' cy='12' r='9.4' fill='currentColor' mask={`url(#${maskId})`} />
+    </svg>
+  )
+}
 
 /*
  * Yoyish/yig'ish — almashtirgich emas, buyruq: "hozir hammasini och" yoki

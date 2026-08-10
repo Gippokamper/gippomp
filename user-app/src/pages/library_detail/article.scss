@@ -430,33 +430,23 @@ body.dark .scroll-top {
 }
 
 /*
- * Yoqilgan holat. Uchta signal birga: belgi to'ldiriladi (shakl o'zgarishi,
- * rangdan mustaqil), fon `--g-fill-strong` ga kuchayadi, matn rangi
- * `--g-muted` dan `--g-text` ga chiqadi.
+ * Yoqilgan holatni BELGINING O'ZI aytadi: doira to'liq bo'yaladi va "i"
+ * undan o'yib olinadi (`InfoToggleIcon`), saqlashda esa xatcho'p
+ * to'ldiriladi. Bu yerda faqat rang kuchayadi — `--g-muted` dan
+ * `--g-text` ga.
  *
- * Urg'u rangi ataylab fon uchun ishlatilmadi: kunduzgi mavzuda `--g-accent`
- * panel foniga nisbatan 3:1 dan past — "yoqilgan" belgi "o'chiq" belgidan
- * ko'ra ko'rinmasroq bo'lib qolardi. Urg'u faqat ostidagi ingichka chiziqda.
+ * Ilgari qo'shimcha ravishda fon `--g-fill-strong` ga kuchayar va ostiga
+ * yashil chiziq chizilardi. Uchta signal bir vaqtda ko'p edi: kulrang
+ * kvadrat qatordagi eng og'ir shakl bo'lib, tinch belgilar orasida
+ * yamoqdek turardi.
  *
- * `--g-fill*` alfa-tokenlar bo'lgani uchun panelning foniga uchala mavzuda
- * ham to'g'ri qo'shiladi — bu yerda birorta mavzu bloki kerak emas.
+ * Urg'u rangi ataylab ishlatilmadi: kunduzgi mavzuda `--g-accent` panel
+ * foniga nisbatan 3:1 dan past — grafik element uchun talab qilinadigan
+ * chegaradan ham quyi.
  */
 .library .reader-tools__btn[aria-pressed='true'],
 .library .reader-tools .save-btn.is-inline[aria-pressed='true'] {
-  background: var(--g-fill-strong);
   color: var(--g-text);
-}
-
-.library .reader-tools__btn[aria-pressed='true']::before,
-.library .reader-tools .save-btn.is-inline[aria-pressed='true']::before {
-  content: '';
-  position: absolute;
-  left: 28%;
-  right: 28%;
-  bottom: 0.2rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--g-accent);
 }
 
 /* Qulflangan "Qo'shimcha ma'lumot" — qulf rangi tokendan. */
