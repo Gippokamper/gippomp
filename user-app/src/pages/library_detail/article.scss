@@ -392,14 +392,34 @@ body.dark .scroll-top {
   object-fit: cover;
 }
 
-/* "A" va "AA" — belgi emas, harfning o'zi. */
+/*
+ * Shrift tugmalari — "A−" va "A+". Belgi emas, harf va ishora.
+ *
+ * Ilgari bu yerda yalang'och "A"/"AA" susaygan kulrangda, 12px'da turardi va
+ * boshqaruv ekani bilinmasdi — foydalanuvchi shrift tugmasini topa olmadi.
+ * Endi harf yonidagi belgilarni ham qo'shdik, matn rangi esa qatordagi
+ * qolgan belgilar bilan bir xil og'irlikda.
+ */
 .library .reader-tools__btn--text {
-  font-size: 12px;
-  letter-spacing: 0.01em;
+  gap: 0.05rem;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+/* "+" va "−" harfdan kichikroq va biroz tepada — indeks kabi. */
+.library .reader-tools__btn--text i {
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1;
+  transform: translateY(-0.15em);
 }
 
 .library .reader-tools__btn--lg {
-  letter-spacing: -0.04em;
+  font-size: 15px;
+}
+
+.library .reader-tools__btn--lg i {
+  font-size: 12px;
 }
 
 .library .reader-tools__btn:hover,

@@ -404,16 +404,17 @@ export const LibraryDetail = () => {
               Tab bilan fokus olmasdi, Enter/Space bilan ishlamasdi va 10/30
               chegarasida jimgina hech nima qilmasdi. Endi haqiqiy tugmalar.
 
-              Belgi o'rniga harfning o'zi — referensdagidek: bitta "A"
-              kichraytiradi, ikkita "A" kattalashtiradi. Farq harf
-              O'LCHAMIDA emas, SONIDA: bir xil harfning ikki o'lchami yonma-yon
-              turganda deyarli ajralmasdi.
+              Ilgari bu yerda yalang'och "A" va "AA" turardi (AMBOSS
+              referensidagidek). Amalda ular boshqaruvga emas, oddiy matnga
+              o'xshardi va odam shrift tugmasini umuman topa olmadi. Endi
+              harf yonida ishora bor: "A−" kichraytiradi, "A+" kattalashtiradi
+              — nima qilishi bir qarashda ko'rinadi.
 
               Chegarada `disabled` emas, `aria-disabled`: `disabled` element
               fokusni <body> ga uchiradi va keyingi Tab sahifa boshidan
               boshlanardi — uzun maqolada bu joyni yo'qotish demak.
             */}
-            <div className='reader-tools__group'>
+            <div className='reader-tools__group reader-tools__group--font'>
               <button
                 type='button'
                 className='reader-tools__btn reader-tools__btn--text'
@@ -425,7 +426,7 @@ export const LibraryDetail = () => {
                   dispatch(decrement())
                 }}
               >
-                A
+                A<i aria-hidden='true'>−</i>
               </button>
 
               <button
@@ -439,7 +440,7 @@ export const LibraryDetail = () => {
                   dispatch(increment())
                 }}
               >
-                AA
+                A<i aria-hidden='true'>+</i>
               </button>
             </div>
 
