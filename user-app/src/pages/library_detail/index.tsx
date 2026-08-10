@@ -26,8 +26,7 @@ import {
   setChapters,
   toggleAddInfo,
   toggleAllChapter,
-  toggleChapter,
-  toggleShowMarker
+  toggleChapter
 } from '../../store/slices/htmlSlice'
 import './article.scss'
 import './addinfo-lock.scss'
@@ -99,24 +98,6 @@ const InfoToggleIcon = ({ filled }: { filled: boolean }) => (
 )
 
 /*
- * Marker — qo'shimcha ma'lumot ostidagi sariq chiziq. Belgi yoqilganda
- * to'ldiriladi va ostidagi chiziq qalinlashadi.
- */
-const MarkerToggleIcon = ({ filled }: { filled: boolean }) => (
-  <svg width='24' height='24' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
-    <path
-      d='M14.9 4.2a1.9 1.9 0 0 1 2.7 0l2.2 2.2a1.9 1.9 0 0 1 0 2.7l-7.9 7.9H8.3l-1.4-1.4v-3.6l8-7.8Z'
-      fill='currentColor'
-      fillOpacity={filled ? 0.22 : 0}
-      stroke='currentColor'
-      strokeWidth='1.6'
-      strokeLinejoin='round'
-    />
-    <path d='M4 20.4h16' stroke='currentColor' strokeWidth={filled ? 2.8 : 1.6} strokeLinecap='round' />
-  </svg>
-)
-
-/*
  * Yoyish/yig'ish — almashtirgich emas, buyruq: "hozir hammasini och" yoki
  * "hozir hammasini yop". Shuning uchun belgi ham, nomi ham holatga qarab
  * almashadi, `aria-pressed` esa yo'q — u bo'lganda ekran o'quvchisi
@@ -155,7 +136,7 @@ export const LibraryDetail = () => {
   const dispatch = useDispatch()
   const handleApiError = useApiErrorHandler()
   const { userPermissions } = useContext(AuthContext)
-  const { chapters, showAddInfo, showMarker, lang, fontSize } = useSelector((state: RootState) => state.html)
+  const { chapters, showAddInfo, lang, fontSize } = useSelector((state: RootState) => state.html)
 
   /*
    * Qo'shimcha ma'lumot — `info` ruxsatiga bog'liq. Backend uni sinov
@@ -313,6 +294,30 @@ export const LibraryDetail = () => {
           */}
           <div className='library-head__wrap reader-tools' role='group' aria-label={t('Reading tools', "O'qish asboblari")}>
             {/*
+              Mini test. Ilgari bu sarlavha ostida alohida qatorda, 11rem
+              enli kulrang tugma bo'lib turardi va ostidan yana 2rem bo'shliq
+              yerdi — maqola matni shuncha pastga surilardi. Endi u shu
+              qatorda.
+
+              Yozuvi ataylab qoldirildi: qatordagi qolganlari o'qish
+              sozlamalari, bu esa sahifadan chiqib ketadigan harakat. Yalang'och
+              "▶" belgisi nimani ochishini aytmasdi — shrift tugmalarida
+              aynan shu xato qilingan edi.
+            */}
+            {!!article?.blocks?.length && (
+              <div className='reader-tools__group'>
+                <button
+                  type='button'
+                  className='reader-tools__quiz'
+                  onClick={() => navigate(`/detail/article/${article?.slug}/${article?.blocks?.[0]?.id}`)}
+                >
+                  <Play width={'0.85rem'} height={'0.85rem'} />
+                  <span>{t('Qbank mini test')}</span>
+                </button>
+              </div>
+            )}
+
+            {/*
               Guruh maqola kelgandagina chiziladi. Bo'sh <div> qoldirilsa,
               ajratgich (`group + group` ning chap chegarasi) yuklanish paytida
               hech narsaga tegib turmagan yetim chiziq bo'lib ko'rinardi.
@@ -348,20 +353,7 @@ export const LibraryDetail = () => {
                   aria-pressed={showAddInfo}
                   aria-label={t('Additional Information')}
                   data-tip={t('Additional Information')}
-                  /*
-                    Qo'shimcha ma'lumot o'chirilayotganda marker ham birga
-                    o'chadi — aks holda u "yoqiq" bo'lib qolar va keyingi
-                    bosishda kutilmaganda ikkalasi yonardi. Bu mantiq
-                    yorliqli paneldan o'zgarmagan holda ko'chirildi.
-                  */
-                  onClick={() => {
-                    if (showAddInfo && showMarker) {
-                      dispatch(toggleAddInfo())
-                      dispatch(toggleShowMarker())
-                    } else {
-                      dispatch(toggleAddInfo())
-                    }
-                  }}
+                  onClick={() => dispatch(toggleAddInfo())}
                 >
                   <InfoToggleIcon filled={showAddInfo} />
                 </button>
@@ -376,17 +368,6 @@ export const LibraryDetail = () => {
                   <LockGlyph />
                 </button>
               )}
-
-              <button
-                type='button'
-                className='reader-tools__btn'
-                aria-pressed={showMarker}
-                aria-label={t('Marker')}
-                data-tip={t('Marker')}
-                onClick={() => dispatch(toggleShowMarker())}
-              >
-                <MarkerToggleIcon filled={showMarker} />
-              </button>
 
               <button
                 type='button'
@@ -459,20 +440,6 @@ export const LibraryDetail = () => {
             <div className='reading-progress__bar' style={{ width: `${progress}%` }} />
           </div>
         </div>
-
-        {article?.blocks?.length ? (
-          <div className='library-btn'>
-            <button
-              className='btn btn-grey'
-              onClick={() => navigate(`/detail/article/${article?.slug}/${article?.blocks?.[0]?.id}`)}
-            >
-              <Play width={'1rem'} height={'1rem'} />
-              <span>{t('Qbank mini test')}</span>
-            </button>
-          </div>
-        ) : (
-          <div />
-        )}
 
         <div className='library-accordion'>
           {!isLoading &&

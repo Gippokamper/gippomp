@@ -465,17 +465,66 @@ body.dark .scroll-top {
 }
 
 /*
+ * Mini test — qatordagi yagona "sahifadan chiqib ketadigan" harakat, shuning
+ * uchun yozuvi bor va urg'u rangida. Qolganlari kulrang almashtirgich, bu esa
+ * ajralib tursin.
+ */
+.library .reader-tools__quiz {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.2rem;
+  min-height: 34px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--g-border);
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--g-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+}
+
+.library .reader-tools__quiz svg {
+  flex-shrink: 0;
+  color: var(--g-accent);
+}
+
+.library .reader-tools__quiz:hover {
+  border-color: var(--g-accent);
+  background: var(--g-fill);
+}
+
+.library .reader-tools__quiz:focus-visible {
+  outline: 2px solid var(--g-text);
+  outline-offset: -2px;
+}
+
+/*
  * Chegaraga yetgan qadam tugmasi. `disabled` emas — u fokusni <body> ga
  * uchirib yuboradi va maslahat oynachasini ham o'chiradi.
+ *
+ * `opacity: .45` yolg'iz o'zi sezilmasdi: tugma allaqachon susaygan kulrangda
+ * edi va "so'ngan" holat "oddiy" holatdan deyarli farq qilmasdi. Endi rang
+ * ham, kursor ham o'zgaradi — chegaraga yetganingiz ko'rinib turadi.
  */
 .library .reader-tools__btn[aria-disabled='true'] {
-  opacity: 0.45;
-  cursor: default;
+  opacity: 0.4;
+  color: var(--g-muted);
+  cursor: not-allowed;
 }
 
 .library .reader-tools__btn[aria-disabled='true']:hover {
   background: none;
   color: var(--g-muted);
+}
+
+/* So'ngan tugmada urg'u chizig'i chizilmasin. */
+.library .reader-tools__btn[aria-disabled='true']::before {
+  content: none;
 }
 
 /* Fokus halqasi ham `--g-text` da — `--g-accent` kunduzgi mavzuda 3:1 dan past. */
