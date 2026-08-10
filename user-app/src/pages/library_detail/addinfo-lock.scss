@@ -138,6 +138,63 @@
   outline-offset: 2px;
 }
 
+/* ---------- Bo'lim sarlavhasidagi belgi ---------- */
+
+/*
+ * Yopiq bo'limda ham ko'rinadi — o'quvchi qaysi bo'limda premium ma'lumot
+ * borligini har birini ochib chiqmasdan biladi.
+ *
+ * Sarlavhaning o'zi <button>, shuning uchun bu <span>: ichiga ikkinchi tugma
+ * qo'yib bo'lmaydi. Bosilganda bo'lim ochiladi, ichida to'liq tugma turadi.
+ */
+.section-premium__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  /*
+   * Ataylab `margin-left: auto` YO'Q: strelkada (`__head svg`) u allaqachon
+   * bor va ikkita `auto` bo'sh joyni o'zaro bo'lib olib, belgini qator
+   * o'rtasiga uchirib yuborardi. Endi belgi sarlavha yonida turadi,
+   * strelka esa o'ng chekkada.
+   */
+  padding: 0.1rem 0.45rem 0.1rem 0.35rem;
+  border: 1px solid var(--g-lock-border);
+  border-radius: var(--r-pill);
+  background: var(--g-lock-fill);
+  color: var(--g-lock);
+  /* Sarlavha shrift shkalasidan o'sadi; belgi esa interfeys elementi. */
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.section-premium__badge svg {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+/*
+ * Sarlavha bo'sh joyni o'zi egallaydi. Busiz strelkadagi `margin-left: auto`
+ * (article.scss) bo'sh joyni yutib, belgi bilan strelkani ikkalasini
+ * sarlavha yoniga — qatorning chap yarmiga — tortib kelardi.
+ *
+ * `> span:first-child` ataylab: belgi ham `<span>`, uni ushlamasin.
+ */
+.library .library-accordion__head > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+/*
+ * Bo'lim ochilganda belgi ketadi: darhol ostida to'liq tugma turadi va
+ * ikkalasi bir vaqtda takror bo'lib ko'rinardi.
+ */
+.library-accordion__item.active .section-premium__badge {
+  display: none;
+}
+
 /* ---------- Bo'lim tepasidagi xabar ---------- */
 
 /*

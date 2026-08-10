@@ -446,6 +446,7 @@ export const LibraryDetail = () => {
             chapters?.map((chapter: any, index: number) => {
               const isActive = !!chapter.isOpen
               const shouldRender = isActive || openedOnce.current.has(chapter.id)
+              const chapterHasAddInfo = hasAddInfo(chapter?.description?.[lang])
 
               return (
                 <div id={chapter?.id} className={`library-accordion__item ${isActive ? 'active' : ''}`} key={chapter.id}>
@@ -460,6 +461,24 @@ export const LibraryDetail = () => {
                     onClick={() => handleToggleChapter(index, chapter.id)}
                   >
                     <span>{chapter.title?.[lang]}</span>
+                    {/*
+                      Yopiq bo'limda ham ko'rinadigan belgi: qaysi bo'limda
+                      premium ma'lumot borligini bilish uchun har birini
+                      ochib chiqishga to'g'ri kelmasin.
+
+                      Ataylab <span>: sarlavhaning o'zi <button>, ichiga
+                      ikkinchi tugma qo'yib bo'lmaydi. Bosilganda bo'lim
+                      ochiladi va ichida to'liq tugma turadi.
+                    */}
+                    {chapterHasAddInfo && (
+                      <span
+                        className='section-premium__badge'
+                        title={t('This section contains premium information', "Ushbu bo'limda premium ma'lumot mavjud")}
+                      >
+                        <LockGlyph />
+                        <b>Premium</b>
+                      </span>
+                    )}
                     <DropDownIcon />
                   </button>
 
@@ -474,7 +493,7 @@ export const LibraryDetail = () => {
                       ishlaydi: ruxsat bo'lsa — yoqadi/o'chiradi, bo'lmasa —
                       tariflarga olib boradi.
                     */}
-                    {hasAddInfo(chapter?.description?.[lang]) && (
+                    {chapterHasAddInfo && (
                       <button
                         type='button'
                         className={`section-premium ${canSeeAddInfo && showAddInfo ? 'is-on' : ''}`}
