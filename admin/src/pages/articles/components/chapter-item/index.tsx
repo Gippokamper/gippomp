@@ -3,14 +3,12 @@ import styles from './index.module.scss'
 import { Box, Collapse, IconButton, Typography } from '@mui/material'
 import { Delete, Edit } from '@mui/icons-material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useNavigate } from 'react-router-dom'
 import Confirm from '../../../../components/confirm'
 import { useTranslation } from 'react-i18next'
 
 function ChapterItem({ item, onEdit, onDelete }: any) {
   const { i18n } = useTranslation()
   const [expand, setExpand] = useState(false)
-  const navigation = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const onConfirm = () => {
     setIsOpen(false)

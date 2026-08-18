@@ -7,7 +7,6 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { IFolders } from '../../data/data'
 import { GET_FOLDER, GET_FOLDERS } from '../../../queries'
 import Form from '../../../../../components/form/Form'
-import { useTranslation } from 'react-i18next'
 
 const initialValues = {
   name: {
@@ -19,9 +18,8 @@ const initialValues = {
 }
 
 function CategoryForm() {
-  const { i18n } = useTranslation()
-  const { data: folderData, isLoading } = useQuery(['folders-root'], () => GET_FOLDERS({ perPage: 1000 }))
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { data: folderData } = useQuery(['folders-root'], () => GET_FOLDERS({ perPage: 1000 }))
+  const [searchParams] = useSearchParams()
   const { parent } = useParams()
 
   const { data: folder, refetch } = useQuery(

@@ -14,7 +14,7 @@ import MyEditor from '../../../../components/editor'
 import { useMutation, useQuery } from 'react-query'
 import { GET_COMMENT } from '../../queries'
 import { CREATE_COMMENT, UPDATE_COMMENT } from '../../mutatuions'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { IComment } from '../../data/data'
 import { GET_IMAGES } from '../../../images/queries'
 import { copyCode } from '../../../../utils/clipboard'
@@ -28,7 +28,6 @@ interface IProps {
 function CommentsForm(props: IProps) {
   const { i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
 
   const [alignment, setAlignment] = React.useState<'uz' | 'ru' | 'en'>('uz')
   const [title, setTitle] = useState({
@@ -74,6 +73,7 @@ function CommentsForm(props: IProps) {
     } else {
       clearForm()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('id')])
 
   const { data: images } = useQuery(['images-all'], () => GET_IMAGES({ perPage: 1000 }))

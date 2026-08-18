@@ -93,7 +93,7 @@ function LandingCategoryForm() {
 
                 <Grid item sm={12}>
                   <Button
-                    disabled={isSubmitting}
+                    disabled={imageLoader || isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish(
                         !searchParams.get('id')

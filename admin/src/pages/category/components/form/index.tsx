@@ -28,10 +28,7 @@ const initialValues = {
 function CategoryForm() {
   const { i18n } = useTranslation()
   const { data, isLoading } = useQuery(['categories-all'], () => GET_CATEGORIES({ perPage: 1000 }))
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { data: childs } = useQuery(['categories', searchParams?.get('id')], () =>
-    GET_CATEGORIES({ category_id: searchParams?.get('id') })
-  )
+  const [searchParams] = useSearchParams()
   const { data: category, refetch } = useQuery(
     ['category', searchParams?.get('id')],
     () => GET_CATEGORY(`${searchParams.get('id')}`),

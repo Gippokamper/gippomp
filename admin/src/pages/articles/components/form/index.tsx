@@ -26,7 +26,7 @@ function CategoryForm() {
   const { i18n } = useTranslation()
   const { data, isLoading } = useQuery(['categories-all'], () => GET_CATEGORIES({ perPage: 1000 }))
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const { data: article, refetch } = useQuery(
     ['article', `${searchParams.get('id')}`],

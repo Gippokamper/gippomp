@@ -28,7 +28,7 @@ const initialValues = {
 function CategoryForm() {
   const { i18n } = useTranslation()
   const { data, isLoading } = useQuery(['video-categories-all'], () => GET_VIDEO_CATEGORIES({ perPage: 1000 }))
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   //   const { data: childs } = useQuery(['categories', searchParams?.get('id')], () =>
   //     GET_VIDEO_CATEGORIES({ category_id: searchParams?.get('id') })
   //   )

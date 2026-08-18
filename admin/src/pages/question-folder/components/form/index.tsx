@@ -22,7 +22,7 @@ const initialValues = {
 function CategoryForm() {
   const { i18n } = useTranslation()
   const { data, isLoading } = useQuery(['folders-all'], () => GET_FOLDERS({ perPage: 1000 }))
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const { data: folder, refetch } = useQuery(
     ['folder', searchParams?.get('id')],

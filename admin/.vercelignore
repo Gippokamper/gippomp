@@ -1,0 +1,5 @@
+# Lokal env fayllari build'ga tushmasin — ular localhost manzillarini saqlaydi
+.env
+.env.local
+.env.*.local
+build

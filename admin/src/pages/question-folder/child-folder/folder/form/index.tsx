@@ -20,7 +20,6 @@ import { IQuestion } from '../data/data'
 import { GET_QUESTION } from '../queries'
 import { Delete } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
-import { IFolders } from '../../data/data'
 import { GET_FOLDERS } from '../../../queries'
 import { GET_ARTICLES } from '../../../../articles/queries'
 import MyEditor from '../../../../../components/editor'
@@ -36,7 +35,6 @@ function QuestionsForm() {
     photo: '',
     info: ''
   })
-  const [folder, setFolder] = useState<IFolders | null>(null)
   const navigate = useNavigate()
   const [answers, setAnswers] = useState([
     {
@@ -170,7 +168,6 @@ function QuestionsForm() {
       onSuccess: (data: { data: IQuestion }) => {
         //@ts-ignore
         setAnswers(data?.data?.answers)
-        setFolder(data?.data?.folder_ids?.[0])
         setAddInfo(data?.data?.additional_info)
         setName(data?.data?.name)
         setImage(data?.data?.photo)
@@ -214,48 +211,6 @@ function QuestionsForm() {
     questionId ? update({ id: questionId, ...payload }) : create(payload)
   }
 
-  const addAnswerImage = (index: number) => {
-    setAnswers(prev =>
-      prev?.map((item, i) => {
-        if (i === index && !!item) {
-          return {
-            ...item,
-            photos: [...item.photos, '']
-          }
-        } else {
-          return item
-        }
-      })
-    )
-  }
-  const deleteAnswerImage = (index: number, inx: number) => {
-    setAnswers(prev =>
-      prev?.map((item, i) => {
-        if (i === index && !!item) {
-          return {
-            ...item,
-            photos: item?.photos?.filter((_, idx) => idx !== inx)
-          }
-        } else {
-          return item
-        }
-      })
-    )
-  }
-  const editAnswerImage = (index: number, inx: number, link: string) => {
-    setAnswers(prev =>
-      prev?.map((item, i) => {
-        if (i === index && !!item) {
-          return {
-            ...item,
-            photos: item?.photos?.map((el, idx) => (idx === inx ? link : el))
-          }
-        } else {
-          return item
-        }
-      })
-    )
-  }
   return (
     <>
       <Box sx={{ p: '1.88rem' }}>

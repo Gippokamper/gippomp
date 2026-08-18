@@ -2,7 +2,7 @@ import { MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 function LanguageSelect() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const handleChange = (event: SelectChangeEvent) => {
     i18n.changeLanguage(event.target.value)
   }

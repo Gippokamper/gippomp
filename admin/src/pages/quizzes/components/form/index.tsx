@@ -22,7 +22,6 @@ import {
   UPDATE_STUDY_PLAN
 } from '../../mutatuions'
 import DefaultValue from '../../../../components/defaultvalue/DefaultValue'
-import { GET_ARTICLES } from '../../../articles/queries'
 import { IArticle } from '../../../articles/data/data'
 import { useTranslation } from 'react-i18next'
 
@@ -44,7 +43,7 @@ function CategoryForm() {
   const queryClient = useQueryClient()
   const { data } = useQuery(['quizzes-without-child'], () => GET_STUDY_PLANS({ without_child: 1, perPage: 1000 }))
   const [alignment, setAlignment] = React.useState<'uz' | 'ru' | 'en'>('uz')
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const [name, setName] = useState({
     uz: '',
     ru: '',

@@ -2,7 +2,7 @@ import { Box, Button, Grid, TextField, ToggleButton, ToggleButtonGroup } from '@
 import React, { useEffect, useState } from 'react'
 import FileUploaderSingle from '../../../components/file-uploader/FileUploaderSingle'
 import MyEditor from '../../../components/editor'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
 import { IImage } from '../data/data'
 import { CREATE_IMAGE, UPDATE_IMAGE } from '../mutatuions'
@@ -12,7 +12,6 @@ import { copyCode } from '../../../utils/clipboard'
 function ImagesForm(props: any) {
   const [imageLoader, setImageLoader] = useState(false)
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const [images, setImages] = useState({
     photo: '',
     marker_photo: ''

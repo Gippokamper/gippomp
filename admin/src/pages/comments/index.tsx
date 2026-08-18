@@ -3,12 +3,11 @@ import PageLayout from '../../layouts/page'
 import { comments } from './data/data'
 import Columns from './data/columns'
 import CommentsForm from './components/form'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { GET_COMMENTS } from './queries'
 import { BULK_DELETE_COMMENTS } from './mutatuions'
 
 function Comments() {
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const columns = Columns()

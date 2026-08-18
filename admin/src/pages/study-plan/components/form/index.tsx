@@ -36,7 +36,7 @@ function CategoryForm() {
   const { data } = useQuery(['study-plans-without-child'], () => GET_STUDY_PLANS({ without_child: 1, perPage: 1000 }))
   const { data: aData } = useQuery(['articles-all'], () => GET_ARTICLES({ perPage: 1000 }))
   const [alignment, setAlignment] = React.useState<'uz' | 'ru' | 'en'>('uz')
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const [name, setName] = useState({
     uz: '',
     ru: '',
