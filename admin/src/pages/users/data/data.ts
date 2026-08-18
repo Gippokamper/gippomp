@@ -1,4 +1,5 @@
 export interface IUser {
+  province?: string
   id: number
   uuid: string
   firstname: string

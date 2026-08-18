@@ -10,7 +10,7 @@ function LandingCategories() {
   const columns = Columns()
   return (
     <PageLayout
-      pageName='Categories'
+      pageName='LandingCategories'
       collectionQuery={GET_CATEGORIES}
       deleteBulkMutation={BULK_DELETE_CATEGORY}
       columns={columns}

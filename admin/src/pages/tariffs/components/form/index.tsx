@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControlLabel,
   Grid,
   IconButton,
   TextField,
@@ -12,7 +11,6 @@ import {
   Typography
 } from '@mui/material'
 import React, { Fragment, useState } from 'react'
-import { top100Films } from '../../../../components/multiple-select'
 import { useQuery } from 'react-query'
 import { GET_TARIFF, GET_TARIFFS_INTERVAL } from '../../queries'
 import { Delete } from '@mui/icons-material'
@@ -57,21 +55,14 @@ function TariffsForm() {
       name='Tariff'
       pageName='Tariffs'
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         return (
           <Box p={'1.88rem'} width={'100%'}>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Tariff
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Tarif
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'}>
+              <Grid container spacing={2}>
                 <Grid item sm={12}>
                   <DefaultValue defaultValue={getInfo?.data?.data?.photo} setDefaultValue={e => setImage(e)}>
                     <FileUploaderSingle images={image} setImage={setImage} />
@@ -80,7 +71,6 @@ function TariffsForm() {
                 <Grid item sm={6}>
                   <DefaultValue defaultValue={getInfo?.data?.data?.term_id} setDefaultValue={e => setInterval(e)}>
                     <Autocomplete
-                      id='tags-outlined'
                       options={data?.data || []}
                       value={interval}
                       size='small'
@@ -122,7 +112,6 @@ function TariffsForm() {
                       onChange={e => setName({ ...name, [alignment]: e.target.value })}
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Name'}
                     />
                   </DefaultValue>
@@ -138,7 +127,6 @@ function TariffsForm() {
                           size='small'
                           fullWidth
                           required
-                          id='form-props-required'
                           label={'Name'}
                           value={value?.name?.[alignment] || ''}
                           onChange={e =>
@@ -191,6 +179,7 @@ function TariffsForm() {
 
                 <Grid item sm={12}>
                   <Button
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         ...data,
@@ -205,7 +194,7 @@ function TariffsForm() {
                     fullWidth
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>

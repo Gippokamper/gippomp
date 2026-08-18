@@ -22,7 +22,7 @@ export const UPDATE_VIDEOS = async (data: any) => {
 
 export const DELETE_VIDEOS = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/videos' + id,
+    url: 'dashboard/admin/videos/' + id,
     method: 'DELETE'
   })
 

@@ -24,7 +24,7 @@ import { IFolders } from '../../data/data'
 import { GET_FOLDERS } from '../../../queries'
 import { GET_ARTICLES } from '../../../../articles/queries'
 import MyEditor from '../../../../../components/editor'
-import FileUploaderSingle from '../../../../../components/file-uploader/FileUploaderSingle'
+import toast from 'react-hot-toast'
 
 function QuestionsForm() {
   const { i18n } = useTranslation()
@@ -158,10 +158,9 @@ function QuestionsForm() {
     newAlignment && setAlignment(newAlignment)
   }
 
-  console.log(answers, 'answers')
 
-  const { data: folders } = useQuery(['folders'], () => GET_FOLDERS({ without_child: 1 }))
-  const { data: articles } = useQuery(['articles'], GET_ARTICLES)
+  const { data: folders } = useQuery(['folders-without-child'], () => GET_FOLDERS({ without_child: 1, perPage: 1000 }))
+  const { data: articles } = useQuery(['articles-all'], () => GET_ARTICLES({ perPage: 1000 }))
 
   const { refetch } = useQuery(
     ['questions', searchParams.get('question_id')],
@@ -188,30 +187,31 @@ function QuestionsForm() {
     }
     //eslint-disable-next-line
   }, [searchParams.get('question_id')])
-  const { mutate: create } = useMutation(CREATE_QUESTION, {
+  const { mutate: create, isLoading: isCreating } = useMutation(CREATE_QUESTION, {
     onSuccess: () => navigate(-1)
   })
-  const { mutate: update } = useMutation(UPDATE_QUESTION, {
+  const { mutate: update, isLoading: isUpdating } = useMutation(UPDATE_QUESTION, {
     onSuccess: () => navigate(-1)
   })
+  const isSaving = isCreating || isUpdating
 
   const handleSubmit = () => {
-    !!searchParams.get('question_id')
-      ? update({
-          id: searchParams.get('question_id'),
-          name: name,
-          answers: answers,
-          photo: image,
-          additional_info: addInfo,
-          folder_ids: [folders?.data?.find((el: any) => el.slug === folderSlug)?.id]
-        })
-      : create({
-          name: name,
-          answers: answers,
-          photo: image,
-          additional_info: addInfo,
-          folder_ids: [folders?.data?.find((el: any) => el.slug === folderSlug)?.id]
-        })
+    const folderId = folders?.data?.find((el: any) => el.slug === folderSlug)?.id
+    // folder_ids backend'da majburiy: papka topilmasa ilgari [undefined]
+    // yuborilib, tushunarsiz 400 xatosi qaytardi.
+    if (!folderId) {
+      toast.error('Papka topilmadi — sahifani yangilang')
+      return
+    }
+    const payload = {
+      name: name,
+      answers: answers,
+      photo: image,
+      additional_info: addInfo,
+      folder_ids: [folderId]
+    }
+    const questionId = searchParams.get('question_id')
+    questionId ? update({ id: questionId, ...payload }) : create(payload)
   }
 
   const addAnswerImage = (index: number) => {
@@ -260,7 +260,7 @@ function QuestionsForm() {
     <>
       <Box sx={{ p: '1.88rem' }}>
         <Typography
-          typography={'h3'}
+          variant='h6'
           style={{
             textAlign: 'center',
             verticalAlign: 'middle',
@@ -268,7 +268,7 @@ function QuestionsForm() {
             marginBottom: '1.88rem'
           }}
         >
-          Edit-Question
+          Savol
           {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
         </Typography>
         <form
@@ -278,11 +278,10 @@ function QuestionsForm() {
             backgroundColor: '#fff'
           }}
         >
-          <Grid container xs={12} spacing={'1.88rem'} wrap='wrap'>
+          <Grid container spacing={2} wrap='wrap'>
             {/* <Grid item xs={12} md={6}>
               <Autocomplete
                 disablePortal
-                id='combo-box-demo'
                 size='small'
                 fullWidth
                 //@ts-ignore
@@ -317,9 +316,8 @@ function QuestionsForm() {
                 <ToggleButton value='ru'>RU</ToggleButton>
                 <ToggleButton value='en'>EN</ToggleButton>
               </ToggleButtonGroup>
-              <Button variant='contained' color='success' fullWidth onClick={handleSubmit}>
-                {/* <Translations text='Submit' /> */}
-                Submit
+              <Button variant='contained' color='success' fullWidth disabled={isSaving} onClick={handleSubmit}>
+                {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
               </Button>
             </Grid>
             <Grid
@@ -333,7 +331,7 @@ function QuestionsForm() {
                 gap: '2rem'
               }}
             >
-              <Typography typography={'h3'}>Qustion</Typography>
+              <Typography variant='h6'>Savol</Typography>
               <ToggleButtonGroup
                 color='primary'
                 value={step}
@@ -367,7 +365,6 @@ function QuestionsForm() {
                       })
                     }
                     fullWidth
-                    id='form-props-required'
                     label={'Photo'}
                   />
                 </Grid>
@@ -382,7 +379,6 @@ function QuestionsForm() {
                       })
                     }
                     fullWidth
-                    id='form-props-required'
                     label={'Info'}
                   />
                 </Grid>
@@ -413,7 +409,6 @@ function QuestionsForm() {
                 >
                   <Autocomplete
                     disablePortal
-                    id='combo-box-demo'
                     size='small'
                     fullWidth
                     //@ts-ignore
@@ -476,7 +471,6 @@ function QuestionsForm() {
                     multiline
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Title'}
                   />
                 </Grid>

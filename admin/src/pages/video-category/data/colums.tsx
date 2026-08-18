@@ -1,7 +1,7 @@
 import { MRT_ColumnDef } from 'material-react-table'
 import React, { useMemo } from 'react'
 import { ICategory } from './data'
-import { Avatar, Box, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 function Columns() {

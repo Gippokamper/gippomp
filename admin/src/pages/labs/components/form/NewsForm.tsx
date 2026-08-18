@@ -2,7 +2,6 @@ import { Box, Button, Grid, TextField, ToggleButton, ToggleButtonGroup, Typograp
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
-import MainLayout from '../../../../layouts/main'
 import MyEditor from '../../../../components/editor'
 import { GET_LAB } from '../../queries'
 import { ILabs } from '../../data/data'
@@ -25,8 +24,10 @@ function LabsForm() {
   })
 
   const handleChange = (event: React.MouseEvent<HTMLElement>, newAlignment: string) => {
+    // Faol tugma qayta bosilganda newAlignment null bo'ladi —
+    // tekshiruvsiz til null bo'lib, maydonlar bo'shab qolardi.
     //@ts-ignore
-    setAlignment(newAlignment)
+    newAlignment && setAlignment(newAlignment)
   }
 
   const { refetch } = useQuery(
@@ -47,12 +48,13 @@ function LabsForm() {
     }
     //eslint-disable-next-line
   }, [searchParams.get('labs_id')])
-  const { mutate: create } = useMutation(CREATE_LAB, {
+  const { mutate: create, isLoading: isCreating } = useMutation(CREATE_LAB, {
     onSuccess: () => navigate(-1)
   })
-  const { mutate: update } = useMutation(UPDATE_LAB, {
+  const { mutate: update, isLoading: isUpdating } = useMutation(UPDATE_LAB, {
     onSuccess: () => navigate(-1)
   })
+  const isSaving = isCreating || isUpdating
 
   const handleSubmit = () => {
     !!searchParams.get('labs_id')
@@ -71,7 +73,7 @@ function LabsForm() {
     <>
       <Box sx={{ p: '1.88rem' }}>
         <Typography
-          typography={'h3'}
+          variant='h6'
           style={{
             textAlign: 'center',
             verticalAlign: 'middle',
@@ -79,7 +81,7 @@ function LabsForm() {
             marginBottom: '1.88rem'
           }}
         >
-          Edit-Labs
+          Laboratoriya
           {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
         </Typography>
         <form
@@ -89,7 +91,7 @@ function LabsForm() {
             backgroundColor: '#fff'
           }}
         >
-          <Grid container spacing={'1.8rem'}>
+          <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <ToggleButtonGroup
                 color='primary'
@@ -105,9 +107,9 @@ function LabsForm() {
               </ToggleButtonGroup>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Button variant='contained' color='success' fullWidth onClick={handleSubmit}>
+              <Button variant='contained' color='success' fullWidth disabled={isSaving} onClick={handleSubmit}>
                 {/* <Translations text='Submit' /> */}
-                Submit
+                Saqlash
               </Button>
             </Grid>
 
@@ -119,7 +121,6 @@ function LabsForm() {
                 multiline
                 fullWidth
                 required
-                id='form-props-required'
                 label={'Title'}
               />
             </Grid>

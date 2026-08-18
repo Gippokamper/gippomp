@@ -7,22 +7,19 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Typography
 } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { top100Films } from '../../../../components/multiple-select'
 import { PlusOne } from '@mui/icons-material'
 import MyEditor from '../../../../components/editor'
-import MainLayout from '../../../../layouts/main'
 import { useMutation, useQuery } from 'react-query'
 import { GET_COMMENT } from '../../queries'
 import { CREATE_COMMENT, UPDATE_COMMENT } from '../../mutatuions'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IComment } from '../../data/data'
 import { GET_IMAGES } from '../../../images/queries'
+import { copyCode } from '../../../../utils/clipboard'
 import { IImage } from '../../../images/data/data'
 import { useTranslation } from 'react-i18next'
-import Translations from '../../../../components/translations'
 
 interface IProps {
   refetch: () => void
@@ -57,8 +54,10 @@ function CommentsForm(props: IProps) {
     })
   }
   const handleChange = (event: React.MouseEvent<HTMLElement>, newAlignment: string) => {
+    // Faol tugma qayta bosilganda newAlignment null bo'ladi —
+    // tekshiruvsiz til null bo'lib, maydonlar bo'shab qolardi.
     //@ts-ignore
-    setAlignment(newAlignment)
+    newAlignment && setAlignment(newAlignment)
   }
 
   const { refetch } = useQuery(['comment', searchParams.get('id')], () => GET_COMMENT(String(searchParams.get('id'))), {
@@ -77,20 +76,20 @@ function CommentsForm(props: IProps) {
     }
   }, [searchParams.get('id')])
 
-  const { data: images } = useQuery(['images'], GET_IMAGES)
+  const { data: images } = useQuery(['images-all'], () => GET_IMAGES({ perPage: 1000 }))
 
   const { mutate: create } = useMutation(CREATE_COMMENT, {
     onSuccess: (data: any) => {
-      props.refetch()
-      navigator.clipboard.writeText('/dashboard/user/article_note_text/' + String(data?.data?.id))
+      props.refetch?.()
+      copyCode('/dashboard/user/article_note_text/' + String(data?.data?.id))
       clearForm()
       setSearchParams({})
     }
   })
   const { mutate: update } = useMutation(UPDATE_COMMENT, {
     onSuccess: (data: any) => {
-      props.refetch()
-      navigator.clipboard.writeText('/dashboard/user/article_note_text/' + String(data?.data?.id))
+      props.refetch?.()
+      copyCode('/dashboard/user/article_note_text/' + String(data?.data?.id))
       clearForm()
       setSearchParams({})
     }
@@ -112,7 +111,7 @@ function CommentsForm(props: IProps) {
   return (
     <Box sx={{ pl: '1.88rem' }}>
       {/* <Typography
-        typography={'h3'}
+        variant='h6'
         style={{
           textAlign: 'center',
           verticalAlign: 'middle',
@@ -120,7 +119,7 @@ function CommentsForm(props: IProps) {
           marginBottom: '1.88rem'
         }}
       >
-        <Translations text='Edit' /> - <Translations text='Comment' />
+        Eslatma (note)
       </Typography> */}
       <form
         style={{
@@ -129,7 +128,7 @@ function CommentsForm(props: IProps) {
           backgroundColor: '#fff'
         }}
       >
-        <Grid container xs={12} spacing={'1.88rem'} wrap='wrap'>
+        <Grid container spacing={2} wrap='wrap'>
           <Grid item xs={12} md={4}>
             <ToggleButtonGroup
               color='primary'
@@ -147,7 +146,6 @@ function CommentsForm(props: IProps) {
           <Grid item xs={12} md={4} sx={{ display: 'flex', flexDirection: 'row' }}>
             <Autocomplete
               disablePortal
-              id='combo-box-demo'
               size='small'
               fullWidth
               //@ts-ignore
@@ -163,7 +161,7 @@ function CommentsForm(props: IProps) {
           <Grid item xs={12} md={4} sx={{ display: 'flex', flexDirection: 'row' }}>
             <Button variant='contained' color='success' fullWidth onClick={handleSubmit}>
               {/* <Translations text='Submit' /> */}
-              Submit
+              Saqlash
             </Button>
           </Grid>
           <Grid item xs={12}>
@@ -174,7 +172,6 @@ function CommentsForm(props: IProps) {
               multiline
               fullWidth
               required
-              id='form-props-required'
               label={'Title'}
             />
           </Grid>

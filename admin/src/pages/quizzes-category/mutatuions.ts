@@ -22,7 +22,7 @@ export const UPDATE_STUDY_PLAN = async (data: any) => {
 
 export const DELETE_STUDY_PLAN = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/quizzes' + id,
+    url: 'dashboard/admin/quizzes/' + id,
     method: 'DELETE'
   })
 

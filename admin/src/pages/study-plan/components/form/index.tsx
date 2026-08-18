@@ -33,8 +33,8 @@ const initialValues = {
 function CategoryForm() {
   const { i18n } = useTranslation()
   const queryClient = useQueryClient()
-  const { data } = useQuery(['categories-without_child'], () => GET_STUDY_PLANS({ without_child: 1 }))
-  const { data: aData } = useQuery(['articles'], GET_ARTICLES)
+  const { data } = useQuery(['study-plans-without-child'], () => GET_STUDY_PLANS({ without_child: 1, perPage: 1000 }))
+  const { data: aData } = useQuery(['articles-all'], () => GET_ARTICLES({ perPage: 1000 }))
   const [alignment, setAlignment] = React.useState<'uz' | 'ru' | 'en'>('uz')
   const [searchParams, setSearchParams] = useSearchParams()
   const [name, setName] = useState({
@@ -139,27 +139,19 @@ function CategoryForm() {
       pageName='Study-Plans'
       initialValues={initialValues}
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         return (
           <Box>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Category
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              O'quv rejasi
               {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'} p={'1.88rem'}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <DefaultValue defaultValue={getInfo?.data?.data?.plan_ids} setDefaultValue={e => setPlans(e)}>
                     <Autocomplete
                       disablePortal
-                      id='combo-box-demo'
                       size='small'
                       fullWidth
                       //@ts-ignore
@@ -186,7 +178,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Sort'}
                       value={sort}
                       onChange={e => setSort(e.target.value)}
@@ -218,7 +209,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Name'}
                       value={name[alignment]}
                       onChange={e => setName({ ...name, [alignment]: e.target.value })}
@@ -236,7 +226,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Info'}
                       value={info[alignment]}
                       onChange={e => setInfo({ ...info, [alignment]: e.target.value })}
@@ -247,7 +236,6 @@ function CategoryForm() {
                   <DefaultValue defaultValue={getInfo?.data?.data?.article_ids} setDefaultValue={e => setArticles(e)}>
                     <Autocomplete
                       disablePortal
-                      id='combo-box-demo'
                       size='small'
                       fullWidth
                       //@ts-ignore
@@ -274,7 +262,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Sort'}
                       value={articleSort}
                       onChange={e => setArticleSort(e.target.value)}
@@ -302,7 +289,7 @@ function CategoryForm() {
                   }
                 >
                   {block?.map((el, i) => (
-                    <>
+                    <React.Fragment key={i}>
                       <Grid item sm={2}>
                         <TextField
                           InputLabelProps={{
@@ -312,7 +299,6 @@ function CategoryForm() {
                           variant='outlined'
                           fullWidth
                           required
-                          id='form-props-required'
                           label={'Sort'}
                           value={el.sort}
                           onChange={e =>
@@ -331,7 +317,6 @@ function CategoryForm() {
                           variant='outlined'
                           fullWidth
                           required
-                          id='form-props-required'
                           label={'Name'}
                           value={el.name[alignment]}
                           onChange={e =>
@@ -352,7 +337,6 @@ function CategoryForm() {
                           variant='outlined'
                           fullWidth
                           required
-                          id='form-props-required'
                           label={'Questions'}
                           value={el.question_ids}
                           onChange={e =>
@@ -376,7 +360,7 @@ function CategoryForm() {
                           </Button>
                         </Grid>
                       )}
-                    </>
+                    </React.Fragment>
                   ))}
                 </DefaultValue>
 
@@ -385,6 +369,7 @@ function CategoryForm() {
                     variant='contained'
                     color='success'
                     fullWidth
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         type: 'study_plan',
@@ -408,7 +393,7 @@ function CategoryForm() {
                     )}
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>

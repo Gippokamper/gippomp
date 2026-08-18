@@ -22,7 +22,7 @@ export const UPDATE_IMAGE = async (data: any) => {
 
 export const DELETE_IMAGE = async (id: string) => {
   const response = await request({
-    url: '/dashboard/admin/photos_landing' + id,
+    url: '/dashboard/admin/photos_landing/' + id,
     method: 'DELETE'
   })
 

@@ -1,20 +1,22 @@
-import React from 'react'
+import { Drawer } from '@mui/material'
 import SideNav, { ISideNavProps } from '../side-nav'
 
+// Ilgari bu shunchaki `position:absolute` div edi: fon (backdrop) yo'q, tashqariga
+// bosib yopib bo'lmasdi va menyudan o'tgandan keyin ham ochiq qolardi.
 function MobileSideNav(props: ISideNavProps) {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        display: props.toggled ? 'block' : 'none',
-        maxHeight: '100vh',
+  const close = () => props.setToggled(false)
 
-        top: 0,
-        left: 0
-      }}
+  return (
+    <Drawer
+      open={props.toggled}
+      onClose={close}
+      anchor='left'
+      variant='temporary'
+      ModalProps={{ keepMounted: true }}
+      sx={{ '& .MuiDrawer-paper': { border: 'none' } }}
     >
-      <SideNav {...props} />
-    </div>
+      <SideNav {...props} collapsed={false} onNavigate={close} />
+    </Drawer>
   )
 }
 

@@ -22,7 +22,7 @@ export const UPDATE_LAB = async (data: any) => {
 
 export const DELETE_LAB = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/laboratory' + id,
+    url: 'dashboard/admin/laboratory/' + id,
     method: 'DELETE'
   })
 

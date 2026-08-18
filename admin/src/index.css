@@ -1,22 +1,55 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue', sans-serif;
+@font-face {
+  font-family: 'gilroy';
+  src: url(./assets/fonts/gilroy/Gilroy-Regular.ttf) format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'gilroy';
+  src: url(./assets/fonts/gilroy/Gilroy-Medium.ttf) format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'gilroy';
+  src: url(./assets/fonts/gilroy/Gilroy-SemiBold.ttf) format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'gilroy';
+  src: url(./assets/fonts/gilroy/Gilroy-Bold.ttf) format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/*
+  Ilgari ildiz shrift o'lchami JS orqali oyna kengligiga bog'lab qo'yilgan edi
+  (16 * innerWidth / 1920). Butun admin rem'da yozilgani uchun 1366px li
+  noutbukda 1rem = 11.4px bo'lib, matn ham, tugmalar ham o'qib bo'lmas darajada
+  kichrayib ketardi (mobil formulada esa aksincha, ulkan bo'lib ketardi).
+  Endi o'lcham barqaror: 16px, katta ekranlarda biroz kattayadi.
+*/
+html {
+  font-size: 16px;
+  font-family: 'gilroy', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media (min-width: 1920px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+body {
+  margin: 0;
+  background: #eef2f5;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
-
-@font-face {
-  font-family: 'gilroy';
-  src: url(./assets/fonts/gilroy/Gilroy-Regular.ttf);
-}
-
-:root {
-  --base-font-size: 10px;
 }
 
 h1,
@@ -28,9 +61,4 @@ h6,
 p {
   margin: 0px;
   padding: 0px;
-}
-
-html {
-  font-size: var(--base-font-size);
-  font-family: 'gilroy';
 }

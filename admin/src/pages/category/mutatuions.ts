@@ -22,7 +22,7 @@ export const UPDATE_CATEGORY = async (data: any) => {
 
 export const DELETE_CATEGORY = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/categories' + id,
+    url: 'dashboard/admin/categories/' + id,
     method: 'DELETE'
   })
 

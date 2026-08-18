@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography } from '@mui/material'
+import { Box, Button, Grid, TextField, Typography } from '@mui/material'
 import React from 'react'
 import CategoryItem from '../category-item'
 import CustomAutocomplete from '../../../../components/custom-autocomplite'
@@ -7,7 +7,6 @@ import Form from '../../../../components/form/Form'
 import { useMutation, useQuery } from 'react-query'
 import { ICategory } from '../../data/data'
 import { useSearchParams } from 'react-router-dom'
-import CustomCheckbox from '../../../../components/checkbox'
 import { GET_VIDEO_CATEGORIES, GET_VIDEO_CATEGORY } from '../../queries'
 import {
   BULK_DELETE_CHILD_VIDEOS,
@@ -28,7 +27,7 @@ const initialValues = {
 
 function CategoryForm() {
   const { i18n } = useTranslation()
-  const { data, isLoading } = useQuery(['GET_VIDEO_CATEGORIES'], GET_VIDEO_CATEGORIES)
+  const { data, isLoading } = useQuery(['video-categories-all'], () => GET_VIDEO_CATEGORIES({ perPage: 1000 }))
   const [searchParams, setSearchParams] = useSearchParams()
   //   const { data: childs } = useQuery(['categories', searchParams?.get('id')], () =>
   //     GET_VIDEO_CATEGORIES({ category_id: searchParams?.get('id') })
@@ -59,23 +58,16 @@ function CategoryForm() {
       pageName='Video-Categories'
       initialValues={initialValues}
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         // console.log(getValues('category_ids'), 'value', getInfo?.data?.data?.parent_category)
         return (
           <Box>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Category
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Video kategoriya
               {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'} p={'1.88rem'}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <TextField
                     InputLabelProps={{
@@ -85,7 +77,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'O`zbek'}
                     {...register('name.uz')}
                   />
@@ -99,7 +90,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'English'}
                     {...register('name.en')}
                   />
@@ -113,7 +103,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Russian'}
                     {...register('name.ru')}
                   />
@@ -122,6 +111,7 @@ function CategoryForm() {
                   <CustomAutocomplete
                     loading={isLoading}
                     name='category_ids'
+                    label='Ota kategoriyalar'
                     data={data?.data?.filter((el: ICategory) => el.id !== Number(searchParams.get('id'))) || []}
                     getOption={(value: any) => {
                       return value?.name?.[i18n.language]
@@ -144,7 +134,6 @@ function CategoryForm() {
                     fullWidth
                     defaultValue={getInfo?.data?.data?.category_sort}
                     required
-                    id='form-props-required'
                     label={'Sort'}
                     {...(getValues('category_ids')?.length
                       ? { ...register('category_sort') }
@@ -156,6 +145,7 @@ function CategoryForm() {
                     variant='contained'
                     color='success'
                     fullWidth
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         ...data,
@@ -179,7 +169,7 @@ function CategoryForm() {
                     )}
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>
@@ -190,7 +180,7 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
                   Categories
                 </Typography>
                 {category?.data?.child_category?.map((category: ICategory) => (
@@ -214,7 +204,7 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
                   Videos
                 </Typography>
                 {category?.data?.videos?.map((article: any) => (

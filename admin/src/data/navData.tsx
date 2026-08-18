@@ -1,172 +1,87 @@
 import HomeIcon from '@mui/icons-material/Home'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
-import SettingsIcon from '@mui/icons-material/Settings'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import DescriptionIcon from '@mui/icons-material/Description'
 import CommentIcon from '@mui/icons-material/Comment'
 import PermMediaIcon from '@mui/icons-material/PermMedia'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox'
+import TranslateIcon from '@mui/icons-material/Translate'
+import ImageIcon from '@mui/icons-material/Image'
+import HandshakeIcon from '@mui/icons-material/Handshake'
+import CategoryIcon from '@mui/icons-material/Category'
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import PolicyIcon from '@mui/icons-material/Policy'
+import QuizIcon from '@mui/icons-material/Quiz'
 import { Biotech, CastForEducation, FolderSpecial, Newspaper, VideoSettings } from '@mui/icons-material'
-export const navData = [
-  {
-    id: 0,
-    icon: <HomeIcon />,
-    text: 'Home',
-    link: '/'
-  },
-  {
-    id: 1,
-    icon: <PeopleAltIcon />,
-    text: 'Users',
-    link: '/users'
-  },
-  {
-    id: 2,
-    icon: <LibraryBooksIcon />,
-    text: 'Category',
-    link: '/category'
-  },
-  {
-    id: 3,
-    icon: <DescriptionIcon />,
-    text: 'Articles',
-    link: '/articles'
-  },
-  {
-    id: 4,
-    icon: <CommentIcon />,
-    text: 'Comments',
-    link: '/comments'
-  },
-  {
-    id: 5,
-    icon: <PermMediaIcon />,
-    text: 'Images',
-    link: '/images'
-  },
-  {
-    id: 15,
-    icon: <LibraryBooksIcon />,
-    text: 'Video category',
-    link: '/video-category'
-  },
-  {
-    id: 16,
-    icon: <VideoSettings />,
-    text: 'Videos',
-    link: '/videos'
-  },
-  {
-    id: 17,
-    icon: <FolderSpecial />,
-    text: 'Question Folders',
-    link: '/question-folder'
-  },
-  //   {
-  //     id: 18,
-  //     icon: <QuestionMarkSharp />,
-  //     text: 'Questions',
-  //     link: '/questions'
-  //   },
-  {
-    id: 19,
-    icon: <CastForEducation />,
-    text: 'Study Plan Folders',
-    link: '/study-plans'
-  },
-  {
-    id: 20,
-    icon: <CastForEducation />,
-    text: 'Study Plan',
-    link: '/study-plan'
-  },
-  {
-    id: 21,
-    icon: <CastForEducation />,
-    text: 'Quizzes Category',
-    link: '/quizzes-category'
-  },
-  {
-    id: 21,
-    icon: <CastForEducation />,
-    text: 'Quizzes',
-    link: '/quizzes'
-  },
+import { ReactElement } from 'react'
 
-  {
-    id: 21,
-    icon: <Newspaper />,
-    text: 'News',
-    link: '/news'
-  },
-  {
-    id: 6,
-    icon: <BarChartIcon />,
-    text: 'Tariffs',
-    link: '/tariffs'
-  },
-  {
-    id: 6,
-    icon: <Biotech />,
-    text: 'Labs',
-    link: '/labs'
-  },
-  //   {
-  //     id: 6,
-  //     icon: <Biotech />,
-  //     text: 'Labs create',
-  //     link: '/labs-create'
-  //   },
-  {
-    id: 7,
-    icon: <ForwardToInboxIcon />,
-    text: 'Messages',
-    link: '/messages?type=messages_to'
-  },
+export interface INavItem {
+  text: string
+  link: string
+  icon: ReactElement
+  /** NavLink faqat aniq mos kelganda faol bo'lishi kerak bo'lsa (masalan "/") */
+  end?: boolean
+}
 
-  {
-    id: 8,
-    icon: <SettingsIcon />,
-    text: 'Settings',
-    link: '/settings',
-    children: [
-      {
-        id: 9,
-        text: 'Translations',
-        link: '/translations'
-      },
-      {
-        id: 10,
-        text: 'Images',
-        link: '/images'
-      },
+export interface INavSection {
+  title?: string
+  items: INavItem[]
+}
 
-      {
-        id: 11,
-        text: 'Partners',
-        link: '/partners'
-      },
-      {
-        id: 12,
-        text: 'Categories',
-        link: '/categories'
-      },
-      {
-        id: 13,
-        text: 'Videos',
-        link: '/videos'
-      },
-      {
-        id: 14,
-        text: 'Questions',
-        link: '/questions'
-      },
-      {
-        id: 14,
-        text: 'Privacy policy',
-        link: '/privacy-policy'
-      }
+// Menyu bo'limlarga ajratildi. Ilgari bitta uzun ro'yxat edi va "Settings"
+// elementi mavjud bo'lmagan /settings manziliga olib borardi (bo'sh sahifa).
+export const navSections: INavSection[] = [
+  {
+    items: [{ text: 'Home', link: '/', icon: <HomeIcon />, end: true }]
+  },
+  {
+    title: 'Kontent',
+    items: [
+      { text: 'Category', link: '/category', icon: <LibraryBooksIcon /> },
+      { text: 'Articles', link: '/articles', icon: <DescriptionIcon /> },
+      { text: 'Notes', link: '/comments', icon: <CommentIcon /> },
+      { text: 'Images', link: '/images', icon: <PermMediaIcon /> },
+      { text: 'Video category', link: '/video-category', icon: <CategoryIcon /> },
+      { text: 'Videos', link: '/videos', icon: <VideoSettings /> },
+      { text: 'News', link: '/news', icon: <Newspaper /> },
+      { text: 'Labs', link: '/labs', icon: <Biotech /> }
+    ]
+  },
+  {
+    title: 'Testlar',
+    items: [
+      { text: 'Question Folders', link: '/question-folder', icon: <FolderSpecial /> },
+      { text: 'Quizzes Category', link: '/quizzes-category', icon: <CategoryIcon /> },
+      { text: 'Quizzes', link: '/quizzes', icon: <QuizIcon /> }
+    ]
+  },
+  {
+    title: "O'quv rejasi",
+    items: [
+      { text: 'Study Plan Folders', link: '/study-plans', icon: <FolderSpecial /> },
+      { text: 'Study Plan', link: '/study-plan', icon: <CastForEducation /> }
+    ]
+  },
+  {
+    title: 'Foydalanuvchilar',
+    items: [
+      { text: 'Users', link: '/users', icon: <PeopleAltIcon /> },
+      { text: 'Tariffs', link: '/tariffs', icon: <BarChartIcon /> },
+      { text: 'Messages', link: '/messages?type=messages_to', icon: <ForwardToInboxIcon /> }
+    ]
+  },
+  {
+    title: 'Sozlamalar',
+    items: [
+      { text: 'Translations', link: '/settings/translations', icon: <TranslateIcon /> },
+      { text: 'Landing images', link: '/settings/images', icon: <ImageIcon /> },
+      { text: 'Partners', link: '/settings/partners', icon: <HandshakeIcon /> },
+      { text: 'Landing categories', link: '/settings/categories', icon: <CategoryIcon /> },
+      { text: 'Landing videos', link: '/settings/videos', icon: <OndemandVideoIcon /> },
+      { text: 'FAQ', link: '/settings/questions', icon: <HelpOutlineIcon /> },
+      { text: 'Privacy policy', link: '/settings/privacy-policy', icon: <PolicyIcon /> }
     ]
   }
 ]

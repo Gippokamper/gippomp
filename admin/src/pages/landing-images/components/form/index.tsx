@@ -2,7 +2,6 @@ import { Button, Grid, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import Form from '../../../../components/form/Form'
 import { useSearchParams } from 'react-router-dom'
-import Translations from '../../../../components/translations'
 import { GET_IMAGE } from '../../queries'
 import { CREATE_IMAGE, UPDATE_IMAGE } from '../../mutatuions'
 import FileUploaderSingle from '../../../../components/file-uploader/FileUploaderSingle'
@@ -18,21 +17,14 @@ function LandingImagesForm() {
       name='LandingImage'
       pageName='LandingImages'
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         return (
           <div>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: 10
-              }}
-            >
-              <Translations text='Edit' /> - <Translations text='Translation' />
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Landing rasm
             </Typography>
             <form>
-              <Grid container sm={12} spacing={5} p={10}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12} lg={12}>
                   <TextField
                     size='small'
@@ -42,7 +34,6 @@ function LandingImagesForm() {
                     }}
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Name'}
                     {...register('name')}
                   />
@@ -58,7 +49,7 @@ function LandingImagesForm() {
 
                 <Grid item sm={12}>
                   <Button
-                    disabled={imageLoader || getInfo?.isLoading || updateInfo.isLoading}
+                    disabled={imageLoader || isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish(!searchParams.get('id') ? data : { id: searchParams.get('id'), ...data })
                     )}
@@ -67,7 +58,7 @@ function LandingImagesForm() {
                     fullWidth
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>

@@ -7,7 +7,7 @@ import OutlinedButton from '../../../../components/outlined-button'
 function Settings() {
   return (
     <Box className={styles.container}>
-      <Grid container xs={12} spacing={'1.88rem'} sx={{ mb: '1.88rem' }}>
+      <Grid container xs={12} spacing={2} sx={{ mb: '1.88rem' }}>
         <Grid item xs={12} md={6}>
           <TextInput />
         </Grid>

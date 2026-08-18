@@ -22,7 +22,7 @@ export const UPDATE_CHAPTER = async (data: any) => {
 
 export const DELETE_CHAPTER = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/chapters' + id,
+    url: 'dashboard/admin/chapters/' + id,
     method: 'DELETE'
   })
 

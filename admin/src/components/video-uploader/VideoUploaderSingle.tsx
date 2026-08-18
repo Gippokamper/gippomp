@@ -1,25 +1,13 @@
-// ** React Imports
 import { Dispatch, SetStateAction, useState } from 'react'
 
-// ** MUI Imports
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-
-// ** Icon Imports
-
-// ** Third Party Imports
+import { CircularProgress, IconButton } from '@mui/material'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import { useDropzone } from 'react-dropzone'
-import { toast } from 'react-hot-toast'
 import Translations from '../translations'
 import { UploadFile } from '@mui/icons-material'
 import { MEDIA_URL, request } from '../../utils/request'
-import { CircularProgress } from '@mui/material'
-
-interface FileProp {
-  name: string
-  type: string
-  size: number
-}
 
 interface IProps {
   type?: string
@@ -32,89 +20,87 @@ interface IProps {
 
 const VideoUploaderSingle = (props: IProps) => {
   const [isLoading, setIsLoading] = useState(false)
-  // ** State
-  const [files, setFiles] = useState<File[]>([])
 
-  // ** Hooks
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     multiple: false,
-    accept: {
-      'video/mp4': ['.mp4', '.MP4']
-    },
+    accept: { 'video/mp4': ['.mp4', '.MP4'] },
     onDrop: async (acceptedFiles: File[]) => {
+      const video = acceptedFiles[0]
+      if (!video) return
       setIsLoading(true)
-      props.setLoading && props.setLoading(true)
-      const image = acceptedFiles[0]
+      props.setLoading?.(true)
       const data = new FormData()
-      data.append('folder', props?.type ? props?.type : 'pages')
-      data.append('video', image)
-      await request({
-        url: '/dashboard/admin/video_upload',
-        method: 'POST',
-        data: data,
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
-        .then((response: any) => (props?.setVideo ? props?.setVideo(response?.data?.data?.path) : null))
-        .catch((error: any) => toast.error(error.message))
-        .finally(() => {
-          setIsLoading(false)
-          props.setLoading && props.setLoading(false)
+      data.append('folder', props?.type ? props.type : 'pages')
+      data.append('video', video)
+      try {
+        const response: any = await request({
+          // To'g'ri manzil `dashboard/video_upload` — ilgari `dashboard/admin/...`
+          // ga so'rov ketardi va bunday route yo'q (404), ya'ni video yuklash
+          // umuman ishlamasdi.
+          url: 'dashboard/video_upload',
+          method: 'POST',
+          data,
+          headers: { 'Content-Type': 'multipart/form-data' }
         })
-      setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+        props?.setVideo?.(response?.data?.data?.path)
+      } catch (e) {
+        // Xato toast'i request.ts da chiqadi.
+      } finally {
+        setIsLoading(false)
+        props.setLoading?.(false)
+      }
     }
   })
 
-  const img = (
-    <video width={500} height={300} controls>
-      <source src={`${MEDIA_URL}${props.video}`} type='video/mp4' />
-      Your browser does not support the video tag.
-    </video>
-  )
-
   return (
-    <Box {...getRootProps({ className: 'dropzone' })}>
-      <input {...getInputProps()} {...props} />
-      {isLoading ? (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '5rem'
-          }}
-        >
-          <CircularProgress color='secondary' />
-        </Box>
-      ) : props?.video?.length ? (
-        img
-      ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            textAlign: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            width: '5rem'
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              borderRadius: 1,
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <UploadFile
-              sx={{
-                fontSize: '5rem'
-              }}
-            />
-          </Box>
-          <Typography>
-            <Translations text={props.title || 'Upload image'} />
+    <Box>
+      <Box
+        {...getRootProps()}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          p: 2,
+          border: '1px dashed',
+          borderColor: isDragActive ? 'primary.main' : 'rgba(18,27,45,.2)',
+          borderRadius: 2,
+          cursor: 'pointer',
+          '&:hover': { borderColor: 'primary.main' }
+        }}
+      >
+        {/* `{...props}` input'ga tarqatilmaydi — u `type="file"` ni buzardi. */}
+        <input {...getInputProps()} />
+        {isLoading ? (
+          <CircularProgress size={28} />
+        ) : (
+          <UploadFile sx={{ fontSize: '2.5rem', color: 'text.secondary' }} />
+        )}
+        <Box>
+          <Typography variant='body2' fontWeight={600}>
+            <Translations text={props.title || 'Upload video'} />
+          </Typography>
+          <Typography variant='caption' color='text.secondary'>
+            MP4
           </Typography>
         </Box>
+        {props.video && !isLoading && (
+          <IconButton
+            size='small'
+            sx={{ ml: 'auto' }}
+            onClick={event => {
+              event.stopPropagation()
+              props.setVideo?.('')
+            }}
+          >
+            <DeleteOutlineIcon fontSize='small' />
+          </IconButton>
+        )}
+      </Box>
+
+      {props.video && !isLoading && (
+        <video style={{ width: '100%', maxWidth: '30rem', marginTop: '0.75rem', borderRadius: 8 }} controls>
+          <source src={`${MEDIA_URL}${props.video}`} type='video/mp4' />
+        </video>
       )}
     </Box>
   )

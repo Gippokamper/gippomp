@@ -1,5 +1,5 @@
-import { Box, Button, Grid, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import { Box, Button, CircularProgress, Grid, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import React, { useRef, useState } from 'react'
 import styles from './index.module.scss'
 import MyEditor from '../../components/editor'
 import { request } from '../../utils/request'
@@ -23,47 +23,45 @@ const EDIT_PRIVACY = async (data: any) => {
 }
 
 function PrivacyPolicy() {
-  const [text, setText] = useState({
-    uz: '',
-    ru: '',
-    en: ''
-  })
+  const [text, setText] = useState({ uz: '', ru: '', en: '' })
   const [alignment, setAlignment] = React.useState<'uz' | 'ru' | 'en'>('uz')
+  // Ilgari shart `if (!text?.uz)` edi: o'zbekcha matn bo'sh bo'lsa har bir
+  // qayta so'rovda tahrirlanayotgan matn ustiga yozib yuborilardi.
+  const loadedRef = useRef(false)
+
   const handleChange = (event: React.MouseEvent<HTMLElement>, newAlignment: string) => {
     //@ts-ignore
-    setAlignment(newAlignment)
+    newAlignment && setAlignment(newAlignment)
   }
-  const { data } = useQuery(['privacy'], GET_PRIVACY, {
+
+  const { isLoading } = useQuery(['privacy'], GET_PRIVACY, {
     onSuccess: data => {
-      if (!text?.uz) {
-        setText(data?.data?.text)
-      }
-      console.log('reload')
+      if (loadedRef.current) return
+      loadedRef.current = true
+      setText({ uz: '', ru: '', en: '', ...(data?.data?.text || {}) })
     }
   })
 
-  const { mutate } = useMutation(EDIT_PRIVACY, {
+  const { mutate, isLoading: isSaving } = useMutation(EDIT_PRIVACY, {
     onSuccess: () => {
       toast.success('Yangilandi!')
     }
   })
 
-  const handleSubmit = () => {
-    console.log(text)
-    mutate({ text: text })
-  }
   return (
     <Box className={styles.container}>
-      <Typography typography={'h5'}>Privacy policy</Typography>
+      <Typography variant='h5' sx={{ fontWeight: 700, mb: 2 }}>
+        Maxfiylik siyosati
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <ToggleButtonGroup
-            fullWidth
             color='primary'
             value={alignment}
             exclusive
             onChange={handleChange}
             aria-label='Language'
+            size='small'
           >
             <ToggleButton value='uz'>UZ</ToggleButton>
             <ToggleButton value='ru'>RU</ToggleButton>
@@ -71,11 +69,17 @@ function PrivacyPolicy() {
           </ToggleButtonGroup>
         </Grid>
         <Grid item xs={12}>
-          <MyEditor value={text?.[alignment] || ''} setValue={e => setText({ ...text, [alignment]: e })} />
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <MyEditor value={text?.[alignment] || ''} setValue={e => setText({ ...text, [alignment]: e })} />
+          )}
         </Grid>
         <Grid item xs={12}>
-          <Button variant='contained' color='success' onClick={() => handleSubmit()} fullWidth>
-            Submit
+          <Button variant='contained' disabled={isSaving || isLoading} onClick={() => mutate({ text })}>
+            {isSaving ? 'Saqlanmoqda...' : 'Saqlash'}
           </Button>
         </Grid>
       </Grid>

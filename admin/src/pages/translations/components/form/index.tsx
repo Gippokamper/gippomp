@@ -16,21 +16,14 @@ function TranslationsForm() {
       name='Translation'
       pageName='Translations'
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         return (
           <div>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: 10
-              }}
-            >
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
               <Translations text='Edit' /> - <Translations text='Translation' />
             </Typography>
             <form>
-              <Grid container sm={12} spacing={5} p={10}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12} lg={12}>
                   <TextField
                     size='small'
@@ -40,7 +33,6 @@ function TranslationsForm() {
                     }}
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Key'}
                     {...register('key')}
                   />
@@ -53,7 +45,6 @@ function TranslationsForm() {
                       shrink: true
                     }}
                     required
-                    id='form-props-required'
                     label={'Uzbek'}
                     {...register('translation[uz]')}
                   />
@@ -66,7 +57,6 @@ function TranslationsForm() {
                     InputLabelProps={{
                       shrink: true
                     }}
-                    id='form-props-required'
                     label={'English'}
                     {...register('translation[en]')}
                   />
@@ -79,13 +69,13 @@ function TranslationsForm() {
                     InputLabelProps={{
                       shrink: true
                     }}
-                    id='form-props-required'
                     label={'Russian'}
                     {...register('translation[ru]')}
                   />
                 </Grid>
                 <Grid item sm={12}>
                   <Button
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish(!searchParams.get('id') ? data : { id: searchParams.get('id'), ...data })
                     )}
@@ -94,7 +84,7 @@ function TranslationsForm() {
                     fullWidth
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>

@@ -1,13 +1,13 @@
-import { Box, Button, Grid, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Box, Button, Grid, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import FileUploaderSingle from '../../../components/file-uploader/FileUploaderSingle'
 import MyEditor from '../../../components/editor'
-import MainLayout from '../../../layouts/main'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
 import { IImage } from '../data/data'
 import { CREATE_IMAGE, UPDATE_IMAGE } from '../mutatuions'
 import { GET_IMAGE } from '../queries'
+import { copyCode } from '../../../utils/clipboard'
 
 function ImagesForm(props: any) {
   const [imageLoader, setImageLoader] = useState(false)
@@ -48,8 +48,10 @@ function ImagesForm(props: any) {
   }
 
   const handleChange = (event: React.MouseEvent<HTMLElement>, newAlignment: string) => {
+    // Faol tugma qayta bosilganda newAlignment null bo'ladi —
+    // tekshiruvsiz til null bo'lib, maydonlar bo'shab qolardi.
     //@ts-ignore
-    setAlignment(newAlignment)
+    newAlignment && setAlignment(newAlignment)
   }
 
   const { refetch } = useQuery(['comment', searchParams.get('id')], () => GET_IMAGE(String(searchParams.get('id'))), {
@@ -76,16 +78,16 @@ function ImagesForm(props: any) {
     onSuccess: (data: any) => {
       clearForm()
 
-      props.refetch()
-      navigator.clipboard.writeText('/dashboard/user/article_note_photos/' + String(data?.data?.id))
+      props.refetch?.()
+      copyCode('/dashboard/user/article_note_photos/' + String(data?.data?.id))
     }
   })
   const { mutate: update, isLoading: updateLoading } = useMutation(UPDATE_IMAGE, {
     onSuccess: (data: any) => {
       clearForm()
 
-      props.refetch()
-      navigator.clipboard.writeText('/dashboard/user/article_note_photos/' + String(data?.data?.id))
+      props.refetch?.()
+      copyCode('/dashboard/user/article_note_photos/' + String(data?.data?.id))
     }
   })
 
@@ -107,7 +109,7 @@ function ImagesForm(props: any) {
   return (
     <Box sx={{ pl: '1.88rem' }}>
       {/* <Typography
-        typography={'h3'}
+        variant='h6'
         style={{
           textAlign: 'center',
           verticalAlign: 'middle',
@@ -115,7 +117,7 @@ function ImagesForm(props: any) {
           marginBottom: '1.88rem'
         }}
       >
-        Edit-Category
+        Rasm
       </Typography> */}
       <form
         style={{
@@ -124,7 +126,7 @@ function ImagesForm(props: any) {
           backgroundColor: '#fff'
         }}
       >
-        <Grid container xs={12} spacing={'0.5rem'} wrap='wrap'>
+        <Grid container spacing={2} wrap='wrap'>
           <Grid item xs={6}>
             <FileUploaderSingle
               type='images'
@@ -163,7 +165,7 @@ function ImagesForm(props: any) {
               onClick={handleSubmit}
             >
               {/* <Translations text='Submit' /> */}
-              {imageLoader || crateLoading || updateLoading ? 'Loading' : 'Submit'}
+              {imageLoader || crateLoading || updateLoading ? 'Saqlanmoqda...' : 'Saqlash'}
             </Button>
           </Grid>
 
@@ -175,7 +177,6 @@ function ImagesForm(props: any) {
               multiline
               fullWidth
               required
-              id='form-props-required'
               label={'Title'}
             />
           </Grid>

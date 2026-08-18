@@ -4,7 +4,6 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
-  Input,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -13,7 +12,6 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
-import MainLayout from '../../../../layouts/main'
 import FileUploaderSingle from '../../../../components/file-uploader/FileUploaderSingle'
 import MyEditor from '../../../../components/editor'
 import dayjs, { Dayjs } from 'dayjs'
@@ -52,8 +50,10 @@ function NewsForm() {
   })
 
   const handleChange = (event: React.MouseEvent<HTMLElement>, newAlignment: string) => {
+    // Faol tugma qayta bosilganda newAlignment null bo'ladi —
+    // tekshiruvsiz til null bo'lib, maydonlar bo'shab qolardi.
     //@ts-ignore
-    setAlignment(newAlignment)
+    newAlignment && setAlignment(newAlignment)
   }
 
   const { refetch } = useQuery(
@@ -67,6 +67,10 @@ function NewsForm() {
         setImages({
           photo: data?.data?.photo
         })
+        // Sana va "actual" bayrog'i yuklanmasdi: mavjud yangilikni tahrirlaganda
+        // sana har safar "hozir"ga, belgi esa "true"ga tushib ketardi.
+        if (data?.data?.date) setDate(dayjs(data.data.date))
+        setChecked(!!data?.data?.actual)
       }
     }
   )
@@ -77,12 +81,13 @@ function NewsForm() {
     }
     //eslint-disable-next-line
   }, [searchParams.get('news_id')])
-  const { mutate: create } = useMutation(CREATE_NEW, {
+  const { mutate: create, isLoading: isCreating } = useMutation(CREATE_NEW, {
     onSuccess: () => navigate(-1)
   })
-  const { mutate: update } = useMutation(UPDATE_NEW, {
+  const { mutate: update, isLoading: isUpdating } = useMutation(UPDATE_NEW, {
     onSuccess: () => navigate(-1)
   })
+  const isSaving = isCreating || isUpdating
 
   const handleSubmit = () => {
     !!searchParams.get('news_id')
@@ -107,7 +112,7 @@ function NewsForm() {
     <>
       <Box sx={{ p: '1.88rem' }}>
         <Typography
-          typography={'h3'}
+          variant='h6'
           style={{
             textAlign: 'center',
             verticalAlign: 'middle',
@@ -115,7 +120,7 @@ function NewsForm() {
             marginBottom: '1.88rem'
           }}
         >
-          Edit-News
+          Yangilik
           {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
         </Typography>
         <form
@@ -125,7 +130,7 @@ function NewsForm() {
             backgroundColor: '#fff'
           }}
         >
-          <Grid container spacing={'1.8rem'}>
+          <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <FileUploaderSingle
                 type='news'
@@ -171,9 +176,9 @@ function NewsForm() {
               </ToggleButtonGroup>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Button variant='contained' color='success' fullWidth onClick={handleSubmit}>
+              <Button variant='contained' color='success' fullWidth disabled={isSaving} onClick={handleSubmit}>
                 {/* <Translations text='Submit' /> */}
-                Submit
+                Saqlash
               </Button>
             </Grid>
 
@@ -185,7 +190,6 @@ function NewsForm() {
                 multiline
                 fullWidth
                 required
-                id='form-props-required'
                 label={'Title'}
               />
             </Grid>

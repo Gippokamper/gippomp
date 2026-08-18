@@ -1,7 +1,7 @@
 import { MRT_ColumnDef } from 'material-react-table'
 import React, { useMemo } from 'react'
 import { IFolders } from './data'
-import { Avatar, Box, Button, Typography } from '@mui/material'
+import { Button, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 

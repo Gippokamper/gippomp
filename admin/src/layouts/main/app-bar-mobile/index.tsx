@@ -1,8 +1,9 @@
-import { Search } from '@mui/icons-material'
-import { InputAdornment, OutlinedInput, IconButton } from '@mui/material'
+import { Box, IconButton } from '@mui/material'
 import React from 'react'
-import AppBar from '@mui/material/AppBar'
 import MenuIcon from '@mui/icons-material/Menu'
+import LogoutIcon from '@mui/icons-material/Logout'
+import LanguageSelect from '../../../components/language-select'
+import { logout } from '../../../utils/request'
 
 interface IAppBarMobile {
   toggled: boolean
@@ -11,53 +12,38 @@ interface IAppBarMobile {
 
 function AppBarMobile(props: IAppBarMobile) {
   return (
-    <AppBar
-      position='fixed'
-      style={{
-        backgroundColor: '#fff',
-        color: '#000',
-        boxShadow: 'none',
-        height: '5.875rem',
+    <Box
+      component='header'
+      sx={{
+        flexShrink: 0,
         display: 'flex',
         flexDirection: 'row',
-        width: '100vw',
         alignItems: 'center',
-        justifyContent: 'space-around',
-        gap: 2,
-        top: 0,
-        right: 0,
-        left: 0,
-        position: 'absolute',
-        zIndex: 10
+        justifyContent: 'space-between',
+        gap: 1,
+        height: '3.5rem',
+        px: 1.5,
+        bgcolor: '#fff',
+        borderBottom: '1px solid rgba(18, 27, 45, 0.08)'
       }}
     >
-      <img
-        src={require('../../../assets/images/logo.webp')}
-        alt='logo'
-        style={{ width: '7.375rem', height: '2.5625rem' }}
-      />
-
-      <OutlinedInput
-        id='input-with-icon-adornment'
-        size='small'
-        type='outlined'
-        startAdornment={
-          <InputAdornment position='start'>
-            <Search />
-          </InputAdornment>
-        }
-      />
-      <IconButton
-        size='large'
-        edge='start'
-        color='inherit'
-        aria-label='menu'
-        sx={{ mr: 1, ml: 1, display: { md: 'none' } }}
-        onClick={() => props.setToggled(!props.toggled)}
-      >
+      <IconButton edge='start' aria-label='menu' onClick={() => props.setToggled(!props.toggled)}>
         <MenuIcon />
       </IconButton>
-    </AppBar>
+
+      <img
+        src={require('../../../assets/images/logo.webp')}
+        alt='Gippokamp'
+        style={{ height: '1.75rem', objectFit: 'contain' }}
+      />
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <LanguageSelect />
+        <IconButton onClick={logout} aria-label='logout'>
+          <LogoutIcon />
+        </IconButton>
+      </Box>
+    </Box>
   )
 }
 

@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography } from '@mui/material'
+import { Box, Button, Grid, TextField, Typography } from '@mui/material'
 import React from 'react'
 import CustomAutocomplete from '../../../../components/custom-autocomplite'
 import Form from '../../../../components/form/Form'
@@ -25,7 +25,7 @@ const initialValues = {
 
 function CategoryForm() {
   const { i18n } = useTranslation()
-  const { data, isLoading } = useQuery(['categoryies'], GET_STUDY_PLANS)
+  const { data, isLoading } = useQuery(['study-plans-all'], () => GET_STUDY_PLANS({ perPage: 1000 }))
   const [searchParams] = useSearchParams()
 
   //   const { data: category, refetch } = useQuery(
@@ -51,26 +51,19 @@ function CategoryForm() {
       updateMutation={UPDATE_STUDY_PLAN}
       createMutation={CREATE_STUDY_PLAN}
       name='Study-plan'
-      pageName='Study-Plans'
+      pageName='Study-Plan-Folders'
       initialValues={initialValues}
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         // console.log(getValues('category_ids'), 'value', getInfo?.data?.data?.parent_category)
         return (
           <Box>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Category
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              O'quv rejasi bo'limi
               {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'} p={'1.88rem'}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <TextField
                     InputLabelProps={{
@@ -80,7 +73,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'O`zbek'}
                     {...register('name.uz')}
                   />
@@ -94,7 +86,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'English'}
                     {...register('name.en')}
                   />
@@ -108,7 +99,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Russian'}
                     {...register('name.ru')}
                   />
@@ -122,7 +112,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Info O`zbek'}
                     {...register('info.uz')}
                   />
@@ -136,7 +125,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Info English'}
                     {...register('info.en')}
                   />
@@ -150,7 +138,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Info Russian'}
                     {...register('info.ru')}
                   />
@@ -159,6 +146,7 @@ function CategoryForm() {
                   <CustomAutocomplete
                     loading={isLoading}
                     name='plan_ids'
+                    label='Ota rejalar'
                     data={data?.data?.filter((el: ICategory) => el.id !== Number(searchParams.get('id'))) || []}
                     getOption={(value: any) => {
                       return value?.name?.[i18n.language]
@@ -167,7 +155,7 @@ function CategoryForm() {
                     multiple={true}
                     setValue={setValue}
                     value={getValues('plan_ids') || []}
-                    defaultValue={getInfo?.data?.data?.parent_category || []}
+                    defaultValue={getInfo?.data?.data?.plan_ids || []}
                     control={control}
                   />
                 </Grid>
@@ -181,7 +169,6 @@ function CategoryForm() {
                     fullWidth
                     defaultValue={getInfo?.data?.data?.plan_sort ?? getInfo?.data?.data?.sort}
                     required
-                    id='form-props-required'
                     label={'Sort'}
                     {...register('plan_sort')}
                   />
@@ -192,6 +179,7 @@ function CategoryForm() {
                     variant='contained'
                     color='success'
                     fullWidth
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         ...data,
@@ -216,7 +204,7 @@ function CategoryForm() {
                     )}
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>
@@ -227,7 +215,7 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
                   Categories
                 </Typography>
                 {category?.data?.child_category?.map((category: ICategory) => (
@@ -251,7 +239,7 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
                   Categories
                 </Typography>
                 {category?.data?.articles?.map((article: any) => (

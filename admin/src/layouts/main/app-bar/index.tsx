@@ -1,30 +1,23 @@
-import { Search } from '@mui/icons-material'
 import {
   Avatar,
   Box,
-  InputAdornment,
-  Toolbar,
-  OutlinedInput,
   Badge,
-  List,
-  ListSubheader,
-  ListItemButton,
   ListItemIcon,
-  Collapse,
-  ListItemText,
   Menu,
   MenuItem,
-  Button,
-  Typography
+  IconButton,
+  Typography,
+  Divider,
+  Tooltip
 } from '@mui/material'
-import React, { useState } from 'react'
+import React from 'react'
 import LanguageSelect from '../../../components/language-select'
 import Bell from '../../../assets/icons/Bell'
-import AppBar from '@mui/material/AppBar'
 import { useMutation, useQuery } from 'react-query'
 import { GET_NOTIFICATIONS } from './queries'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import { request } from '../../../utils/request'
+import LogoutIcon from '@mui/icons-material/Logout'
+import { logout, request } from '../../../utils/request'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -41,13 +34,10 @@ function AppBarDesktop() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [profileAnchor, setProfileAnchor] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
+  const profileOpen = Boolean(profileAnchor)
+  const handleClose = () => setAnchorEl(null)
 
   const { mutate } = useMutation(READ_NOTIFICATION, {
     onSuccess: () => {
@@ -57,111 +47,106 @@ function AppBarDesktop() {
     }
   })
 
+  const notifications: any[] = Array.isArray(data?.data) ? data.data : []
+
   return (
-    <AppBar
-      position='fixed'
-      style={{
-        backgroundColor: '#fff',
-        color: '#000',
-        boxShadow: 'none',
-        flexDirection: 'row',
-        height: '6.875rem',
-        top: 0,
-        right: 0,
-        left: 0,
-        position: 'absolute',
-        zIndex: 10
+    <Box
+      component='header'
+      sx={{
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: 2,
+        height: '4rem',
+        px: 3,
+        bgcolor: '#fff',
+        borderBottom: '1px solid rgba(18, 27, 45, 0.08)'
       }}
     >
-      <Toolbar sx={{ width: { sm: '50%' } }}>
-        {/* <IconButton
-          size='large'
-          edge='start'
-          color='inherit'
-          aria-label='menu'
-          sx={{ mr: 2, ml: 2, display: { md: 'none' } }}
-          onClick={() => setToggled(!toggled)}
-        >
-          <MenuIcon />
-        </IconButton> */}
-        <OutlinedInput
-          id='input-with-icon-adornment'
-          size='small'
-          fullWidth
-          type='outlined'
-          startAdornment={
-            <InputAdornment position='start'>
-              <Search />
-            </InputAdornment>
-          }
-        />
-      </Toolbar>
-      <Toolbar sx={{ width: { sm: '50%' }, justifyContent: 'flex-end', gap: 2 }}>
-        <LanguageSelect />
-        <Badge sx={{ '& .MuiBadge-badge': { fontSize: '1rem' } }} badgeContent={data?.data?.length} color='primary'>
-          <Avatar sx={{ background: 'var(--main-color, linear-gradient(174deg, #399A48 0%, #AACC3A 100%))' }}>
-            <Button
-              id='basic-button'
-              aria-controls={open ? 'basic-menu' : undefined}
-              aria-haspopup='true'
-              aria-expanded={open ? 'true' : undefined}
-              onClick={handleClick}
-              style={{
-                color: '#fff'
+      <LanguageSelect />
+
+      <Tooltip title={t('Notifications')}>
+        <IconButton onClick={event => setAnchorEl(event.currentTarget)} size='small'>
+          <Badge badgeContent={notifications.length} color='error'>
+            <Box
+              sx={{
+                width: '2.25rem',
+                height: '2.25rem',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                backgroundImage: 'linear-gradient(174deg, #399A48 0%, #AACC3A 100%)'
               }}
             >
               <Bell />
-            </Button>
-          </Avatar>
-        </Badge>
-        <Menu
-          id='basic-menu'
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          MenuListProps={{
-            'aria-labelledby': 'basic-button'
+            </Box>
+          </Badge>
+        </IconButton>
+      </Tooltip>
+      <Menu id='notifications-menu' anchorEl={anchorEl} open={open} onClose={handleClose}>
+        {notifications.length ? (
+          notifications.map((item: any) => {
+            const author = item?.feedback_id?.user_id
+            const senderName = [author?.firstname, author?.lastname].filter(Boolean).join(' ')
+            const feedbackId = item?.feedback_id?.id
+
+            return (
+              // key yo'q edi — React har render'da "unique key" ogohlantirishini berardi.
+              <MenuItem
+                key={item?.id}
+                // feedback_id bo'lmasa .../is_read/undefined ga so'rov ketardi.
+                disabled={!feedbackId}
+                onClick={() => feedbackId && mutate(feedbackId)}
+                sx={{ maxWidth: '22rem' }}
+              >
+                <ListItemIcon>
+                  <AccountCircleIcon fontSize='small' />
+                </ListItemIcon>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography variant='body2' fontWeight={600} noWrap>
+                    {senderName || t('Unknown user')}
+                  </Typography>
+                  {/* Xabar bo'sh bo'lsa qator butunlay bo'sh ko'rinardi. */}
+                  <Typography variant='caption' color='text.secondary' noWrap component='div'>
+                    {item?.message?.trim() || t('Empty message')}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            )
+          })
+        ) : (
+          <MenuItem disabled>
+            <Typography variant='body2'>{t('No new notifications')}</Typography>
+          </MenuItem>
+        )}
+      </Menu>
+
+      {/* Ilgari bu yerda internetdagi tasodifiy odamning surati turardi va
+          hech qanday amal bajarmasdi — chiqish tugmasi esa umuman yo'q edi. */}
+      <IconButton onClick={event => setProfileAnchor(event.currentTarget)} size='small'>
+        <Avatar sx={{ width: '2.25rem', height: '2.25rem', bgcolor: '#121b2d', fontSize: '0.9rem' }}>A</Avatar>
+      </IconButton>
+      <Menu anchorEl={profileAnchor} open={profileOpen} onClose={() => setProfileAnchor(null)}>
+        <MenuItem disabled>
+          <Typography variant='body2'>{t('Administrator')}</Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            setProfileAnchor(null)
+            logout()
           }}
         >
-          {data?.data?.length ? (
-            data.data.map((item: any) => {
-              const author = item?.feedback_id?.user_id
-              const senderName = [author?.firstname, author?.lastname].filter(Boolean).join(' ')
-              const feedbackId = item?.feedback_id?.id
-
-              return (
-                // key yo'q edi — React har render'da "unique key" ogohlantirishini berardi.
-                <MenuItem
-                  key={item?.id}
-                  // feedback_id bo'lmasa .../is_read/undefined ga so'rov ketardi.
-                  disabled={!feedbackId}
-                  onClick={() => feedbackId && mutate(feedbackId)}
-                  sx={{ maxWidth: '22rem' }}
-                >
-                  <ListItemIcon>
-                    <AccountCircleIcon fontSize='small' />
-                  </ListItemIcon>
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography variant='body2' fontWeight={600} noWrap>
-                      {senderName || t('Unknown user')}
-                    </Typography>
-                    {/* Xabar bo'sh bo'lsa qator butunlay bo'sh ko'rinardi. */}
-                    <Typography variant='caption' color='text.secondary' noWrap component='div'>
-                      {item?.message?.trim() || t('Empty message')}
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              )
-            })
-          ) : (
-            <MenuItem disabled>
-              <Typography variant='body2'>{t('No new notifications')}</Typography>
-            </MenuItem>
-          )}
-        </Menu>
-        <Avatar src='https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?w=1380&t=st=1689162320~exp=1689162920~hmac=1b3bc3a782b2b9d4054b0a19c82d2acdcff21483ed4b185ccab2945a7eef7303' />
-      </Toolbar>
-    </AppBar>
+          <ListItemIcon>
+            <LogoutIcon fontSize='small' />
+          </ListItemIcon>
+          <Typography variant='body2'>{t('Logout')}</Typography>
+        </MenuItem>
+      </Menu>
+    </Box>
   )
 }
 

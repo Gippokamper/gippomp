@@ -1,7 +1,7 @@
 import { MRT_ColumnDef } from 'material-react-table'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { ICategory } from './data'
-import { Avatar, Box, Typography } from '@mui/material'
+import { Chip, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 function Columns() {
@@ -9,39 +9,41 @@ function Columns() {
   const columns = useMemo<MRT_ColumnDef<ICategory>[]>(
     () => [
       {
-        header: 'Name',
+        id: 'name',
+        header: 'Nomi',
+        size: 260,
         //@ts-ignore
-        Cell: ({ row }) => <Typography>{row.original.name?.[i18n.language]}</Typography>
+        Cell: ({ row }) => <Typography variant='body2'>{row.original.name?.[i18n.language] || '—'}</Typography>
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
-        Cell: ({ cell }) => <Typography>{cell.getValue() ? 'Active' : 'Not Active'}</Typography>
-      },
-      {
+        // "Status" ustuni olib tashlandi: backend (CategoryResource) bunday
+        // maydonni umuman qaytarmaydi va ustun har doim "Not Active" ko'rsatardi.
         accessorKey: 'paid',
         header: 'Premium',
-        Cell: ({ cell }) => <Typography>{cell.getValue() ? 'Premium' : 'Not Premium'}</Typography>
+        size: 110,
+        Cell: ({ cell }) =>
+          cell.getValue() ? <Chip size='small' color='warning' label='Premium' /> : <Chip size='small' label='Free' />
       },
       {
-        accessorKey: 'sort' || 'category_sort',
-        header: 'Sort',
-        Cell: ({ cell, row }) => (
-          <Typography>
-            {row?.original?.category_ids?.length ? row?.original?.category_sort : row?.original?.sort}
+        id: 'sort',
+        header: 'Tartib',
+        size: 100,
+        Cell: ({ row }) => (
+          <Typography variant='body2'>
+            {(row.original?.category_ids?.length ? row.original?.category_sort : row.original?.sort) ?? '—'}
           </Typography>
         )
       },
       {
         accessorKey: 'category_ids',
-        header: 'Categories',
+        header: 'Ota kategoriyalar',
         Cell: ({ cell }) => (
-          <Typography>
-            {cell
-              ?.getValue()
+          <Typography variant='body2'>
+            {(cell.getValue<ICategory[]>() || [])
               //@ts-ignore
-              ?.map((el: ICategory) => el?.name?.[i18n.language])
-              ?.join(', ')}
+              .map((el: ICategory) => el?.name?.[i18n.language])
+              .filter(Boolean)
+              .join(', ') || '—'}
           </Typography>
         )
       }

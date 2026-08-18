@@ -22,7 +22,7 @@ export const UPDATE_ARTICLES = async (data: any) => {
 
 export const DELETE_ARTICLES = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/articles' + id,
+    url: 'dashboard/admin/articles/' + id,
     method: 'DELETE'
   })
 

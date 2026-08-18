@@ -2,8 +2,6 @@ import {
   Autocomplete,
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
   Grid,
   TextField,
   ToggleButton,
@@ -44,8 +42,7 @@ const initialValues = {
 function CategoryForm() {
   const { i18n } = useTranslation()
   const queryClient = useQueryClient()
-  const { data } = useQuery(['categories-without_child'], () => GET_STUDY_PLANS({ without_child: 1 }))
-  const { data: aData } = useQuery(['articles'], GET_ARTICLES)
+  const { data } = useQuery(['quizzes-without-child'], () => GET_STUDY_PLANS({ without_child: 1, perPage: 1000 }))
   const [alignment, setAlignment] = React.useState<'uz' | 'ru' | 'en'>('uz')
   const [searchParams, setSearchParams] = useSearchParams()
   const [name, setName] = useState({
@@ -60,8 +57,6 @@ function CategoryForm() {
   })
   const [plans, setPlans] = useState([])
   const [sort, setSort] = useState('')
-  const [articles, setArticles] = useState<IArticle[]>([])
-  const [articleSort, setArticleSort] = useState('')
   const [block, setBlock] = useState([
     {
       name: {
@@ -141,7 +136,6 @@ function CategoryForm() {
     }
   }
 
-  console.log(sort, 'sort')
 
   return (
     <Form
@@ -152,27 +146,19 @@ function CategoryForm() {
       pageName='Quizzes'
       initialValues={initialValues}
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         return (
           <Box>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Category
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Test
               {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'} p={'1.88rem'}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <DefaultValue defaultValue={getInfo?.data?.data?.quiz_ids} setDefaultValue={e => setPlans(e)}>
                     <Autocomplete
                       disablePortal
-                      id='combo-box-demo'
                       size='small'
                       fullWidth
                       //@ts-ignore
@@ -199,7 +185,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Sort'}
                       value={sort}
                       onChange={e => setSort(e.target.value)}
@@ -231,7 +216,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Name'}
                       value={name[alignment]}
                       onChange={e => setName({ ...name, [alignment]: e.target.value })}
@@ -249,7 +233,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Info'}
                       value={info[alignment]}
                       onChange={e => setInfo({ ...info, [alignment]: e.target.value })}
@@ -260,7 +243,6 @@ function CategoryForm() {
                   <DefaultValue defaultValue={getInfo?.data?.data?.article_ids} setDefaultValue={e => setArticles(e)}>
                     <Autocomplete
                       disablePortal
-                      id='combo-box-demo'
                       size='small'
                       fullWidth
                       //@ts-ignore
@@ -287,7 +269,6 @@ function CategoryForm() {
                       variant='outlined'
                       fullWidth
                       required
-                      id='form-props-required'
                       label={'Sort'}
                       value={articleSort}
                       onChange={e => setArticleSort(e.target.value)}
@@ -315,7 +296,7 @@ function CategoryForm() {
                   }
                 >
                   {block?.map((el, i) => (
-                    <>
+                    <React.Fragment key={i}>
                       <Grid item sm={2}>
                         <TextField
                           InputLabelProps={{
@@ -325,7 +306,6 @@ function CategoryForm() {
                           variant='outlined'
                           fullWidth
                           required
-                          id='form-props-required'
                           label={'Sort'}
                           value={el.sort}
                           onChange={e =>
@@ -344,7 +324,6 @@ function CategoryForm() {
                           variant='outlined'
                           fullWidth
                           required
-                          id='form-props-required'
                           label={'Name'}
                           value={el.name[alignment]}
                           onChange={e =>
@@ -365,7 +344,6 @@ function CategoryForm() {
                           variant='outlined'
                           fullWidth
                           required
-                          id='form-props-required'
                           label={'Questions'}
                           value={el.question_ids}
                           onChange={e =>
@@ -389,7 +367,7 @@ function CategoryForm() {
                           </Button>
                         </Grid>
                       )}
-                    </>
+                    </React.Fragment>
                   ))}
                 </DefaultValue>
 
@@ -398,6 +376,7 @@ function CategoryForm() {
                     variant='contained'
                     color='success'
                     fullWidth
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         type: 'quiz',
@@ -421,7 +400,7 @@ function CategoryForm() {
                     )}
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>

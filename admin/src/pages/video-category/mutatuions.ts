@@ -22,7 +22,7 @@ export const UPDATE_VIDEO_CATEGORY = async (data: any) => {
 
 export const DELETE_VIDEO_CATEGORY = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/video_categories' + id,
+    url: 'dashboard/admin/video_categories/' + id,
     method: 'DELETE'
   })
 

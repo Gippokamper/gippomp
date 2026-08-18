@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography } from '@mui/material'
+import { Box, Button, Grid, TextField, Typography } from '@mui/material'
 import React from 'react'
 import CategoryItem from '../category-item'
 import CustomAutocomplete from '../../../../components/custom-autocomplite'
@@ -14,7 +14,6 @@ import { useMutation, useQuery } from 'react-query'
 import { ICategory } from '../../data/data'
 import { useSearchParams } from 'react-router-dom'
 import CustomCheckbox from '../../../../components/checkbox'
-import DefaultValue from '../../../../components/defaultvalue/DefaultValue'
 import { useTranslation } from 'react-i18next'
 
 const initialValues = {
@@ -28,7 +27,7 @@ const initialValues = {
 
 function CategoryForm() {
   const { i18n } = useTranslation()
-  const { data, isLoading } = useQuery(['categoryies'], GET_CATEGORIES)
+  const { data, isLoading } = useQuery(['categories-all'], () => GET_CATEGORIES({ perPage: 1000 }))
   const [searchParams, setSearchParams] = useSearchParams()
   const { data: childs } = useQuery(['categories', searchParams?.get('id')], () =>
     GET_CATEGORIES({ category_id: searchParams?.get('id') })
@@ -69,25 +68,16 @@ function CategoryForm() {
         control,
         setValue,
         getValues,
-        errors
-      }) => {
+        errors, isSubmitting }) => {
         // console.log(getValues('category_ids'), 'value', getInfo?.data?.data?.parent_category)
-        console.log(errors)
         return (
           <Box>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Category
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Kategoriya
               {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'} p={'1.88rem'}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <TextField
                     InputLabelProps={{
@@ -97,7 +87,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'O`zbek'}
                     {...register('name.uz')}
                   />
@@ -111,7 +100,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'English'}
                     {...register('name.en')}
                   />
@@ -125,7 +113,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Russian'}
                     {...register('name.ru')}
                   />
@@ -133,6 +120,7 @@ function CategoryForm() {
                 <Grid item sm={12}>
                   <CustomAutocomplete
                     name='category_ids'
+                    label='Ota kategoriyalar'
                     loading={isLoading}
                     data={data?.data?.filter((el: ICategory) => el.id !== Number(searchParams.get('id'))) || []}
                     getOption={(value: any) => {
@@ -160,7 +148,6 @@ function CategoryForm() {
                       setValue('sort', getInfo?.data?.data?.parent_category_sort?.join(', '))
                     }
                     required
-                    id='form-props-required'
                     label={'Sort'}
                     {...(getInfo?.data?.data?.category_ids?.length ? register('category_sort') : register('sort'))}
                   />
@@ -171,7 +158,7 @@ function CategoryForm() {
                     setValue={setValue}
                     value={getValues}
                     name='paid'
-                    label='Paid'
+                    label='Premium'
                   />
                 </Grid>
                 <Grid item sm={12}>
@@ -179,6 +166,7 @@ function CategoryForm() {
                     variant='contained'
                     color='success'
                     fullWidth
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         ...data,
@@ -201,7 +189,7 @@ function CategoryForm() {
                     )}
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>
@@ -212,8 +200,8 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
-                  Categories
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
+                  Ichki kategoriyalar
                 </Typography>
                 {category?.data?.child_category?.map((category: ICategory) => (
                   <CategoryItem
@@ -236,8 +224,8 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
-                  Categories
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
+                  Maqolalar
                 </Typography>
                 {category?.data?.articles?.map((article: any) => (
                   <CategoryItem

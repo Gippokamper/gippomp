@@ -1,37 +1,39 @@
-import { Box, Checkbox, FormControlLabel, Grid, Typography } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import { Checkbox, FormControlLabel } from '@mui/material'
+import { useEffect, useState } from 'react'
 import Translations from '../translations'
-import { Controller } from 'react-hook-form'
-import DefaultValue from '../defaultvalue/DefaultValue'
-// import { Controller } from 'react-hook-form'
 
 interface ICustomCheckbox {
   label: string
   name: string
   defaultValue: any
   setValue: any
+  /** react-hook-form getValues funksiyasi */
   value: any
 }
 
 function CustomCheckbox(props: ICustomCheckbox) {
+  const { name, setValue, value } = props
+  const current = !!value(name)
   const [checked, setChecked] = useState(!!props.defaultValue)
 
   useEffect(() => {
-    setChecked(!!props.value(props.name))
-  }, [!!props.value(props.name)])
+    setChecked(current)
+  }, [current])
+
   return (
-    <Grid>
-      <Typography>
-        <Translations text={props.label} />
+    // Ilgari belgi <Typography> ichida edi va yorliqni bosish ishlamasdi.
+    <FormControlLabel
+      control={
         <Checkbox
           checked={checked}
           onChange={e => {
-            props.setValue(props.name, e.target.checked)
+            setValue(name, e.target.checked)
             setChecked(e.target.checked)
           }}
         />
-      </Typography>
-    </Grid>
+      }
+      label={<Translations text={props.label} />}
+    />
   )
 }
 

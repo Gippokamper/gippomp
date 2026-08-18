@@ -159,10 +159,9 @@ function QuestionsForm() {
     newAlignment && setAlignment(newAlignment)
   }
 
-  console.log(answers, 'answers')
 
-  const { data: folders } = useQuery(['folders'], () => GET_FOLDERS({ without_child: 1 }))
-  const { data: articles } = useQuery(['articles'], GET_ARTICLES)
+  const { data: folders } = useQuery(['folders-without-child'], () => GET_FOLDERS({ without_child: 1, perPage: 1000 }))
+  const { data: articles } = useQuery(['articles-all'], () => GET_ARTICLES({ perPage: 1000 }))
 
   const { refetch } = useQuery(
     ['questions', searchParams.get('question_id')],
@@ -261,7 +260,7 @@ function QuestionsForm() {
     <>
       <Box sx={{ p: '1.88rem' }}>
         <Typography
-          typography={'h3'}
+          variant='h6'
           style={{
             textAlign: 'center',
             verticalAlign: 'middle',
@@ -279,11 +278,10 @@ function QuestionsForm() {
             backgroundColor: '#fff'
           }}
         >
-          <Grid container xs={12} spacing={'1.88rem'} wrap='wrap'>
+          <Grid container spacing={2} wrap='wrap'>
             <Grid item xs={12} md={6}>
               <Autocomplete
                 disablePortal
-                id='combo-box-demo'
                 size='small'
                 fullWidth
                 //@ts-ignore
@@ -320,7 +318,7 @@ function QuestionsForm() {
               </ToggleButtonGroup>
               <Button variant='contained' color='success' fullWidth onClick={handleSubmit}>
                 {/* <Translations text='Submit' /> */}
-                Submit
+                Saqlash
               </Button>
             </Grid>
             <Grid
@@ -334,7 +332,7 @@ function QuestionsForm() {
                 gap: '2rem'
               }}
             >
-              <Typography typography={'h3'}>Qustion</Typography>
+              <Typography variant='h6'>Qustion</Typography>
               <ToggleButtonGroup
                 color='primary'
                 value={step}
@@ -368,7 +366,6 @@ function QuestionsForm() {
                       })
                     }
                     fullWidth
-                    id='form-props-required'
                     label={'Photo'}
                   />
                 </Grid>
@@ -383,7 +380,6 @@ function QuestionsForm() {
                       })
                     }
                     fullWidth
-                    id='form-props-required'
                     label={'Info'}
                   />
                 </Grid>
@@ -414,7 +410,6 @@ function QuestionsForm() {
                 >
                   <Autocomplete
                     disablePortal
-                    id='combo-box-demo'
                     size='small'
                     fullWidth
                     //@ts-ignore
@@ -477,7 +472,6 @@ function QuestionsForm() {
                     multiline
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Title'}
                   />
                 </Grid>

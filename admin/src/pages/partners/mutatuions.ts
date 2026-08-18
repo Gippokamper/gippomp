@@ -22,7 +22,7 @@ export const UPDATE_PARTNER = async (data: any) => {
 
 export const DELETE_PARTNER = async (id: string) => {
   const response = await request({
-    url: '/dashboard/admin/partners' + id,
+    url: '/dashboard/admin/partners/' + id,
     method: 'DELETE'
   })
 

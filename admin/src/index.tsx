@@ -5,6 +5,10 @@ import App from './App'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import reportWebVitals from './reportWebVitals'
 import { BrowserRouter } from 'react-router-dom'
+// i18n shu yerda ishga tushiriladi. Ilgari u tasodifan bitta sahifa faylidan
+// import qilingani uchun yuklanardi — o'sha import olib tashlansa, butun
+// admin tarjimasiz (kalitlar ko'rinib) qolardi.
+import './configs/i18n'
 import { QueryClientProvider } from 'react-query'
 import { ThemeProvider } from '@mui/material/styles'
 import theme from './theme'

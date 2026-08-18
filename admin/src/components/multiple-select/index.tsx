@@ -5,7 +5,6 @@ function MultipleSelect() {
   return (
     <Autocomplete
       multiple
-      id='tags-outlined'
       options={top100Films}
       getOptionLabel={option => option.title}
       defaultValue={[top100Films[13]]}

@@ -22,7 +22,7 @@ export const UPDATE_FOLDER = async (data: any) => {
 
 export const DELETE_FOLDER = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/folders' + id,
+    url: 'dashboard/admin/folders/' + id,
     method: 'DELETE'
   })
 

@@ -22,7 +22,7 @@ export const UPDATE_TARIFF = async (data: any) => {
 
 export const DELETE_TARIFF = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/tariffs' + id,
+    url: 'dashboard/admin/tariffs/' + id,
     method: 'DELETE'
   })
 

@@ -1,5 +1,5 @@
 import { MRT_ColumnDef } from 'material-react-table'
-import { Avatar, Box, Button, Typography } from '@mui/material'
+import { Button, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { IQuestionMin } from './data'
 import { toast } from 'react-hot-toast'

@@ -1,8 +1,9 @@
 import { MRT_ColumnDef } from 'material-react-table'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { ILandingCategory } from './data'
 import { useTranslation } from 'react-i18next'
 import { MEDIA_URL } from '../../../utils/request'
+import { Typography } from '@mui/material'
 
 function Columns() {
   const { i18n } = useTranslation()
@@ -10,27 +11,41 @@ function Columns() {
     () => [
       {
         accessorKey: 'id',
-        header: 'ID'
+        header: 'ID',
+        size: 70
       },
       {
+        id: 'name',
+        header: 'Nomi',
+        size: 240,
         //@ts-ignore
-        accessorKey: 'name.' + i18n.language,
-        header: 'Name'
+        Cell: ({ row }) => <Typography variant='body2'>{row.original?.name?.[i18n.language] || '—'}</Typography>
       },
-
       {
         accessorKey: 'photo',
-        header: 'Photo',
-        Cell: ({ cell }) => <img alt='img' src={MEDIA_URL + cell.getValue()} width={30} />
+        header: 'Rasm',
+        size: 120,
+        Cell: ({ cell }) =>
+          cell.getValue<string>() ? (
+            <img
+              alt=''
+              src={`${MEDIA_URL}${cell.getValue<string>()}`}
+              style={{ width: '4rem', height: '2.5rem', objectFit: 'cover', borderRadius: 6 }}
+            />
+          ) : (
+            <Typography variant='body2'>—</Typography>
+          )
       },
       {
         accessorKey: 'category_id',
-        header: 'Category',
+        header: 'Ota kategoriya',
         //@ts-ignore
-        Cell: ({ cell }) => cell.getValue()?.name?.[i18n.language]
+        Cell: ({ cell }) => <Typography variant='body2'>{cell.getValue()?.name?.[i18n.language] || '—'}</Typography>
       }
     ],
-    []
+    // i18n.language bog'lanmagani uchun til almashtirilganda ustunlar
+    // eski tilda qolib ketardi.
+    [i18n.language]
   )
   return columns
 }

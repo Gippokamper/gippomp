@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography } from '@mui/material'
+import { Box, Button, Grid, TextField, Typography } from '@mui/material'
 import React from 'react'
 // import CategoryItem from '../category-item'
 import CustomAutocomplete from '../../../../components/custom-autocomplite'
@@ -24,7 +24,7 @@ const initialValues = {
 
 function CategoryForm() {
   const { i18n } = useTranslation()
-  const { data, isLoading } = useQuery(['categoryies'], GET_CATEGORIES)
+  const { data, isLoading } = useQuery(['categories-all'], () => GET_CATEGORIES({ perPage: 1000 }))
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -50,22 +50,15 @@ function CategoryForm() {
       pageName='Articles'
       initialValues={initialValues}
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         return (
           <Box>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Article
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Maqola
               {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'} p={'1.88rem'}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <TextField
                     InputLabelProps={{
@@ -75,7 +68,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'O`zbek'}
                     {...register('name.uz')}
                   />
@@ -89,7 +81,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'English'}
                     {...register('name.en')}
                   />
@@ -103,7 +94,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Russian'}
                     {...register('name.ru')}
                   />
@@ -111,6 +101,7 @@ function CategoryForm() {
                 <Grid item sm={12}>
                   <CustomAutocomplete
                     name='category_ids'
+                    label='Kategoriyalar'
                     loading={isLoading}
                     data={data?.data || []}
                     getOption={(value: any) => {
@@ -149,7 +140,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Questions'}
                     {...register('blocks[0].questions_string')}
                   />
@@ -159,7 +149,7 @@ function CategoryForm() {
                     defaultValue={getInfo?.data?.data?.paid}
                     setValue={setValue}
                     name='paid'
-                    label='Paid'
+                    label='Premium'
                     value={getValues}
                   />
                 </Grid>
@@ -168,6 +158,7 @@ function CategoryForm() {
                     variant='contained'
                     color='success'
                     fullWidth
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         ...data,
@@ -191,32 +182,34 @@ function CategoryForm() {
                     )}
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>
             </form>
-            <Button
-              sx={{
-                left: '2rem'
-              }}
-              variant='contained'
-              color='success'
-              onClick={() => navigate(`/chapter?article_id=${searchParams.get('id')}`)}
-            >
-              Add Chapter
-            </Button>
+            {/* Bo'lim qo'shish faqat saqlangan maqola uchun mumkin — ilgari yangi
+                maqolada ham ko'rinardi va /chapter?article_id=null ochilardi. */}
+            {!!searchParams.get('id') && (
+              <Button
+                sx={{ ml: '1.88rem' }}
+                variant='outlined'
+                onClick={() => navigate(`/chapter?article_id=${searchParams.get('id')}`)}
+              >
+                Bo`lim qo`shish
+              </Button>
+            )}
             {article?.data?.chapters?.length > 0 && (
               <Box
                 sx={{
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
-                  Categories
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
+                  Bo`limlar
                 </Typography>
                 {article?.data?.chapters?.map((chapter: ICategory) => (
                   <ChapterItem
+                    key={chapter?.id}
                     onDelete={() =>
                       deleteChapter({
                         id: searchParams.get('id'),

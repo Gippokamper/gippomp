@@ -1,12 +1,10 @@
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 
-// import capitalize from "../../utils/capitalize";
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { TableFilterContext } from '../../context/TableFilterContext'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 export interface IChildrenProps {
   create: any
@@ -24,6 +22,7 @@ export interface IChildrenProps {
   setValue: any
   getValues: any
   errors: any
+  isSubmitting: boolean
 }
 export interface ICollectionForm {
   createMutation: any
@@ -42,13 +41,7 @@ export interface ICollectionForm {
 export default function Form(props: ICollectionForm) {
   const [searchParams, setSearchParams] = useSearchParams()
   const queryClient = useQueryClient()
-  const { i18n } = useTranslation()
-  const location = useLocation()
-  const doesAnyHistoryEntryExist = location.key !== 'default'
-  const navigate = useNavigate()
-
-  const { pagination, globalFilter } = useContext(TableFilterContext)
-  // ✅ work on refresh entire field array
+  const { t } = useTranslation()
 
   const {
     register,
@@ -63,18 +56,11 @@ export default function Form(props: ICollectionForm) {
   const getInfo = useQuery([props.name, searchParams.get('id')], () => props.getQuery(searchParams.get('id')), {
     enabled: !!searchParams.get('id'),
     onSuccess: (value: any) => {
-      console.log(!searchParams.get('onAdd'), 'data')
-      //@ts-ignore
-      if (!searchParams.has('onAdd')) {
-        if (props.name === 'Countries-details') {
-          reset(value?.data?.details)
-        } else {
-          console.log('ishladi')
-          reset(value?.data)
-        }
-      } else {
+      if (searchParams.has('onAdd')) {
         reset(props.initialValues)
+        return
       }
+      reset(props.name === 'Countries-details' ? value?.data?.details : value?.data)
     }
   })
 
@@ -86,120 +72,73 @@ export default function Form(props: ICollectionForm) {
   }, [searchParams.get('onAdd')])
   const { refetch: get } = getInfo
 
-  const createInfo = useMutation(props.createMutation, {
-    onSuccess: async () => {
-      navigate(-1)
-      if (doesAnyHistoryEntryExist) {
-        // navigate(-1)
-      } else {
-        searchParams.delete('id')
-        searchParams.delete('onAdd')
-        setSearchParams(searchParams)
-      }
-      toast.success('Created')
+  // Drawer'ni yopish: ilgari navigate(-1) chaqirilardi va u ko'pincha admin'ni
+  // butunlay boshqa sahifaga tashlab yuborardi. Endi faqat param'lar tozalanadi.
+  const closeDrawer = () => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete('id')
+      next.delete('onAdd')
+      return next
+    })
+  }
 
-      await queryClient.refetchQueries([
-        props.pageName,
-        pagination?.pageIndex,
-        pagination?.pageSize,
-        i18n.language,
-        globalFilter
-      ])
+  // Ro'yxatni yangilash: ilgari to'liq (pageName + pagination + til + qidiruv)
+  // kalit bilan refetch qilinardi va u ro'yxatning haqiqiy kalitiga mos kelmasa
+  // (yoki pageName berilmagan bo'lsa) jadval eski holicha qolardi.
+  // invalidateQueries prefiks bo'yicha ishlaydi — barcha sahifalar yangilanadi.
+  const refreshCollection = () => {
+    if (props.pageName) queryClient.invalidateQueries([props.pageName])
+    queryClient.invalidateQueries([props.name])
+  }
+
+  // Xato toast'i request.ts (axios interceptor) darajasida chiqadi va u Laravel
+  // validatsiya xatolarini maydon bo'yicha ko'rsatadi — bu yerda takrorlamaymiz.
+  const showError = (err: any) => {
+    console.error(props.name, err)
+  }
+
+  const createInfo = useMutation(props.createMutation, {
+    onSuccess: () => {
+      refreshCollection()
       reset(props.initialValues)
+      closeDrawer()
+      toast.success(t('Created'))
     },
-    onError: (err: any) => {
-      toast.error(props.errorMessage || String(err))
-    }
+    onError: showError
   })
   const { mutate: create } = createInfo
   const createArrayInfo = useMutation(props.createArrayMutation, {
-    onSuccess: async () => {
-      await queryClient.refetchQueries([
-        props.pageName,
-        pagination?.pageIndex,
-        pagination?.pageSize,
-        i18n.language,
-        globalFilter
-      ])
-
-      navigate(-1)
-      if (doesAnyHistoryEntryExist) {
-        // navigate(-1)
-      } else {
-        searchParams.delete('id')
-        searchParams.delete('onAdd')
-        setSearchParams(searchParams)
-      }
-      toast.success('Updated')
-
+    onSuccess: () => {
+      refreshCollection()
       reset(props.initialValues)
+      closeDrawer()
+      toast.success(t('Created'))
     },
-    onError: (err: any) => {
-      toast.error(props.errorMessage || String(err))
-    }
+    onError: showError
   })
   const { mutate: createArray } = createArrayInfo
   const updateInfo = useMutation(props.updateMutation, {
-    onSuccess: async () => {
-      await queryClient.refetchQueries([
-        props.pageName,
-        pagination?.pageIndex,
-        pagination?.pageSize,
-        i18n.language,
-        globalFilter
-      ])
-      navigate(-1)
-      if (doesAnyHistoryEntryExist) {
-        // navigate(-1)
-      } else {
-        searchParams.delete('id')
-        searchParams.delete('onAdd')
-        setSearchParams(searchParams)
-      }
-      reset(props.initialValues)
-      toast.success('Created')
+    onSuccess: () => {
+      refreshCollection()
+      closeDrawer()
+      toast.success(t('Updated'))
     },
-    onError: (err: any) => {
-      reset(props.initialValues)
-
-      toast.error(props.errorMessage || String(err))
-    }
+    // Xato bo'lganda forma tozalanmaydi — admin kiritgan ma'lumotini yo'qotmaydi.
+    onError: showError
   })
   const { mutate: update } = updateInfo
-  //   const [get, getInfo] = useLazyQuery(props.getQuery)
 
   async function handleFinish(values: any) {
     const id = searchParams.get('id')
-    console.log(values, 'values')
 
     if (id) {
-      console.log(values)
-      update({ ...values })
+      // id — URL'dan (Users'da bu uuid). values ichidagi id undan ustun emas.
+      update({ ...values, id })
     } else {
       values.arrays ? createArray(values) : create(values)
     }
-    // props.form.resetFields()
-    // searchParams.delete('id')
-    // setSearchParams(searchParams)
-    reset(props.initialValues)
   }
-
-  useEffect(() => {
-    const actionData = [createInfo, updateInfo, createArrayInfo].find(info => info?.isError)
-    if (actionData?.error) {
-      if (props.errorMessage) {
-        toast.error(props.errorMessage)
-
-        return
-      }
-      //   actionData?.error?.graphQLErrors.forEach((err: any) => {
-      //     message.error(
-      //       err?.extensions?.message ? t(err.extensions.message) : err.message
-      //     )
-      //   })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createInfo, updateInfo, createArrayInfo])
 
   return props.children({
     create,
@@ -210,13 +149,13 @@ export default function Form(props: ICollectionForm) {
     updateInfo,
     get,
     getInfo,
-    // loading,
     handleFinish,
     handleSubmit,
     register,
     control,
     setValue,
     getValues,
-    errors
+    errors,
+    isSubmitting: createInfo.isLoading || updateInfo.isLoading || createArrayInfo.isLoading
   })
 }

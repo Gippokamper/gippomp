@@ -1,38 +1,40 @@
-import { Box, FormControl, Grid, Input, InputLabel, OutlinedInput, TextField } from '@mui/material'
-import React from 'react'
-import styles from './index.module.scss'
-import TextInput from '../../../../components/input'
-import OutlinedButton from '../../../../components/outlined-button'
+import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import CustomCheckbox from '../../../../components/checkbox'
-import Translations from '../../../../components/translations'
+import { Controller } from 'react-hook-form'
 import Form from '../../../../components/form/Form'
 import { GET_USER } from '../../queries'
 import { CREATE_USER, UPDATE_USER } from '../../mutatuions'
-import CustomAutocomplete from '../../../../components/custom-autocomplite'
-import { Controller } from 'react-hook-form'
 import FileUploaderSingle from '../../../../components/file-uploader/FileUploaderSingle'
+import DefaultValue from '../../../../components/defaultvalue/DefaultValue'
 
+// Maydonlar backend'dagi UserEditRequest bilan mos: qabul qilinmaydigan
+// maydonlar (place_of_study, address, paid, role) olib tashlandi — ular
+// hech qachon saqlanmasdi, lekin admin saqlandi deb o'ylardi.
 const initialValues = {
   firstname: '',
   lastname: '',
-  phone: 0,
   email: '',
   gender: '',
   profession: '',
-  graduation_year: 0,
-  place_of_study: '',
+  graduation_year: '',
   interests: '',
   birthday: '',
-  address: '',
-  image: null,
-  role: '',
-  status: true,
-  images: {}
+  province: ''
 }
+
+const GENDERS = ['male', 'female']
+const PROFESSIONS = ['student', 'doctor', 'teacher']
+
+// Bo'sh maydonlar yuborilmaydi: Laravel qoidalarida `min:2` bor va bo'sh satr
+// butun so'rovni 400 bilan qaytarardi.
+const stripEmpty = (values: Record<string, any>) =>
+  Object.fromEntries(Object.entries(values).filter(([, value]) => value !== '' && value !== null && value !== undefined))
 
 function UserForm() {
   const { t } = useTranslation()
+  const [image, setImage] = useState('')
+
   return (
     <Form
       getQuery={GET_USER}
@@ -42,33 +44,36 @@ function UserForm() {
       pageName='Users'
       initialValues={initialValues}
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, register, handleSubmit, control, isSubmitting }) => {
+        const user = getInfo?.data?.data
+
         return (
-          <Box className={styles.container}>
-            <Box className={styles.title}>
-              <Translations text='Edit' /> - <Translations text='User' />
-            </Box>
-            <Grid container xs={12} spacing={'1.88rem'} sx={{ mb: '1.88rem' }}>
+          <Box sx={{ p: 3 }}>
+            <Typography variant='h6' sx={{ fontWeight: 700, mb: 0.5 }}>
+              {[user?.firstname, user?.lastname].filter(Boolean).join(' ') || t('User')}
+            </Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              {user?.phone ? `+${user.phone}` : ''}
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <DefaultValue defaultValue={user?.image} setDefaultValue={setImage}>
+                  <FileUploaderSingle images={image} setImage={setImage} type='users' />
+                </DefaultValue>
+              </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
+                  InputLabelProps={{ shrink: true }}
                   size='small'
                   fullWidth
-                  variant='outlined'
-                  {...register('firstname')}
                   label={t('Name')}
+                  {...register('firstname')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
+                  InputLabelProps={{ shrink: true }}
                   size='small'
                   fullWidth
                   label={t('Last Name')}
@@ -77,100 +82,87 @@ function UserForm() {
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
+                  InputLabelProps={{ shrink: true }}
                   size='small'
                   fullWidth
-                  label={t('Phone')}
-                  {...register('phone')}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
-                  size='small'
-                  fullWidth
+                  type='email'
                   label={t('Email')}
                   {...register('email')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <CustomAutocomplete
-                  loading={false}
-                  name='gender'
-                  data={['male', 'female']}
-                  getOption={(value: any) => value}
-                  //   onchange={setValue}
-                  setValue={setValue}
-                  value={getInfo?.data?.data?.profession}
-                  control={control}
+                {/* Telefon raqamini backend tahrirlashga ruxsat bermaydi. */}
+                <TextField
+                  InputLabelProps={{ shrink: true }}
+                  size='small'
+                  fullWidth
+                  disabled
+                  label={t('Phone')}
+                  value={user?.phone ?? ''}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <CustomAutocomplete
-                  loading={false}
-                  name='profession'
-                  data={['student', 'teacher']}
-                  getOption={(value: any) => value}
-                  //   onchange={setValue}
-                  setValue={setValue}
-                  value={getInfo?.data?.data?.profession}
+                <Controller
+                  name='gender'
                   control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      value={field.value ?? ''}
+                      select
+                      size='small'
+                      fullWidth
+                      label={t('Gender')}
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <MenuItem value=''>—</MenuItem>
+                      {GENDERS.map(item => (
+                        <MenuItem key={item} value={item}>
+                          {t(item)}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Controller
+                  name='profession'
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      value={field.value ?? ''}
+                      select
+                      size='small'
+                      fullWidth
+                      label={t('Profession')}
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <MenuItem value=''>—</MenuItem>
+                      {/* "doctor" ro'yxatda yo'q edi, backend esa uni qo'llaydi */}
+                      {PROFESSIONS.map(item => (
+                        <MenuItem key={item} value={item}>
+                          {t(item)}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
+                  InputLabelProps={{ shrink: true }}
                   size='small'
                   fullWidth
+                  type='number'
                   label={t('Graduation year')}
                   {...register('graduation_year')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
-                  size='small'
-                  fullWidth
-                  label={t('Place of study')}
-                  {...register('place_of_study')}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
-                  size='small'
-                  fullWidth
-                  label={t('Interests')}
-                  {...register('interests')}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
+                  InputLabelProps={{ shrink: true }}
                   size='small'
                   type='date'
                   fullWidth
@@ -180,57 +172,47 @@ function UserForm() {
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
+                  InputLabelProps={{ shrink: true }}
                   size='small'
                   fullWidth
-                  label={t('Address')}
-                  {...register('address')}
+                  label={t('Province')}
+                  {...register('province')}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  variant='outlined'
+                  InputLabelProps={{ shrink: true }}
                   size='small'
                   fullWidth
-                  label={t('Role')}
-                  {...register('role')}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <FileUploaderSingle />
-                {/* <TextField
-                  InputLabelProps={{
-                    shrink: true
-                  }}
-                  id='outlined-basic'
-                  {...register('image')}
-                  variant='outlined'
-                  size='small'
-                  fullWidth
-                  type='file'
-                  label={t('Image')}
-                  onChange={(event: any) => setValue('image', event.target.files[0])}
-                /> */}
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <CustomCheckbox
-                  value={getValues}
-                  defaultValue={getInfo?.data?.data?.paid}
-                  setValue={setValue}
-                  name='paid'
-                  label='Paid'
+                  label={t('Interests')}
+                  {...register('interests')}
                 />
               </Grid>
             </Grid>
-            <OutlinedButton title='Saqlash' isActive onClick={handleSubmit((data: any) => handleFinish(data))} />
+
+            <Button
+              sx={{ mt: 3 }}
+              variant='contained'
+              disabled={isSubmitting}
+              onClick={handleSubmit((values: any) =>
+                handleFinish(
+                  stripEmpty({
+                    firstname: values.firstname,
+                    lastname: values.lastname,
+                    email: values.email,
+                    gender: values.gender,
+                    profession: values.profession,
+                    graduation_year: values.graduation_year,
+                    interests: values.interests,
+                    birthday: values.birthday,
+                    province: values.province,
+                    image
+                  })
+                )
+              )}
+            >
+              {t('Save')}
+            </Button>
           </Box>
         )
       }}

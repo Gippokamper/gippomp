@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import MainLayout from '../../layouts/main'
 import MyEditor from '../../components/editor'
-import { Autocomplete, Button, Grid, IconButton, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import {
+  Autocomplete,
+  Button,
+  Grid,
+  IconButton,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography
+} from '@mui/material'
+import toast from 'react-hot-toast'
 import { PlusOne } from '@mui/icons-material'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery } from 'react-query'
@@ -32,11 +42,9 @@ function Chapter() {
     ru: '',
     en: ''
   })
-  console.log(JSON.stringify(!articlesId.length))
 
   const { data: articles } = useQuery(['articles'], () => GET_ARTICLES({ perPage: 10000 }), {
     onSuccess: data => {
-      console.log(data, 'articles')
       if (data?.data) {
         if (!articlesId?.length) {
           setArticles(
@@ -50,8 +58,10 @@ function Chapter() {
   const { data: images } = useQuery(['images'], () => GET_IMAGES({ perPage: 10000 }))
 
   const handleChange = (event: React.MouseEvent<HTMLElement>, newAlignment: string) => {
+    // Faol tugma qayta bosilganda newAlignment null bo'ladi —
+    // tekshiruvsiz til null bo'lib, maydonlar bo'shab qolardi.
     //@ts-ignore
-    setAlignment(newAlignment)
+    newAlignment && setAlignment(newAlignment)
   }
 
   const { refetch } = useQuery(
@@ -99,6 +109,9 @@ function Chapter() {
 
   return (
     <>
+      <Typography variant='h5' sx={{ fontWeight: 700, mb: 2 }}>
+        {searchParams.get('chapter_id') ? 'Bo`limni tahrirlash' : 'Yangi bo`lim'}
+      </Typography>
       <form
         style={{
           borderRadius: '1rem',
@@ -106,11 +119,10 @@ function Chapter() {
           backgroundColor: '#fff'
         }}
       >
-        <Grid container xs={12} spacing={'1.88rem'} wrap='wrap'>
+        <Grid container spacing={2} wrap='wrap'>
           <Grid item xs={12} md={6}>
             <Autocomplete
               multiple
-              id='tags-outlined'
               options={articles?.data || []}
               size='small'
               fullWidth
@@ -133,52 +145,60 @@ function Chapter() {
               onChange={e => setSort(e.target.value)}
               fullWidth
               required
-              id='form-props-required'
               label={'Sort'}
             />
           </Grid>
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'row' }}>
             <Autocomplete
               disablePortal
-              id='combo-box-demo'
               size='small'
               fullWidth
               //@ts-ignore
               getOptionLabel={(option: IComment) => option.title[i18n.language]}
               options={comments?.data || []}
-              onChange={(_, comment) =>
-                navigator.clipboard.writeText('/dashboard/user/article_note_text/' + String(comment?.id))
-              }
-              //@ts-ignore
-              renderInput={params => <TextField {...params} label='Comments' />}
-            />
-            <IconButton
-              onClick={() => {
-                window.open('/comments-edit', '_blank', 'rel=noopener noreferrer')
+              onChange={(_, comment) => {
+                if (!comment) return
+                // Tanlangan eslatma kodini nusxalaymiz — ilgari nusxa olinganini
+                // bildiruvchi hech qanday belgi yo'q edi.
+                navigator.clipboard
+                  ?.writeText('/dashboard/user/article_note_text/' + String((comment as any)?.id))
+                  .then(() => toast.success('Eslatma kodi nusxalandi'))
+                  .catch(() => toast.error('Nusxa olib bo`lmadi'))
               }}
-            >
-              <PlusOne />
-            </IconButton>
+              //@ts-ignore
+              renderInput={params => <TextField {...params} label='Eslatma kodini nusxalash' />}
+            />
+            <Tooltip title='Yangi eslatma'>
+              {/* '/comments-edit' degan route umuman yo'q edi — bo'sh oyna ochilardi. */}
+              <IconButton onClick={() => window.open('/comments', '_blank', 'noopener,noreferrer')}>
+                <PlusOne />
+              </IconButton>
+            </Tooltip>
           </Grid>
 
           <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'row' }}>
             <Autocomplete
               disablePortal
-              id='combo-box-demo'
               size='small'
               fullWidth
               //@ts-ignore
               getOptionLabel={(option: IImage) => option.title[i18n.language]}
               options={images?.data || []}
-              onChange={(_, comment) =>
-                navigator.clipboard.writeText('/dashboard/user/article_note_photos/' + String(comment?.id))
-              }
+              onChange={(_, photo) => {
+                if (!photo) return
+                navigator.clipboard
+                  ?.writeText('/dashboard/user/article_note_photos/' + String((photo as any)?.id))
+                  .then(() => toast.success('Rasm kodi nusxalandi'))
+                  .catch(() => toast.error('Nusxa olib bo`lmadi'))
+              }}
               //@ts-ignore
-              renderInput={params => <TextField {...params} label='Photos' />}
+              renderInput={params => <TextField {...params} label='Rasm kodini nusxalash' />}
             />
-            <IconButton onClick={() => window.open('/images-edit', '_blank', 'rel=noopener noreferrer')}>
-              <PlusOne />
-            </IconButton>
+            <Tooltip title='Yangi rasm'>
+              <IconButton onClick={() => window.open('/images', '_blank', 'noopener,noreferrer')}>
+                <PlusOne />
+              </IconButton>
+            </Tooltip>
           </Grid>
           <Grid item xs={12} md={6}>
             <ToggleButtonGroup
@@ -193,16 +213,8 @@ function Chapter() {
               <ToggleButton value='en'>EN</ToggleButton>
             </ToggleButtonGroup>
 
-            <Button
-              sx={{
-                width: '20rem',
-                ml: '5rem'
-              }}
-              variant='contained'
-              color='success'
-              onClick={() => handleSubmit()}
-            >
-              Submit
+            <Button sx={{ ml: 2 }} variant='contained' onClick={() => handleSubmit()}>
+              Saqlash
             </Button>
           </Grid>
 
@@ -213,7 +225,6 @@ function Chapter() {
               onChange={e => setTitle({ ...title, [alignment]: e.target.value })}
               fullWidth
               required
-              id='form-props-required'
               label={'Title'}
             />
           </Grid>

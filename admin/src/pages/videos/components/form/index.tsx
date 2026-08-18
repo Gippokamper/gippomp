@@ -4,7 +4,6 @@ import CustomAutocomplete from '../../../../components/custom-autocomplite'
 import Form from '../../../../components/form/Form'
 
 import { useQuery } from 'react-query'
-import { useSearchParams } from 'react-router-dom'
 import CustomCheckbox from '../../../../components/checkbox'
 import { GET_VIDEO_CATEGORIES } from '../../../video-category/queries'
 import { GET_VIDEO } from '../../queries'
@@ -22,7 +21,7 @@ const initialValues = {
 
 function CategoryForm() {
   const { i18n } = useTranslation()
-  const { data, isLoading } = useQuery(['GET_VIDEO_CATEGORIES'], GET_VIDEO_CATEGORIES)
+  const { data, isLoading } = useQuery(['video-categories-all'], () => GET_VIDEO_CATEGORIES({ perPage: 1000 }))
   //   const { data: childs } = useQuery(['categories', searchParams?.get('id')], () =>
   //     GET_VIDEO_CATEGORIES({ category_id: searchParams?.get('id') })
   //   )
@@ -62,25 +61,16 @@ function CategoryForm() {
         control,
         setValue,
         getValues,
-        errors
-      }) => {
-        console.log(errors, 'errors')
+        errors, isSubmitting }) => {
         // console.log(getValues('category_ids'), 'value', getInfo?.data?.data?.parent_category)
         return (
           <Box>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: '1.88rem'
-              }}
-            >
-              Edit-Category
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Video
               {/* <Translations text='Edit' /> - <Translations text='Translation' /> */}
             </Typography>
             <form>
-              <Grid container sm={12} spacing={'1.88rem'} p={'1.88rem'}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <TextField
                     InputLabelProps={{
@@ -90,7 +80,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'O`zbek'}
                     {...register('name.uz')}
                   />
@@ -104,7 +93,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'English'}
                     {...register('name.en')}
                   />
@@ -118,7 +106,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Russian'}
                     {...register('name.ru')}
                   />
@@ -132,7 +119,6 @@ function CategoryForm() {
                     variant='outlined'
                     fullWidth
                     required
-                    id='form-props-required'
                     label={'Link'}
                     {...register('link')}
                   />
@@ -140,6 +126,7 @@ function CategoryForm() {
                 <Grid item sm={12}>
                   <CustomAutocomplete
                     name='category_ids'
+                    label='Kategoriyalar'
                     loading={isLoading}
                     data={data?.data}
                     getOption={(value: any) => {
@@ -149,7 +136,7 @@ function CategoryForm() {
                     multiple={true}
                     setValue={setValue}
                     value={getValues('category_ids') || []}
-                    defaultValue={getInfo?.data?.data?.categories || []}
+                    defaultValue={getInfo?.data?.data?.category_ids || []}
                     control={control}
                   />
                 </Grid>
@@ -161,13 +148,8 @@ function CategoryForm() {
                     size='small'
                     variant='outlined'
                     fullWidth
-                    defaultValue={getInfo?.data?.data?.categories_sort?.join(', ')}
-                    onLoad={
-                      getInfo?.data?.data?.categories_sort &&
-                      setValue('sort', getInfo?.data?.data?.categories_sort?.join(', '))
-                    }
+                    defaultValue={getInfo?.data?.data?.sort}
                     required
-                    id='form-props-required'
                     label={'Sort'}
                     {...register('sort')}
                   />
@@ -178,7 +160,7 @@ function CategoryForm() {
                     setValue={setValue}
                     value={getValues}
                     name='paid'
-                    label='Paid'
+                    label='Premium'
                   />
                 </Grid>
                 <Grid item sm={12}>
@@ -186,6 +168,7 @@ function CategoryForm() {
                     variant='contained'
                     color='success'
                     fullWidth
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish({
                         ...data,
@@ -200,7 +183,7 @@ function CategoryForm() {
                     )}
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>
@@ -211,7 +194,7 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
                   Categories
                 </Typography>
                 {category?.data?.child_category?.map((category: ICategory) => (
@@ -235,7 +218,7 @@ function CategoryForm() {
                   p: '1.88rem'
                 }}
               >
-                <Typography typography={'h5'} sx={{ mb: '1.88rem' }}>
+                <Typography variant='subtitle1' sx={{ mb: '1.88rem' }}>
                   Categories
                 </Typography>
                 {category?.data?.articles?.map((article: any) => (

@@ -22,7 +22,7 @@ export const UPDATE_COMMENT = async (data: any) => {
 
 export const DELETE_COMMENT = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/article_note_texts' + id,
+    url: 'dashboard/admin/article_note_texts/' + id,
     method: 'DELETE'
   })
 

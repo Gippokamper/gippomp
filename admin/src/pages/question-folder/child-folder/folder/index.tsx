@@ -3,57 +3,61 @@ import Columns from './data/colums'
 import { BULK_DELETE_QUESTIONS } from './mutatuions'
 import { GET_QUESTIONS } from './queries'
 import PageLayout from '../../../../layouts/page'
-import { questions } from './data/data'
 import { useQuery } from 'react-query'
 import { GET_IDS } from '../../queries'
-import { Box, TextField, Typography } from '@mui/material'
+import { Box, Button, Paper, TextField, Typography } from '@mui/material'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import toast from 'react-hot-toast'
 
 const Questions = () => {
   const column = Columns()
   const navigate = useNavigate()
 
   const { folder, parent } = useParams()
-  const { data } = useQuery(['quiz-ids', folder, 'child'], () => GET_IDS(String(folder), { type: 'child' }))
+  const { data } = useQuery(['quiz-ids', folder, 'child'], () => GET_IDS(String(folder), { type: 'child' }), {
+    enabled: !!folder
+  })
 
-  const RightContent = () => {
-    return (
-      <Box
-        sx={{
-          bgcolor: '#fff',
-          flex: 1,
-          width: '45rem',
-          p: '1.88rem',
-          height: '45rem'
-        }}
-      >
-        <Typography
-          sx={{
-            mb: '1.88rem'
-          }}
-          typography={'h3'}
+  const questionIds: string = (data?.data?.questions_string || []).join(', ')
+
+  const rightContent = () => (
+    <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
+      <Typography variant='subtitle1' sx={{ fontWeight: 700, mb: 0.5 }}>
+        {folder}
+      </Typography>
+      <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+        Papkadagi savollar ID lari
+      </Typography>
+      <TextField value={questionIds} fullWidth multiline rows={8} InputProps={{ readOnly: true }} />
+      <Box sx={{ mt: 1.5 }}>
+        <Button
+          size='small'
+          startIcon={<ContentCopyIcon />}
+          disabled={!questionIds}
+          onClick={() =>
+            navigator.clipboard
+              ?.writeText(questionIds)
+              .then(() => toast.success('Nusxa olindi'))
+              .catch(() => toast.error('Nusxa olib bo‘lmadi'))
+          }
         >
-          {folder}
-        </Typography>
-        <TextField value={data?.data?.questions_string?.join(', ')} fullWidth multiline rows={8} />
+          Nusxa olish
+        </Button>
       </Box>
-    )
-  }
+    </Paper>
+  )
 
   return (
     <PageLayout
       columns={column}
-      data={questions}
-      rightContent={RightContent}
+      rightContent={rightContent}
       params={{ folder_slug: folder }}
-      onClick={data => {
-        //@ts-ignore
+      onClick={data =>
         navigate({
           pathname: `/question-folder/${parent}/${folder}/edit/`,
-          search: createSearchParams({
-            question_id: data.id
-          }).toString()
+          search: createSearchParams({ question_id: String(data.id) }).toString()
         })
-      }}
+      }
       pageName='Questions'
       collectionQuery={GET_QUESTIONS}
       onAdd={() => navigate(`/question-folder/${parent}/${folder}/edit/`)}

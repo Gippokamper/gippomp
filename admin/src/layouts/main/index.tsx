@@ -6,45 +6,37 @@ import SideNav from './side-nav'
 import MobileSideNav from './mobile-side-nav'
 import AppBarDesktop from './app-bar'
 import AppBarMobile from './app-bar-mobile'
-import Home from '../../pages/home'
-import { Route, Routes, useNavigate, useRoutes } from 'react-router-dom'
-import Users from '../../pages/users'
-import Category from '../../pages/category'
-import CategoryList from '../../pages/category-list'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@mui/material'
 import { ChevronLeft } from '@mui/icons-material'
 
-// const drawerWidth = '21.5625rem'
-
 interface Props {
   children: React.ReactNode
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
+}
+
+// "Orqaga" tugmasi faqat ichki (ota-sahifasi bor) manzillarda kerak.
+// Ilgari u har bir sahifada turardi va bosh sahifadan bosilganda admin'ni
+// brauzer tarixi bo'yicha butunlay tashqariga chiqarib yuborardi.
+const getParentPath = (pathname: string): string | null => {
+  const parts = pathname.split('/').filter(Boolean)
+  if (parts.length < 2) return null
+  return '/' + parts.slice(0, -1).join('/')
 }
 
 export default function MainLayout(props: Props) {
   const [collapsed, setCollapsed] = React.useState(false)
   const [toggled, setToggled] = React.useState(false)
-  const navigate = useNavigate()
   const [broken, setBroken] = React.useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
   // Ilgari to'g'ridan-to'g'ri window.innerWidth o'qilardi — u faqat render
   // paytida bir marta hisoblanadi, shuning uchun oynani kattalashtirsangiz
   // mobil ko'rinish qotib qolardi. useMediaQuery resize'ga qayta render beradi.
-  const isDesktop = useMediaQuery('(min-width:601px)')
+  const isDesktop = useMediaQuery('(min-width:900px)')
+  const parentPath = getParentPath(location.pathname)
 
   return (
-    <Box
-      style={{
-        flexGrow: 1,
-        backgroundColor: '#fff',
-        display: 'flex',
-        flexDirection: 'row',
-        maxHeight: '100vh',
-        maxWidth: '100vw'
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', width: '100%', bgcolor: '#fff' }}>
       <CssBaseline />
       {isDesktop ? (
         <SideNav
@@ -57,7 +49,7 @@ export default function MainLayout(props: Props) {
         />
       ) : (
         <MobileSideNav
-          collapsed={collapsed}
+          collapsed={false}
           broken={broken}
           toggled={toggled}
           setBroken={setBroken}
@@ -67,35 +59,24 @@ export default function MainLayout(props: Props) {
       )}
 
       <Box
-        style={{
+        sx={{
           flex: 1,
-          backgroundColor: '#EEF2F5',
-          margin: 0,
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
           height: '100vh',
-          width: '100%',
-          maxWidth: '100%',
-          maxHeight: '100vh',
-          position: 'relative',
-          padding: '2rem',
-          // 'scroll' scrollbar'ni kontent sig'sa ham doim chizadi — 'auto' faqat
-          // kerak bo'lganda ko'rsatadi.
-          overflow: 'auto'
+          bgcolor: '#eef2f5'
         }}
       >
         {isDesktop ? <AppBarDesktop /> : <AppBarMobile toggled={toggled} setToggled={setToggled} />}
-        {/* Ichki Box'da overflow bo'lmasligi kerak: balandligi cheklanmagani uchun
-            u hech qachon scroll qilinmaydi, lekin 'scroll' kontent ostida bo'sh
-            gorizontal scrollbar chizib qo'yardi. Scroll'ni tashqi Box boshqaradi. */}
-        <Box style={{ paddingTop: '7rem' }}>
-          <Button
-            sx={{
-              mb: '0.5rem'
-            }}
-            onClick={() => navigate(-1)}
-            startIcon={<ChevronLeft />}
-          >
-            Orqaga
-          </Button>
+        {/* Scroll'ni faqat shu konteyner boshqaradi — ilgari ikki qavatda
+            overflow bo'lgani uchun keraksiz bo'sh scrollbar'lar chizilardi. */}
+        <Box sx={{ flex: 1, overflow: 'auto', p: { xs: 2, md: 3 } }}>
+          {parentPath && (
+            <Button sx={{ mb: 1 }} size='small' onClick={() => navigate(parentPath)} startIcon={<ChevronLeft />}>
+              Orqaga
+            </Button>
+          )}
           {props.children}
         </Box>
       </Box>

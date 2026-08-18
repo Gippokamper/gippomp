@@ -2,7 +2,6 @@ import { Button, Grid, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import Form from '../../../../components/form/Form'
 import { useSearchParams } from 'react-router-dom'
-import Translations from '../../../../components/translations'
 import { GET_CATEGORIES, GET_CATEGORY } from '../../queries'
 import { CREATE_CATEGORY, UPDATE_CATEGORY } from '../../mutatuions'
 import FileUploaderSingle from '../../../../components/file-uploader/FileUploaderSingle'
@@ -14,7 +13,7 @@ function LandingCategoryForm() {
   const [searchParams] = useSearchParams()
   const [imageLoader, setImageLoader] = useState(false)
   const { i18n } = useTranslation()
-  const { data, isLoading } = useQuery(['LandingCategories'], GET_CATEGORIES)
+  const { data, isLoading } = useQuery(['landing-categories-all'], () => GET_CATEGORIES({ perPage: 1000 }))
   return (
     <Form
       getQuery={GET_CATEGORY}
@@ -23,21 +22,14 @@ function LandingCategoryForm() {
       name='LandingCategory'
       pageName='LandingCategories'
     >
-      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues }) => {
+      {({ getInfo, handleFinish, createInfo, updateInfo, register, handleSubmit, control, setValue, getValues, isSubmitting }) => {
         return (
           <div>
-            <Typography
-              typography={'h3'}
-              style={{
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                marginTop: 10
-              }}
-            >
-              <Translations text='Edit' /> - <Translations text='Translation' />
+            <Typography variant='h6' sx={{ fontWeight: 700, px: 3, pt: 3 }}>
+              Landing kategoriya
             </Typography>
             <form>
-              <Grid container sm={12} spacing={5} p={10}>
+              <Grid container spacing={2} p={3}>
                 <Grid item sm={12}>
                   <TextField
                     size='small'
@@ -46,7 +38,6 @@ function LandingCategoryForm() {
                       shrink: true
                     }}
                     required
-                    id='form-props-required'
                     label={'Uzbek'}
                     {...register('name[uz]')}
                   />
@@ -59,7 +50,6 @@ function LandingCategoryForm() {
                     InputLabelProps={{
                       shrink: true
                     }}
-                    id='form-props-required'
                     label={'English'}
                     {...register('name[en]')}
                   />
@@ -72,7 +62,6 @@ function LandingCategoryForm() {
                     InputLabelProps={{
                       shrink: true
                     }}
-                    id='form-props-required'
                     label={'Russian'}
                     {...register('name[ru]')}
                   />
@@ -80,6 +69,7 @@ function LandingCategoryForm() {
                 <Grid item sm={12}>
                   <CustomAutocomplete
                     name='category_id'
+                    label='Ota kategoriya'
                     loading={isLoading}
                     data={data?.data || []}
                     getOption={(value: any) => {
@@ -103,6 +93,7 @@ function LandingCategoryForm() {
 
                 <Grid item sm={12}>
                   <Button
+                    disabled={isSubmitting}
                     onClick={handleSubmit((data: any) =>
                       handleFinish(
                         !searchParams.get('id')
@@ -115,7 +106,7 @@ function LandingCategoryForm() {
                     fullWidth
                   >
                     {/* <Translations text='Submit' /> */}
-                    Submit
+                    Saqlash
                   </Button>
                 </Grid>
               </Grid>

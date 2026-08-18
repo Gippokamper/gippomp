@@ -1,17 +1,5 @@
-import { Box, InputAdornment, OutlinedInput } from '@mui/material'
-import React, { useState } from 'react'
-import styles from './index.module.scss'
-import OutlinedButton from '../../../../components/outlined-button'
-import MoneyWallet from '../../../../assets/icons/MoneyWallet'
-import { Search } from '@mui/icons-material'
-// import HistoryCard from '../history-card'
-// import Payments from '../payments'
-// import Tariffs from '../tariffs'
-// import Settings from '../settings'
-// import Messages from '../messages'
-// import TariffIcon from '../../../../assets/icons/TariffIcon'
-// import SettingsIcon from '../../../../assets/icons/Setting'
-// import ChatIcon from '../../../../assets/icons/ChatIcon'
+import { Box, Paper, Tab, Tabs } from '@mui/material'
+import { useEffect } from 'react'
 import PersonIcon from '@mui/icons-material/Person'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline'
@@ -22,41 +10,45 @@ import Vacancy from '../vacancy'
 import Feedback from '../feedback'
 import { useSearchParams } from 'react-router-dom'
 
+const TABS = [
+  { value: 'messages_to', label: 'Foydalanuvchilarga xabar', icon: <PersonIcon /> },
+  { value: 'messages_from', label: 'Foydalanuvchilardan xabar', icon: <MailOutlineIcon /> },
+  { value: 'vacancies', label: 'Vakansiyalar', icon: <WorkOutlineIcon /> },
+  { value: 'feedback', label: 'Fikr-mulohazalar', icon: <RateReviewIcon /> }
+]
+
 function Content() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const type = searchParams.get('type')
+  const isKnownTab = TABS.some(tab => tab.value === type)
+
+  // /messages manzili ?type=... siz ochilsa butun sahifa bo'sh ko'rinardi.
+  useEffect(() => {
+    if (!isKnownTab) setSearchParams({ type: 'messages_to' }, { replace: true })
+  }, [isKnownTab, setSearchParams])
+
+  const active = isKnownTab ? (type as string) : 'messages_to'
+
   return (
-    <Box className={styles.container}>
-      <Box className={styles.container_header}>
-        <OutlinedButton
-          icon={<PersonIcon />}
-          isActive={searchParams.get('type') === 'messages_to'}
-          onClick={() => setSearchParams({ type: 'messages_to' })}
-          title='Foydalanuvchilarga xabar'
-        />
-        <OutlinedButton
-          icon={<MailOutlineIcon />}
-          isActive={searchParams.get('type') === 'messages_from'}
-          onClick={() => setSearchParams({ type: 'messages_from' })}
-          title='Foydalanuvchilardan xabar'
-        />
-        <OutlinedButton
-          icon={<WorkOutlineIcon />}
-          isActive={searchParams.get('type') === 'vacancies'}
-          onClick={() => setSearchParams({ type: 'vacancies' })}
-          title='Vakansiyalar'
-        />
-        <OutlinedButton
-          icon={<RateReviewIcon />}
-          onClick={() => setSearchParams({ type: 'feedback' })}
-          isActive={searchParams.get('type') === 'feedback'}
-          title='Xabarlar'
-        />
-      </Box>
-      <Box className={styles.container_content}>
-        {searchParams.get('type') === 'messages_to' && <MessagesTo />}
-        {searchParams.get('type') === 'messages_from' && <MessagesFrom />}
-        {searchParams.get('type') === 'vacancies' && <Vacancy />}
-        {searchParams.get('type') === 'feedback' && <Feedback />}
+    <Box>
+      <Paper elevation={0} sx={{ border: '1px solid rgba(18,27,45,.08)', mb: 3 }}>
+        <Tabs
+          value={active}
+          onChange={(_, value) => setSearchParams({ type: value })}
+          variant='scrollable'
+          scrollButtons='auto'
+          allowScrollButtonsMobile
+        >
+          {TABS.map(tab => (
+            <Tab key={tab.value} value={tab.value} icon={tab.icon} iconPosition='start' label={tab.label} />
+          ))}
+        </Tabs>
+      </Paper>
+      <Box>
+        {active === 'messages_to' && <MessagesTo />}
+        {active === 'messages_from' && <MessagesFrom />}
+        {active === 'vacancies' && <Vacancy />}
+        {active === 'feedback' && <Feedback />}
       </Box>
     </Box>
   )

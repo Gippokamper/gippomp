@@ -22,7 +22,7 @@ export const UPDATE_VOCABULARY = async (data: any) => {
 
 export const DELETE_VOCABULARY = async (id: string) => {
   const response = await request({
-    url: 'dashboard/admin/vocabulary' + id,
+    url: 'dashboard/admin/vocabulary/' + id,
     method: 'DELETE'
   })
 
