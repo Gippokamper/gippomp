@@ -35,7 +35,7 @@ class UserEditRequest extends FormRequest
             'firstname' => ['string', 'max:55', 'min:2'],
             'lastname' => ['string', 'max:55', 'min:2'],
 //            'phone' => ['string', 'unique:users,phone', 'max:25'],
-            'email' => ['string', Rule::unique('users', 'email')->ignore($this->route('uuid'), 'uuid')],
+            'email' => ['string', Rule::unique('users', 'email')->ignore($this->route('user'), 'uuid')],
             'gender' => ['string', Rule::in('male', 'female')],
             'profession' => ['string', Rule::in('student', 'doctor', 'teacher')],
             'graduation_year' => ['numeric', 'min:0'],
