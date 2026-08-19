@@ -11,9 +11,7 @@ import {
   Typography
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import NoteAddIcon from '@mui/icons-material/NoteAdd'
-import ImageIcon from '@mui/icons-material/Image'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -22,9 +20,8 @@ import { CREATE_ARTICLES, UPDATE_ARTICLES } from '../articles/mutatuions'
 import { CREATE_CHAPTER } from '../chapter/mutatuions'
 import { GET_CATEGORIES } from '../category/queries'
 import { GET_FOLDERS, GET_IDS } from '../question-folder/queries'
-import MyEditor from '../../components/editor'
 import ChapterCard from './ChapterCard'
-import NoteImagePicker, { PickKind } from './NoteImagePicker'
+import NewSectionCard from './NewSectionCard'
 
 type Lang = 'uz' | 'ru' | 'en'
 const EMPTY = { uz: '', ru: '', en: '' }
@@ -50,11 +47,10 @@ function ArticleEditor(props: IProps) {
   const [existingQCount, setExistingQCount] = useState(0)
   const [newChapters, setNewChapters] = useState<number[]>([])
 
-  // Yangi maqola uchun birinchi bo'lim (matn)
-  const [firstTitle, setFirstTitle] = useState<any>({ ...EMPTY })
-  const [firstContent, setFirstContent] = useState<any>({ ...EMPTY })
-  const [picker, setPicker] = useState<PickKind | null>(null)
-  const insertRef = useRef<((c: string) => void) | null>(null)
+  // Yangi maqola bo'limlari — hammasi birga tayyorlanadi, bitta «Publish» bilan
+  // maqola + barcha bo'limlar yaratiladi.
+  const [sections, setSections] = useState<any[]>([{ title: { ...EMPTY }, content: { ...EMPTY } }])
+  const [publishing, setPublishing] = useState(false)
 
   const { data: allCats } = useQuery(['content-all-cats'], () => GET_CATEGORIES({ perPage: 1000 }))
   const catList: any[] = allCats?.data || []
@@ -112,27 +108,6 @@ function ArticleEditor(props: IProps) {
     return existingQids
   }
 
-  const { mutate: create, isLoading: creating } = useMutation(CREATE_ARTICLES, {
-    onSuccess: async (res: any) => {
-      const id = res?.data?.id
-      const hasTitle = Object.values(firstTitle).some(v => (v as string).trim())
-      const hasContent = Object.values(firstContent).some(v => (v as string).trim())
-      if (id && (hasTitle || hasContent)) {
-        try {
-          await CREATE_CHAPTER({
-            title: hasTitle ? firstTitle : name,
-            description: firstContent,
-            article_ids: [id],
-            sort: [0]
-          })
-        } catch {
-          /* xato toast'i request.ts da */
-        }
-      }
-      toast.success('Maqola saqlandi')
-      if (id) props.onCreated(id)
-    }
-  })
   const { mutate: update, isLoading: updating } = useMutation(UPDATE_ARTICLES, {
     onSuccess: () => {
       toast.success('Maqola yangilandi')
@@ -168,11 +143,40 @@ function ArticleEditor(props: IProps) {
   }
 
   const [saving, setSaving] = useState(false)
-  const saveNew = async () => {
+
+  // Yangi maqolani bo'limlari bilan birga chop etish: maqola yaratiladi, so'ng
+  // har bir bo'lim ketma-ket (tartib bo'yicha) shu maqolaga ulanadi.
+  const publish = async () => {
     if (!validate()) return
-    setSaving(true)
-    create(await buildPayload(), { onSettled: () => setSaving(false) })
+    setPublishing(true)
+    try {
+      const payload = await buildPayload()
+      const res: any = await CREATE_ARTICLES(payload)
+      const id = res?.data?.id
+      if (!id) throw new Error('Maqola yaratilmadi')
+      for (let i = 0; i < sections.length; i++) {
+        const sec = sections[i]
+        const hasTitle = Object.values(sec.title).some((v: any) => (v as string).trim())
+        const hasContent = Object.values(sec.content).some((v: any) => (v as string).trim())
+        if (hasTitle || hasContent) {
+          await CREATE_CHAPTER({
+            title: hasTitle ? sec.title : name,
+            description: sec.content,
+            article_ids: [id],
+            sort: [i]
+          })
+        }
+      }
+      toast.success('Maqola chop etildi')
+      queryClient.invalidateQueries(['content-category'])
+      props.onCreated(id)
+    } catch (e: any) {
+      if (e?.message) toast.error(String(e.message))
+    } finally {
+      setPublishing(false)
+    }
   }
+
   const saveExisting = async () => {
     if (!validate()) return
     setSaving(true)
@@ -270,48 +274,46 @@ function ArticleEditor(props: IProps) {
 
       {isNew ? (
         <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, gap: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
             <Typography variant='subtitle2' color='text.secondary'>
-              Matn (birinchi bo`lim) — ixtiyoriy
+              Bo`limlar (matn){' '}
+              <Box component='span' sx={{ color: 'text.disabled' }}>
+                {sections.length}
+              </Box>
             </Typography>
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <Button size='small' startIcon={<NoteAddIcon />} onClick={() => setPicker('note')}>
-                Eslatma
-              </Button>
-              <Button size='small' startIcon={<ImageIcon />} onClick={() => setPicker('image')}>
-                Rasm
-              </Button>
-            </Box>
-          </Box>
-          <TextField
-            size='small'
-            fullWidth
-            label={`Bo'lim sarlavhasi (${lang.toUpperCase()})`}
-            value={firstTitle[lang] || ''}
-            onChange={e => setFirstTitle({ ...firstTitle, [lang]: e.target.value })}
-            sx={{ mb: 1.5 }}
-          />
-          <MyEditor
-            key={lang}
-            value={firstContent[lang] || ''}
-            setValue={(e: string) => setFirstContent({ ...firstContent, [lang]: e })}
-            insertRef={insertRef}
-          />
-          <Box sx={{ mt: 2 }}>
-            <Button variant='contained' size='large' disabled={creating || saving} onClick={saveNew}>
-              {creating || saving ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
+            <Button
+              size='small'
+              variant='contained'
+              startIcon={<AddIcon />}
+              onClick={() => setSections(prev => [...prev, { title: { ...EMPTY }, content: { ...EMPTY } }])}
+            >
+              Bo`lim
             </Button>
           </Box>
+          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 1.5 }}>
+            Maqolani bo`limlarga bo`ling (Umumiy ma`lumot, Ta`rif, Etiologiya...). Bitta «Chop etish» bilan hammasi
+            yaratiladi. Pullik qism — matnda «Premium» tugmasi bilan belgilanadi.
+          </Typography>
 
-          <NoteImagePicker
-            open={!!picker}
-            kind={picker || 'note'}
-            onClose={() => setPicker(null)}
-            onPick={token => {
-              if (insertRef.current) insertRef.current(token)
-              else setFirstContent({ ...firstContent, [lang]: (firstContent[lang] || '') + ' ' + token + ' ' })
-            }}
-          />
+          {sections.map((sec, i) => (
+            <NewSectionCard
+              key={i}
+              index={i}
+              lang={lang}
+              title={sec.title}
+              content={sec.content}
+              onTitle={(v: any) => setSections(prev => prev.map((s, idx) => (idx === i ? { ...s, title: v } : s)))}
+              onContent={(v: any) => setSections(prev => prev.map((s, idx) => (idx === i ? { ...s, content: v } : s)))}
+              onRemove={() => setSections(prev => prev.filter((_, idx) => idx !== i))}
+              canRemove={sections.length > 1}
+            />
+          ))}
+
+          <Box sx={{ mt: 2 }}>
+            <Button variant='contained' size='large' disabled={publishing} onClick={publish}>
+              {publishing ? 'Chop etilmoqda...' : 'Chop etish'}
+            </Button>
+          </Box>
         </Paper>
       ) : (
         <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
