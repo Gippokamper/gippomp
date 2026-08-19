@@ -39,6 +39,7 @@ import ErrorBoundary from './components/error-boundary'
 import NotFound from './pages/not-found'
 import Content from './pages/content'
 import VideoContent from './pages/video-content'
+import QBank from './pages/qbank'
 
 function WithLayout() {
   const location = useLocation()
@@ -54,6 +55,7 @@ function WithLayout() {
           <Route path='/' element={<Home />} />
           <Route path='content' element={<Content />} />
           <Route path='video-content' element={<VideoContent />} />
+          <Route path='qbank' element={<QBank />} />
           <Route path='users' element={<Users />} />
           <Route path='category' element={<Category />} />
           <Route path='articles' element={<Articles />} />

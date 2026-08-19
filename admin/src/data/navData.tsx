@@ -48,7 +48,8 @@ export const navSections: INavSection[] = [
   {
     title: 'Testlar',
     items: [
-      { text: 'Question Folders', link: '/question-folder', icon: <FolderSpecial /> },
+      { text: 'Savol papkalari (QBank)', link: '/qbank', icon: <FolderSpecial /> },
+      { text: 'Question Folders (eski)', link: '/question-folder', icon: <FolderSpecial /> },
       { text: 'Quizzes Category', link: '/quizzes-category', icon: <CategoryIcon /> },
       { text: 'Quizzes', link: '/quizzes', icon: <QuizIcon /> }
     ]
