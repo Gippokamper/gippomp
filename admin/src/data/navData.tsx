@@ -58,8 +58,9 @@ export const navSections: INavSection[] = [
   {
     title: "O'quv rejasi",
     items: [
-      { text: 'Study Plan Folders', link: '/study-plans', icon: <FolderSpecial /> },
-      { text: 'Study Plan', link: '/study-plan', icon: <CastForEducation /> }
+      { text: 'O`quv rejalari (yangi)', link: '/plan-content', icon: <CastForEducation /> },
+      { text: 'Study Plan Folders (eski)', link: '/study-plans', icon: <FolderSpecial /> },
+      { text: 'Study Plan (eski)', link: '/study-plan', icon: <CastForEducation /> }
     ]
   },
   {

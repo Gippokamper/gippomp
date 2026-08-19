@@ -41,6 +41,7 @@ import Content from './pages/content'
 import VideoContent from './pages/video-content'
 import QBank from './pages/qbank'
 import QuizContent from './pages/quiz-content'
+import PlanContent from './pages/plan-content'
 
 function WithLayout() {
   const location = useLocation()
@@ -58,6 +59,7 @@ function WithLayout() {
           <Route path='video-content' element={<VideoContent />} />
           <Route path='qbank' element={<QBank />} />
           <Route path='quiz-content' element={<QuizContent />} />
+          <Route path='plan-content' element={<PlanContent />} />
           <Route path='users' element={<Users />} />
           <Route path='category' element={<Category />} />
           <Route path='articles' element={<Articles />} />
