@@ -64,6 +64,7 @@ function InlineCategoryForm(props: IProps) {
       toast.error('Kategoriya nomini kiriting')
       return
     }
+    // Tartib avtomatik (yaratilish tartibi bo'yicha) — foydalanuvchi kiritmaydi.
     const sortNum = Number(String(sort).trim()) || 0
     const parent = props.parentId ?? null
     const payload: any = {
@@ -91,13 +92,10 @@ function InlineCategoryForm(props: IProps) {
         <Grid item xs={6} sm={4}>
           <TextField size='small' fullWidth label='EN' value={name.en} onChange={e => setName({ ...name, en: e.target.value })} />
         </Grid>
-        <Grid item xs={4} sm={2}>
-          <TextField size='small' fullWidth type='number' label='Tartib' value={sort} onChange={e => setSort(e.target.value)} />
-        </Grid>
-        <Grid item xs={8} sm={3}>
+        <Grid item xs={12} sm={4}>
           <FormControlLabel control={<Switch size='small' checked={paid} onChange={e => setPaid(e.target.checked)} />} label='Premium' />
         </Grid>
-        <Grid item xs={12} sm={7}>
+        <Grid item xs={12} sm={8}>
           <Box sx={{ display: 'flex', gap: 1, justifyContent: { sm: 'flex-end' } }}>
             <Button size='small' onClick={props.onCancel}>
               Bekor

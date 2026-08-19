@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  Collapse,
   FormControlLabel,
   Grid,
   Paper,
@@ -15,10 +14,9 @@ import {
   Typography
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import TuneIcon from '@mui/icons-material/Tune'
 import NoteAddIcon from '@mui/icons-material/NoteAdd'
 import ImageIcon from '@mui/icons-material/Image'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
@@ -27,12 +25,14 @@ import { GET_ARTICLE } from '../articles/queries'
 import { CREATE_ARTICLES, UPDATE_ARTICLES } from '../articles/mutatuions'
 import { CREATE_CHAPTER } from '../chapter/mutatuions'
 import { GET_CATEGORIES } from '../category/queries'
+import { GET_QUESTIONS } from '../question/queries'
 import MyEditor from '../../components/editor'
 import ChapterCard from './ChapterCard'
 import NoteImagePicker, { PickKind } from './NoteImagePicker'
 
 type Lang = 'uz' | 'ru' | 'en'
 const EMPTY = { uz: '', ru: '', en: '' }
+const strip = (h: any) => String(h || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
 interface IProps {
   articleId: string // 'new' yoki id
@@ -49,13 +49,12 @@ function ArticleEditor(props: IProps) {
   const [lang, setLang] = useState<Lang>('uz')
   const [name, setName] = useState<any>({ ...EMPTY })
   const [categories, setCategories] = useState<any[]>([])
-  const [sort, setSort] = useState('0')
   const [paid, setPaid] = useState(false)
-  const [questions, setQuestions] = useState('')
-  const [advanced, setAdvanced] = useState(false)
+  const [qItems, setQItems] = useState<any[]>([]) // tanlangan test savollari (QBank)
+  const [qSearch, setQSearch] = useState('')
   const [newChapters, setNewChapters] = useState<number[]>([])
 
-  // Yangi maqola uchun birinchi bo'lim (matn) — maqola bilan birga saqlanadi
+  // Yangi maqola uchun birinchi bo'lim (matn)
   const [firstTitle, setFirstTitle] = useState<any>({ ...EMPTY })
   const [firstContent, setFirstContent] = useState<any>({ ...EMPTY })
   const [picker, setPicker] = useState<PickKind | null>(null)
@@ -63,6 +62,12 @@ function ArticleEditor(props: IProps) {
 
   const { data: allCats } = useQuery(['content-all-cats'], () => GET_CATEGORIES({ perPage: 1000 }))
   const catList: any[] = allCats?.data || []
+
+  // QBank — savollarni nomi bo'yicha qidirib tanlash
+  const { data: qData } = useQuery(['qbank-search', qSearch], () => GET_QUESTIONS({ perPage: 30, search: qSearch }), {
+    keepPreviousData: true
+  })
+  const qOptions: any[] = qData?.data || []
 
   const { data: articleRes, isLoading } = useQuery(['content-article', props.articleId], () => GET_ARTICLE(props.articleId), {
     enabled: !isNew
@@ -81,8 +86,10 @@ function ArticleEditor(props: IProps) {
     if (!isNew && article) {
       setName({ ...EMPTY, ...(article.name || {}) })
       setPaid(!!article.paid)
-      setSort(String(article.sort ?? '0'))
       setCategories(Array.isArray(article.category_ids) ? article.category_ids : [])
+      // Maqolaga bog'langan test savollari (bloklardan)
+      const qs = article?.blocks?.[0]?.questions
+      setQItems(Array.isArray(qs) ? qs : [])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNew, article])
@@ -96,15 +103,9 @@ function ArticleEditor(props: IProps) {
 
   const buildPayload = () => {
     const catIds = categories.map(c => c.id)
-    let sorts = String(sort)
-      .split(',')
-      .map(s => Number(s.trim()) || 0)
-    while (sorts.length < catIds.length) sorts.push(0)
-    sorts = sorts.slice(0, catIds.length)
-    const qids = questions
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
+    // Tartib — avtomatik (yaratilish tartibi). Foydalanuvchi qo'lда kiritmaydi.
+    const sorts = catIds.map(() => 0)
+    const qids = qItems.map(q => q.id)
     return {
       name,
       category_ids: catIds,
@@ -117,19 +118,18 @@ function ArticleEditor(props: IProps) {
   const { mutate: create, isLoading: creating } = useMutation(CREATE_ARTICLES, {
     onSuccess: async (res: any) => {
       const id = res?.data?.id
-      // Birinchi bo'lim matni kiritilgan bo'lsa — maqola bilan birga yaratamiz
       const hasTitle = Object.values(firstTitle).some(v => (v as string).trim())
       const hasContent = Object.values(firstContent).some(v => (v as string).trim())
       if (id && (hasTitle || hasContent)) {
         try {
           await CREATE_CHAPTER({
-            title: hasTitle ? firstTitle : name, // sarlavha bo'sh bo'lsa maqola nomi
+            title: hasTitle ? firstTitle : name,
             description: firstContent,
             article_ids: [id],
             sort: [0]
           })
         } catch {
-          /* xato toast'i request.ts da chiqadi */
+          /* xato toast'i request.ts da */
         }
       }
       toast.success('Maqola saqlandi')
@@ -154,7 +154,6 @@ function ArticleEditor(props: IProps) {
     }
     return true
   }
-
   const saveNew = () => {
     if (!validate()) return
     create(buildPayload())
@@ -172,6 +171,68 @@ function ArticleEditor(props: IProps) {
     )
   }
 
+  // Maqola meta (nom, kategoriya, premium, test savollari) — ikki rejimда bir xil
+  const metaFields = (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <TextField
+          size='small'
+          fullWidth
+          label={`Maqola nomi (${lang.toUpperCase()})`}
+          value={name[lang] || ''}
+          onChange={e => setName({ ...name, [lang]: e.target.value })}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <Autocomplete
+          multiple
+          size='small'
+          options={catList}
+          value={categories}
+          onChange={(_, v) => setCategories(v as any[])}
+          isOptionEqualToValue={(o: any, v: any) => o?.id === v?.id}
+          getOptionLabel={(o: any) => o?.name?.[lng] || o?.name?.uz || `#${o?.id}`}
+          renderInput={params => <TextField {...params} label='Kategoriyalar' />}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        {/* Test savollari — ID emas, nomi bo'yicha tanlanadi (QBank) */}
+        <Autocomplete
+          multiple
+          size='small'
+          options={qOptions}
+          value={qItems}
+          onChange={(_, v) => setQItems(v as any[])}
+          onInputChange={(_, v) => setQSearch(v)}
+          filterOptions={x => x}
+          isOptionEqualToValue={(o: any, v: any) => o?.id === v?.id}
+          getOptionLabel={(o: any) => strip(o?.name?.[lng] || o?.name?.uz) || `#${o?.id}`}
+          renderOption={(liProps, o: any) => (
+            <li {...liProps} key={o.id}>
+              {strip(o?.name?.[lng] || o?.name?.uz) || `#${o.id}`}
+            </li>
+          )}
+          renderInput={params => (
+            <TextField {...params} label='Test savollari (QBank) — ixtiyoriy' placeholder='Nomi bo`yicha qidiring...' />
+          )}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <FormControlLabel
+          control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />}
+          label={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              Premium
+              <Tooltip title='Yoqilsa — bu maqolani faqat tarif (obuna) to`lagan foydalanuvchilar ko`radi.'>
+                <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
+              </Tooltip>
+            </Box>
+          }
+        />
+      </Grid>
+    </Grid>
+  )
+
   return (
     <Box sx={{ maxWidth: '52rem' }}>
       <Typography variant='h5' sx={{ fontWeight: 800, mb: 0.3 }}>
@@ -181,7 +242,6 @@ function ArticleEditor(props: IProps) {
         {isNew ? 'Nom va matnni kiriting — bitta «Saqlash» bilan yaratiladi.' : 'Maqola ma`lumoti va bo`limlar (matn).'}
       </Typography>
 
-      {/* ── Maqola meta ── */}
       <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)', mb: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant='subtitle2' color='text.secondary'>
@@ -193,81 +253,17 @@ function ArticleEditor(props: IProps) {
             <ToggleButton value='en'>EN</ToggleButton>
           </ToggleButtonGroup>
         </Box>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField
-              size='small'
-              fullWidth
-              label={`Maqola nomi (${lang.toUpperCase()})`}
-              value={name[lang] || ''}
-              onChange={e => setName({ ...name, [lang]: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Autocomplete
-              multiple
-              size='small'
-              options={catList}
-              value={categories}
-              onChange={(_, v) => setCategories(v as any[])}
-              isOptionEqualToValue={(o: any, v: any) => o?.id === v?.id}
-              getOptionLabel={(o: any) => o?.name?.[lng] || o?.name?.uz || `#${o?.id}`}
-              renderInput={params => <TextField {...params} label='Kategoriyalar' />}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
-              <FormControlLabel
-                control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    Premium
-                    <Tooltip title='Yoqilsa — bu maqolani faqat tarif (obuna) to`lagan foydalanuvchilar ko`radi. Boshqalarga qulf ko`rinadi.'>
-                      <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
-                    </Tooltip>
-                  </Box>
-                }
-              />
-              <Button size='small' color='inherit' startIcon={<TuneIcon />} onClick={() => setAdvanced(v => !v)}>
-                Qo`shimcha sozlamalar
-              </Button>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sx={{ pt: '0 !important' }}>
-            <Collapse in={advanced}>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', pt: 2 }}>
-                <TextField
-                  size='small'
-                  sx={{ flex: 1, minWidth: 160 }}
-                  label='Tartib'
-                  helperText='Ro`yxatda o`rni (kichik raqam — yuqorida). Bo`sh — 0.'
-                  value={sort}
-                  onChange={e => setSort(e.target.value)}
-                />
-                <TextField
-                  size='small'
-                  sx={{ flex: 1, minWidth: 160 }}
-                  label='Test savollari (ID)'
-                  helperText='Maqolaga test bog`lash. Odatda bo`sh qoladi.'
-                  value={questions}
-                  onChange={e => setQuestions(e.target.value)}
-                />
-              </Box>
-            </Collapse>
-          </Grid>
-          {!isNew && (
-            <Grid item xs={12}>
-              <Button variant='contained' disabled={updating} onClick={saveExisting}>
-                {updating ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
-              </Button>
-            </Grid>
-          )}
-        </Grid>
+        {metaFields}
+        {!isNew && (
+          <Box sx={{ mt: 2 }}>
+            <Button variant='contained' disabled={updating} onClick={saveExisting}>
+              {updating ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
+            </Button>
+          </Box>
+        )}
       </Paper>
 
       {isNew ? (
-        /* ── Yangi maqola: birinchi bo'lim (matn) + bitta Saqlash ── */
         <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, gap: 1 }}>
             <Typography variant='subtitle2' color='text.secondary'>
@@ -313,7 +309,6 @@ function ArticleEditor(props: IProps) {
           />
         </Paper>
       ) : (
-        /* ── Mavjud maqola: bo'limlar ro'yxati ── */
         <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
             <Typography variant='subtitle2' color='text.secondary'>
