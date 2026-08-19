@@ -50,8 +50,9 @@ export const navSections: INavSection[] = [
     items: [
       { text: 'Savol papkalari (QBank)', link: '/qbank', icon: <FolderSpecial /> },
       { text: 'Question Folders (eski)', link: '/question-folder', icon: <FolderSpecial /> },
-      { text: 'Quizzes Category', link: '/quizzes-category', icon: <CategoryIcon /> },
-      { text: 'Quizzes', link: '/quizzes', icon: <QuizIcon /> }
+      { text: 'Testlar (yangi)', link: '/quiz-content', icon: <QuizIcon /> },
+      { text: 'Quizzes Category (eski)', link: '/quizzes-category', icon: <CategoryIcon /> },
+      { text: 'Quizzes (eski)', link: '/quizzes', icon: <QuizIcon /> }
     ]
   },
   {
