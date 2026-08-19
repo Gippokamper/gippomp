@@ -40,8 +40,7 @@ export const navSections: INavSection[] = [
       // Eski alohida sahifalar (Category/Articles/Notes/Images) menyudan olib
       // tashlandi; ular hali route sifatida bor (kerak bo'lsa qo'lда ochiladi).
       { text: 'Kontent', link: '/content', icon: <LibraryBooksIcon /> },
-      { text: 'Video category', link: '/video-category', icon: <CategoryIcon /> },
-      { text: 'Videos', link: '/videos', icon: <VideoSettings /> },
+      { text: 'Videolar', link: '/video-content', icon: <VideoSettings /> },
       { text: 'News', link: '/news', icon: <Newspaper /> },
       { text: 'Labs', link: '/labs', icon: <Biotech /> }
     ]
