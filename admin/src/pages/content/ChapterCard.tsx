@@ -1,23 +1,8 @@
-import {
-  Box,
-  Button,
-  Chip,
-  Collapse,
-  FormControlLabel,
-  IconButton,
-  Switch,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  Typography
-} from '@mui/material'
+import { Box, Button, Collapse, IconButton, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import NoteAddIcon from '@mui/icons-material/NoteAdd'
 import ImageIcon from '@mui/icons-material/Image'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import LockIcon from '@mui/icons-material/Lock'
 import { useRef, useState } from 'react'
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
@@ -44,7 +29,6 @@ function ChapterCard(props: IProps) {
   const [lang, setLang] = useState<Lang>('uz')
   const [title, setTitle] = useState<any>({ ...EMPTY, ...(existing?.title || {}) })
   const [content, setContent] = useState<any>({ ...EMPTY, ...(existing?.description || {}) })
-  const [paid, setPaid] = useState<boolean>(!!existing?.paid)
   const [picker, setPicker] = useState<PickKind | null>(null)
   const insertRef = useRef<((c: string) => void) | null>(null)
 
@@ -101,9 +85,9 @@ function ChapterCard(props: IProps) {
     }
     if (existing?.id) {
       const { ids, sorts } = await buildArticleIds()
-      update({ id: existing.id, title, description: content, paid: Number(paid), article_ids: ids, sort: sorts })
+      update({ id: existing.id, title, description: content, article_ids: ids, sort: sorts })
     } else {
-      create({ title, description: content, paid: Number(paid), article_ids: [props.articleId], sort: [0] })
+      create({ title, description: content, article_ids: [props.articleId], sort: [0] })
     }
   }
 
@@ -132,15 +116,6 @@ function ChapterCard(props: IProps) {
         <Typography sx={{ flex: 1, fontWeight: 700, fontSize: '.93rem' }} noWrap>
           {heading}
         </Typography>
-        {paid && (
-          <Chip
-            size='small'
-            color='warning'
-            icon={<LockIcon sx={{ fontSize: 14 }} />}
-            label='Premium'
-            sx={{ fontWeight: 700, mr: 0.5 }}
-          />
-        )}
         <ExpandMoreIcon
           sx={{ color: 'text.secondary', transform: open ? 'rotate(180deg)' : 'none', transition: '.15s' }}
         />
@@ -173,19 +148,7 @@ function ChapterCard(props: IProps) {
             label={`Sarlavha (${lang.toUpperCase()})`}
             value={title[lang] || ''}
             onChange={e => setTitle({ ...title, [lang]: e.target.value })}
-            sx={{ mb: 1 }}
-          />
-          <FormControlLabel
-            sx={{ mb: 1 }}
-            control={<Switch size='small' checked={paid} onChange={e => setPaid(e.target.checked)} />}
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '.9rem' }}>
-                Bu bo`lim Premium
-                <Tooltip title='Yoqilsa — bu bo`limni faqat tarif to`lagan foydalanuvchilar ko`radi. Qolgan bo`limlar bepul ochiq qoladi.'>
-                  <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
-                </Tooltip>
-              </Box>
-            }
+            sx={{ mb: 1.5 }}
           />
 
           {/* MyEditor — shrift, fontfamily, marker shablonlari va butun panel shu yerda.

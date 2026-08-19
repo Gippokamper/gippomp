@@ -2,7 +2,6 @@ import {
   Autocomplete,
   Box,
   Button,
-  Chip,
   CircularProgress,
   FormControlLabel,
   Grid,
@@ -59,7 +58,6 @@ function ArticleEditor(props: IProps) {
   // Yangi maqola uchun birinchi bo'lim (matn)
   const [firstTitle, setFirstTitle] = useState<any>({ ...EMPTY })
   const [firstContent, setFirstContent] = useState<any>({ ...EMPTY })
-  const [firstPaid, setFirstPaid] = useState(false)
   const [picker, setPicker] = useState<PickKind | null>(null)
   const insertRef = useRef<((c: string) => void) | null>(null)
 
@@ -130,7 +128,6 @@ function ArticleEditor(props: IProps) {
           await CREATE_CHAPTER({
             title: hasTitle ? firstTitle : name,
             description: firstContent,
-            paid: Number(firstPaid),
             article_ids: [id],
             sort: [0]
           })
@@ -246,7 +243,7 @@ function ArticleEditor(props: IProps) {
           label={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               Butun maqola Premium
-              <Tooltip title='Yoqilsa — butun maqola faqat tarif to`laganlarga. Bir qismini pullik qilish uchun — pastda alohida bo`limga Premium qo`ying.'>
+              <Tooltip title="Yoqilsa — butun maqola faqat tarif to'laganlarga. Faqat BIR QISMINI pullik qilmoqchi bo'lsangiz — buni yoqmang, o'rniga matnda kerakli joyni belgilab «Premium» tugmasini bosing.">
                 <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
               </Tooltip>
             </Box>
@@ -307,19 +304,7 @@ function ArticleEditor(props: IProps) {
             label={`Bo'lim sarlavhasi (${lang.toUpperCase()})`}
             value={firstTitle[lang] || ''}
             onChange={e => setFirstTitle({ ...firstTitle, [lang]: e.target.value })}
-            sx={{ mb: 1 }}
-          />
-          <FormControlLabel
-            sx={{ mb: 1 }}
-            control={<Switch size='small' checked={firstPaid} onChange={e => setFirstPaid(e.target.checked)} />}
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '.9rem' }}>
-                Bu bo`lim Premium
-                <Tooltip title='Odatda birinchi bo`lim bepul qoladi. Keyingi bo`limlarni pullik qilishingiz mumkin.'>
-                  <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
-                </Tooltip>
-              </Box>
-            }
+            sx={{ mb: 1.5 }}
           />
           <MyEditor
             key={lang}
@@ -356,9 +341,8 @@ function ArticleEditor(props: IProps) {
               Bo`lim
             </Button>
           </Box>
-          <Typography variant='caption' color='text.secondary' sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
-            Har bir bo`limni alohida Premium qilish mumkin — bir qismi bepul, bir qismi pullik.{' '}
-            <Chip size='small' color='warning' label='Premium' sx={{ height: 18, fontSize: '.65rem' }} />
+          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 1.5 }}>
+            Matnning bir qismini pullik qilish uchun — o`sha matnni belgilab, muharrirdagi «Premium» tugmasini bosing.
           </Typography>
 
           {chapters.map((ch: any) => (

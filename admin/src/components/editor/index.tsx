@@ -96,10 +96,25 @@ function MyEditor(props: IEditor) {
             ed.on('init', () => {
               ed.formatter.register('highlight', { inline: 'span', classes: 'highlight' })
             })
+            // "Premium" tugmasi: belgilangan matnni <u> ga o'raydi. Foydalanuvchi
+            // ilovasi aynan <u> ni "qo'shimcha (premium) ma'lumot" deb biladi va
+            // tarif to'lamaganlarga uni qulflaydi. Ya'ni bu — maqolaning bir
+            // qismini pullik qilishning to'g'ri yo'li (butun bo'lim emas).
+            ed.ui.registry.addToggleButton('premiuminfo', {
+              text: 'Premium',
+              tooltip: "Belgilangan matnni Premium qiladi (faqat obuna to'laganlar ko'radi)",
+              onAction: () => ed.execCommand('mceToggleFormat', false, 'underline'),
+              onSetup: (api: any) => {
+                const upd = () => api.setActive(ed.formatter.match('underline'))
+                ed.on('NodeChange', upd)
+                return () => ed.off('NodeChange', upd)
+              }
+            })
           },
           // 'hr' va 'print' tugmalari TinyMCE 6 da yo'q, 'casechange' — premium.
+          // `premiuminfo` — maqola matnining bir qismini pullik qilish tugmasi.
           toolbar:
-            'code undo redo | fontfamily fontsize blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save | insertfile image media template link anchor codesample | ltr rtl',
+            'code undo redo | fontfamily fontsize blocks | bold italic underline strikethrough | premiuminfo | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save | insertfile image media template link anchor codesample | ltr rtl',
           toolbar_sticky: true,
           autosave_ask_before_unload: true,
           autosave_interval: '30s',
