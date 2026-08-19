@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Collapse,
   FormControlLabel,
   Grid,
   Paper,
@@ -10,9 +11,12 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import TuneIcon from '@mui/icons-material/Tune'
 import NoteAddIcon from '@mui/icons-material/NoteAdd'
 import ImageIcon from '@mui/icons-material/Image'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -48,6 +52,7 @@ function ArticleEditor(props: IProps) {
   const [sort, setSort] = useState('0')
   const [paid, setPaid] = useState(false)
   const [questions, setQuestions] = useState('')
+  const [advanced, setAdvanced] = useState(false)
   const [newChapters, setNewChapters] = useState<number[]>([])
 
   // Yangi maqola uchun birinchi bo'lim (matn) — maqola bilan birga saqlanadi
@@ -211,28 +216,45 @@ function ArticleEditor(props: IProps) {
               renderInput={params => <TextField {...params} label='Kategoriyalar' />}
             />
           </Grid>
-          <Grid item xs={6} md={4}>
-            <TextField
-              size='small'
-              fullWidth
-              label='Tartib'
-              helperText='Kategoriyalar soniga mos, vergul bilan'
-              value={sort}
-              onChange={e => setSort(e.target.value)}
-            />
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+              <FormControlLabel
+                control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    Premium
+                    <Tooltip title='Yoqilsa — bu maqolani faqat tarif (obuna) to`lagan foydalanuvchilar ko`radi. Boshqalarga qulf ko`rinadi.'>
+                      <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
+                    </Tooltip>
+                  </Box>
+                }
+              />
+              <Button size='small' color='inherit' startIcon={<TuneIcon />} onClick={() => setAdvanced(v => !v)}>
+                Qo`shimcha sozlamalar
+              </Button>
+            </Box>
           </Grid>
-          <Grid item xs={6} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
-            <FormControlLabel control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />} label='Premium' />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              size='small'
-              fullWidth
-              label='Savol ID lari'
-              helperText='Ixtiyoriy, vergul bilan'
-              value={questions}
-              onChange={e => setQuestions(e.target.value)}
-            />
+          <Grid item xs={12} sx={{ pt: '0 !important' }}>
+            <Collapse in={advanced}>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', pt: 2 }}>
+                <TextField
+                  size='small'
+                  sx={{ flex: 1, minWidth: 160 }}
+                  label='Tartib'
+                  helperText='Ro`yxatda o`rni (kichik raqam — yuqorida). Bo`sh — 0.'
+                  value={sort}
+                  onChange={e => setSort(e.target.value)}
+                />
+                <TextField
+                  size='small'
+                  sx={{ flex: 1, minWidth: 160 }}
+                  label='Test savollari (ID)'
+                  helperText='Maqolaga test bog`lash. Odatda bo`sh qoladi.'
+                  value={questions}
+                  onChange={e => setQuestions(e.target.value)}
+                />
+              </Box>
+            </Collapse>
           </Grid>
           {!isNew && (
             <Grid item xs={12}>

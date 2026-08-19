@@ -53,7 +53,10 @@ function MyEditor(props: IEditor) {
         // Til init opsiyasi orqali beriladi va TinyMCE uni keyin o'zgartirmaydi —
         // key almashganda komponent qayta yaratilib, yangi tilda ochiladi.
         key={tinymceLanguage ?? 'en'}
-        apiKey='tj15aigfz1e9z0eifck2ngkxy9vfv6hy86tl67i0pwxu85wn'
+        // Bulut kaliti (apiKey) eski domenga bog'langan edi — yangi domenda
+        // muharrir "faqat o'qish" bo'lib qolardi (yozib bo'lmasdi). Endi TinyMCE
+        // ochiq CDN'dan yuklanadi, hech qanday domen cheklovi yo'q.
+        tinymceScriptSrc='https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js'
         onInit={(evt, editor) => {
           editorRef.current = editor
           if (props.insertRef) {
