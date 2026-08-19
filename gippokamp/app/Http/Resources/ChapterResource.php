@@ -19,6 +19,7 @@ class ChapterResource extends JsonResource
             'id' => (int) $this->id,
             'title' => (array) $this->title,
             'description' => (array) $this->description,
+            'paid' => (boolean) $this->paid,
             'article_ids' => $this->whenLoaded('articles', function (){
                 return ArticleResource::collection($this->articles);
             }),

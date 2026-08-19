@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Chip,
   CircularProgress,
   FormControlLabel,
   Grid,
@@ -25,14 +26,13 @@ import { GET_ARTICLE } from '../articles/queries'
 import { CREATE_ARTICLES, UPDATE_ARTICLES } from '../articles/mutatuions'
 import { CREATE_CHAPTER } from '../chapter/mutatuions'
 import { GET_CATEGORIES } from '../category/queries'
-import { GET_QUESTIONS } from '../question/queries'
+import { GET_FOLDERS, GET_IDS } from '../question-folder/queries'
 import MyEditor from '../../components/editor'
 import ChapterCard from './ChapterCard'
 import NoteImagePicker, { PickKind } from './NoteImagePicker'
 
 type Lang = 'uz' | 'ru' | 'en'
 const EMPTY = { uz: '', ru: '', en: '' }
-const strip = (h: any) => String(h || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
 interface IProps {
   articleId: string // 'new' yoki id
@@ -50,24 +50,25 @@ function ArticleEditor(props: IProps) {
   const [name, setName] = useState<any>({ ...EMPTY })
   const [categories, setCategories] = useState<any[]>([])
   const [paid, setPaid] = useState(false)
-  const [qItems, setQItems] = useState<any[]>([]) // tanlangan test savollari (QBank)
-  const [qSearch, setQSearch] = useState('')
+  // QBank — bitta paket (savol papkasi) biriktiriladi
+  const [pkg, setPkg] = useState<any | null>(null)
+  const [existingQids, setExistingQids] = useState<number[]>([])
+  const [existingQCount, setExistingQCount] = useState(0)
   const [newChapters, setNewChapters] = useState<number[]>([])
 
   // Yangi maqola uchun birinchi bo'lim (matn)
   const [firstTitle, setFirstTitle] = useState<any>({ ...EMPTY })
   const [firstContent, setFirstContent] = useState<any>({ ...EMPTY })
+  const [firstPaid, setFirstPaid] = useState(false)
   const [picker, setPicker] = useState<PickKind | null>(null)
   const insertRef = useRef<((c: string) => void) | null>(null)
 
   const { data: allCats } = useQuery(['content-all-cats'], () => GET_CATEGORIES({ perPage: 1000 }))
   const catList: any[] = allCats?.data || []
 
-  // QBank — savollarni nomi bo'yicha qidirib tanlash
-  const { data: qData } = useQuery(['qbank-search', qSearch], () => GET_QUESTIONS({ perPage: 30, search: qSearch }), {
-    keepPreviousData: true
-  })
-  const qOptions: any[] = qData?.data || []
+  // QBank paketlari — savollari bor (leaf) papkalar
+  const { data: folderData } = useQuery(['qbank-folders'], () => GET_FOLDERS({ without_child: 1, perPage: 1000 }))
+  const folderOptions: any[] = folderData?.data || []
 
   const { data: articleRes, isLoading } = useQuery(['content-article', props.articleId], () => GET_ARTICLE(props.articleId), {
     enabled: !isNew
@@ -87,9 +88,11 @@ function ArticleEditor(props: IProps) {
       setName({ ...EMPTY, ...(article.name || {}) })
       setPaid(!!article.paid)
       setCategories(Array.isArray(article.category_ids) ? article.category_ids : [])
-      // Maqolaga bog'langan test savollari (bloklardan)
+      // Maqolaga allaqachon biriktirilgan savollar (bloklardan) — saqlab qolamiz
       const qs = article?.blocks?.[0]?.questions
-      setQItems(Array.isArray(qs) ? qs : [])
+      const ids = Array.isArray(qs) ? qs.map((q: any) => q.id) : []
+      setExistingQids(ids)
+      setExistingQCount(ids.length)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNew, article])
@@ -101,18 +104,20 @@ function ArticleEditor(props: IProps) {
     setNewChapters([])
   }
 
-  const buildPayload = () => {
-    const catIds = categories.map(c => c.id)
-    // Tartib — avtomatik (yaratilish tartibi). Foydalanuvchi qo'lда kiritmaydi.
-    const sorts = catIds.map(() => 0)
-    const qids = qItems.map(q => q.id)
-    return {
-      name,
-      category_ids: catIds,
-      sort: sorts,
-      paid: Number(paid),
-      blocks: qids.length ? [{ name, question_ids: qids, sort: 1 }] : []
+  // Test paketining savol ID larini aniqlaymiz: yangi paket tanlangan bo'lsa —
+  // o'shaniki; aks holda avval biriktirilganini saqlaymiz (tahrirlashда o'chib
+  // ketmasligi uchun — backend update blocklarni qayta yozadi).
+  const resolveQuestionIds = async (): Promise<number[]> => {
+    if (pkg?.slug) {
+      try {
+        const res: any = await GET_IDS(String(pkg.slug), { type: 'child' })
+        const ids = res?.data?.questions_string || []
+        return ids.map((x: any) => Number(x)).filter((n: number) => !isNaN(n))
+      } catch {
+        return existingQids
+      }
     }
+    return existingQids
   }
 
   const { mutate: create, isLoading: creating } = useMutation(CREATE_ARTICLES, {
@@ -125,6 +130,7 @@ function ArticleEditor(props: IProps) {
           await CREATE_CHAPTER({
             title: hasTitle ? firstTitle : name,
             description: firstContent,
+            paid: Number(firstPaid),
             article_ids: [id],
             sort: [0]
           })
@@ -154,13 +160,30 @@ function ArticleEditor(props: IProps) {
     }
     return true
   }
-  const saveNew = () => {
-    if (!validate()) return
-    create(buildPayload())
+
+  const buildPayload = async () => {
+    const catIds = categories.map(c => c.id)
+    const sorts = catIds.map(() => 0) // tartib avtomatik
+    const qids = await resolveQuestionIds()
+    return {
+      name,
+      category_ids: catIds,
+      sort: sorts,
+      paid: Number(paid),
+      blocks: qids.length ? [{ name, question_ids: qids, sort: 1 }] : []
+    }
   }
-  const saveExisting = () => {
+
+  const [saving, setSaving] = useState(false)
+  const saveNew = async () => {
     if (!validate()) return
-    update({ id: article.id, ...buildPayload() })
+    setSaving(true)
+    create(await buildPayload(), { onSettled: () => setSaving(false) })
+  }
+  const saveExisting = async () => {
+    if (!validate()) return
+    setSaving(true)
+    update({ id: article.id, ...(await buildPayload()) }, { onSettled: () => setSaving(false) })
   }
 
   if (!isNew && isLoading) {
@@ -171,7 +194,6 @@ function ArticleEditor(props: IProps) {
     )
   }
 
-  // Maqola meta (nom, kategoriya, premium, test savollari) — ikki rejimда bir xil
   const metaFields = (
     <Grid container spacing={2}>
       <Grid item xs={12}>
@@ -196,24 +218,25 @@ function ArticleEditor(props: IProps) {
         />
       </Grid>
       <Grid item xs={12}>
-        {/* Test savollari — ID emas, nomi bo'yicha tanlanadi (QBank) */}
+        {/* QBank — bitta paket (savol papkasi). Nomi bo'yicha tanlanadi. */}
         <Autocomplete
-          multiple
           size='small'
-          options={qOptions}
-          value={qItems}
-          onChange={(_, v) => setQItems(v as any[])}
-          onInputChange={(_, v) => setQSearch(v)}
-          filterOptions={x => x}
+          options={folderOptions}
+          value={pkg}
+          onChange={(_, v) => setPkg(v)}
           isOptionEqualToValue={(o: any, v: any) => o?.id === v?.id}
-          getOptionLabel={(o: any) => strip(o?.name?.[lng] || o?.name?.uz) || `#${o?.id}`}
-          renderOption={(liProps, o: any) => (
-            <li {...liProps} key={o.id}>
-              {strip(o?.name?.[lng] || o?.name?.uz) || `#${o.id}`}
-            </li>
-          )}
+          getOptionLabel={(o: any) => o?.name?.[lng] || o?.name?.uz || `#${o?.id}`}
           renderInput={params => (
-            <TextField {...params} label='Test savollari (QBank) — ixtiyoriy' placeholder='Nomi bo`yicha qidiring...' />
+            <TextField
+              {...params}
+              label='Test to`plami (QBank) — ixtiyoriy'
+              placeholder='Savol paketini tanlang...'
+              helperText={
+                !isNew && !pkg && existingQCount
+                  ? `Hozir biriktirilgan: ${existingQCount} ta savol. Yangi paket tanlasangiz — almashadi.`
+                  : 'Bitta savol paketi biriktiriladi'
+              }
+            />
           )}
         />
       </Grid>
@@ -222,8 +245,8 @@ function ArticleEditor(props: IProps) {
           control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />}
           label={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              Premium
-              <Tooltip title='Yoqilsa — bu maqolani faqat tarif (obuna) to`lagan foydalanuvchilar ko`radi.'>
+              Butun maqola Premium
+              <Tooltip title='Yoqilsa — butun maqola faqat tarif to`laganlarga. Bir qismini pullik qilish uchun — pastda alohida bo`limga Premium qo`ying.'>
                 <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
               </Tooltip>
             </Box>
@@ -256,8 +279,8 @@ function ArticleEditor(props: IProps) {
         {metaFields}
         {!isNew && (
           <Box sx={{ mt: 2 }}>
-            <Button variant='contained' disabled={updating} onClick={saveExisting}>
-              {updating ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
+            <Button variant='contained' disabled={updating || saving} onClick={saveExisting}>
+              {updating || saving ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
             </Button>
           </Box>
         )}
@@ -265,7 +288,7 @@ function ArticleEditor(props: IProps) {
 
       {isNew ? (
         <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, gap: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, gap: 1, flexWrap: 'wrap' }}>
             <Typography variant='subtitle2' color='text.secondary'>
               Matn (birinchi bo`lim) — ixtiyoriy
             </Typography>
@@ -284,7 +307,19 @@ function ArticleEditor(props: IProps) {
             label={`Bo'lim sarlavhasi (${lang.toUpperCase()})`}
             value={firstTitle[lang] || ''}
             onChange={e => setFirstTitle({ ...firstTitle, [lang]: e.target.value })}
-            sx={{ mb: 1.5 }}
+            sx={{ mb: 1 }}
+          />
+          <FormControlLabel
+            sx={{ mb: 1 }}
+            control={<Switch size='small' checked={firstPaid} onChange={e => setFirstPaid(e.target.checked)} />}
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '.9rem' }}>
+                Bu bo`lim Premium
+                <Tooltip title='Odatda birinchi bo`lim bepul qoladi. Keyingi bo`limlarni pullik qilishingiz mumkin.'>
+                  <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
+                </Tooltip>
+              </Box>
+            }
           />
           <MyEditor
             key={lang}
@@ -293,8 +328,8 @@ function ArticleEditor(props: IProps) {
             insertRef={insertRef}
           />
           <Box sx={{ mt: 2 }}>
-            <Button variant='contained' size='large' disabled={creating} onClick={saveNew}>
-              {creating ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
+            <Button variant='contained' size='large' disabled={creating || saving} onClick={saveNew}>
+              {creating || saving ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
             </Button>
           </Box>
 
@@ -310,7 +345,7 @@ function ArticleEditor(props: IProps) {
         </Paper>
       ) : (
         <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
             <Typography variant='subtitle2' color='text.secondary'>
               Bo`limlar (matn){' '}
               <Box component='span' sx={{ color: 'text.disabled' }}>
@@ -321,6 +356,10 @@ function ArticleEditor(props: IProps) {
               Bo`lim
             </Button>
           </Box>
+          <Typography variant='caption' color='text.secondary' sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
+            Har bir bo`limni alohida Premium qilish mumkin — bir qismi bepul, bir qismi pullik.{' '}
+            <Chip size='small' color='warning' label='Premium' sx={{ height: 18, fontSize: '.65rem' }} />
+          </Typography>
 
           {chapters.map((ch: any) => (
             <ChapterCard key={ch.id} articleId={article.id} chapter={ch} onSaved={refetchArticle} onRemoved={refetchArticle} />

@@ -38,6 +38,7 @@ class ChapterRequest extends FormRequest
             'sort' => ['required', 'array'],
             'title' => ['required', 'array'],
             'description' => ['nullable', 'array'],
+            'paid' => ['nullable', 'boolean'],
             'article_ids_with_sort' => ['nullable'],
         ];
     }

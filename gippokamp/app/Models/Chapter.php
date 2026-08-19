@@ -12,10 +12,12 @@ class Chapter extends Model
     protected $fillable = [
         'title',
         'description',
+        'paid',
     ];
     protected $casts = [
         'title' => 'array',
         'description' => 'array',
+        'paid' => 'boolean',
     ];
 
     public function articles()
