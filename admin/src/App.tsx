@@ -37,7 +37,7 @@ import FAQ from './pages/FAQ'
 import PrivacyPolicy from './pages/privacy-policy'
 import ErrorBoundary from './components/error-boundary'
 import NotFound from './pages/not-found'
-import QuickArticle from './pages/quick-article'
+import Content from './pages/content'
 
 function WithLayout() {
   const location = useLocation()
@@ -51,7 +51,7 @@ function WithLayout() {
       <ErrorBoundary resetKey={location.pathname}>
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='quick-article' element={<QuickArticle />} />
+          <Route path='content' element={<Content />} />
           <Route path='users' element={<Users />} />
           <Route path='category' element={<Category />} />
           <Route path='articles' element={<Articles />} />

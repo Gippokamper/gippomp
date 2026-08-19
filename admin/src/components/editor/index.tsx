@@ -29,6 +29,9 @@ interface IEditor {
   >
   height?: number
   second?: boolean
+  // Tashqaridan matn ichiga (kursor joyiga) kontent qo'shish uchun.
+  // Eslatma/rasm tanlagich shu orqali kodni avtomatik joylaydi.
+  insertRef?: React.MutableRefObject<((content: string) => void) | null>
 }
 function MyEditor(props: IEditor) {
   const editorRef = useRef<TinyMCEEditor | null>(null)
@@ -51,7 +54,13 @@ function MyEditor(props: IEditor) {
         // key almashganda komponent qayta yaratilib, yangi tilda ochiladi.
         key={tinymceLanguage ?? 'en'}
         apiKey='tj15aigfz1e9z0eifck2ngkxy9vfv6hy86tl67i0pwxu85wn'
-        onInit={(evt, editor) => (editorRef.current = editor)}
+        onInit={(evt, editor) => {
+          editorRef.current = editor
+          if (props.insertRef) {
+            // insertContent kursor turgan joyга qo'yadi (pastelash emas).
+            props.insertRef.current = (content: string) => editor.insertContent(content)
+          }
+        }}
         value={props.value}
         // initialValue='<p>This is the initial content of the editor</p>'
         init={{

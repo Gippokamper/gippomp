@@ -14,7 +14,6 @@ import OndemandVideoIcon from '@mui/icons-material/OndemandVideo'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import PolicyIcon from '@mui/icons-material/Policy'
 import QuizIcon from '@mui/icons-material/Quiz'
-import BoltIcon from '@mui/icons-material/Bolt'
 import { Biotech, CastForEducation, FolderSpecial, Newspaper, VideoSettings } from '@mui/icons-material'
 import { ReactElement } from 'react'
 
@@ -40,8 +39,8 @@ export const navSections: INavSection[] = [
   {
     title: 'Kontent',
     items: [
-      { text: 'Tez maqola qo`shish', link: '/quick-article', icon: <BoltIcon /> },
-      { text: 'Category', link: '/category', icon: <LibraryBooksIcon /> },
+      { text: 'Kontent', link: '/content', icon: <LibraryBooksIcon /> },
+      { text: 'Category (eski)', link: '/category', icon: <LibraryBooksIcon /> },
       { text: 'Articles', link: '/articles', icon: <DescriptionIcon /> },
       { text: 'Notes', link: '/comments', icon: <CommentIcon /> },
       { text: 'Images', link: '/images', icon: <PermMediaIcon /> },
