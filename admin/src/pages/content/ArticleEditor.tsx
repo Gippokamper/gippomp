@@ -3,20 +3,16 @@ import {
   Box,
   Button,
   CircularProgress,
-  FormControlLabel,
   Grid,
   Paper,
-  Switch,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip,
   Typography
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import NoteAddIcon from '@mui/icons-material/NoteAdd'
 import ImageIcon from '@mui/icons-material/Image'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
@@ -48,7 +44,6 @@ function ArticleEditor(props: IProps) {
   const [lang, setLang] = useState<Lang>('uz')
   const [name, setName] = useState<any>({ ...EMPTY })
   const [categories, setCategories] = useState<any[]>([])
-  const [paid, setPaid] = useState(false)
   // QBank — bitta paket (savol papkasi) biriktiriladi
   const [pkg, setPkg] = useState<any | null>(null)
   const [existingQids, setExistingQids] = useState<number[]>([])
@@ -84,7 +79,6 @@ function ArticleEditor(props: IProps) {
   useEffect(() => {
     if (!isNew && article) {
       setName({ ...EMPTY, ...(article.name || {}) })
-      setPaid(!!article.paid)
       setCategories(Array.isArray(article.category_ids) ? article.category_ids : [])
       // Maqolaga allaqachon biriktirilgan savollar (bloklardan) — saqlab qolamiz
       const qs = article?.blocks?.[0]?.questions
@@ -166,7 +160,9 @@ function ArticleEditor(props: IProps) {
       name,
       category_ids: catIds,
       sort: sorts,
-      paid: Number(paid),
+      // Maqola o'zi hech qachon premium emas — premium faqat matn ichidagi
+      // «Premium» belgisi (<u>). Backend `paid` ni majburiy so'raydi, 0 beramiz.
+      paid: 0,
       blocks: qids.length ? [{ name, question_ids: qids, sort: 1 }] : []
     }
   }
@@ -237,19 +233,8 @@ function ArticleEditor(props: IProps) {
           )}
         />
       </Grid>
-      <Grid item xs={12}>
-        <FormControlLabel
-          control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />}
-          label={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              Butun maqola Premium
-              <Tooltip title="Yoqilsa — butun maqola faqat tarif to'laganlarga. Faqat BIR QISMINI pullik qilmoqchi bo'lsangiz — buni yoqmang, o'rniga matnda kerakli joyni belgilab «Premium» tugmasini bosing.">
-                <HelpOutlineIcon sx={{ fontSize: 15, color: 'text.disabled' }} />
-              </Tooltip>
-            </Box>
-          }
-        />
-      </Grid>
+      {/* Maqola o'zi premium bo'lmaydi. Pullik qilinadigan qism — matn ichida
+          «Premium» tugmasi bilan belgilanadigan ma'lumot. */}
     </Grid>
   )
 
