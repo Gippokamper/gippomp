@@ -34,11 +34,12 @@ export const navSections: INavSection[] = [
     items: [{ text: 'Home', link: '/', icon: <HomeIcon />, end: true }]
   },
   {
+    // Yangi drill-down modullar. Eski alohida sahifalar (Category/Articles/Notes/
+    // Images/Video category/Videos, Question Folders/Quizzes, Study Plan...)
+    // menyudan olib tashlandi — ular hali route sifatida bor (URL orqali
+    // ochiladi), kerak bo'lmasa keyin butunlay o'chiriladi.
     title: 'Kontent',
     items: [
-      // Kategoriya, maqola, bo'lim, eslatma va rasm — hammasi shu bitta bo'limда.
-      // Eski alohida sahifalar (Category/Articles/Notes/Images) menyudan olib
-      // tashlandi; ular hali route sifatida bor (kerak bo'lsa qo'lда ochiladi).
       { text: 'Kontent', link: '/content', icon: <LibraryBooksIcon /> },
       { text: 'Videolar', link: '/video-content', icon: <VideoSettings /> },
       { text: 'News', link: '/news', icon: <Newspaper /> },
@@ -49,19 +50,12 @@ export const navSections: INavSection[] = [
     title: 'Testlar',
     items: [
       { text: 'Savol papkalari (QBank)', link: '/qbank', icon: <FolderSpecial /> },
-      { text: 'Question Folders (eski)', link: '/question-folder', icon: <FolderSpecial /> },
-      { text: 'Testlar (yangi)', link: '/quiz-content', icon: <QuizIcon /> },
-      { text: 'Quizzes Category (eski)', link: '/quizzes-category', icon: <CategoryIcon /> },
-      { text: 'Quizzes (eski)', link: '/quizzes', icon: <QuizIcon /> }
+      { text: 'Testlar', link: '/quiz-content', icon: <QuizIcon /> }
     ]
   },
   {
     title: "O'quv rejasi",
-    items: [
-      { text: 'O`quv rejalari (yangi)', link: '/plan-content', icon: <CastForEducation /> },
-      { text: 'Study Plan Folders (eski)', link: '/study-plans', icon: <FolderSpecial /> },
-      { text: 'Study Plan (eski)', link: '/study-plan', icon: <CastForEducation /> }
-    ]
+    items: [{ text: "O'quv rejalari", link: '/plan-content', icon: <CastForEducation /> }]
   },
   {
     title: 'Foydalanuvchilar',
