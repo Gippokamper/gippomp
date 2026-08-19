@@ -1,9 +1,6 @@
 import HomeIcon from '@mui/icons-material/Home'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
-import DescriptionIcon from '@mui/icons-material/Description'
-import CommentIcon from '@mui/icons-material/Comment'
-import PermMediaIcon from '@mui/icons-material/PermMedia'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox'
 import TranslateIcon from '@mui/icons-material/Translate'
@@ -39,11 +36,10 @@ export const navSections: INavSection[] = [
   {
     title: 'Kontent',
     items: [
+      // Kategoriya, maqola, bo'lim, eslatma va rasm — hammasi shu bitta bo'limда.
+      // Eski alohida sahifalar (Category/Articles/Notes/Images) menyudan olib
+      // tashlandi; ular hali route sifatida bor (kerak bo'lsa qo'lда ochiladi).
       { text: 'Kontent', link: '/content', icon: <LibraryBooksIcon /> },
-      { text: 'Category (eski)', link: '/category', icon: <LibraryBooksIcon /> },
-      { text: 'Articles', link: '/articles', icon: <DescriptionIcon /> },
-      { text: 'Notes', link: '/comments', icon: <CommentIcon /> },
-      { text: 'Images', link: '/images', icon: <PermMediaIcon /> },
       { text: 'Video category', link: '/video-category', icon: <CategoryIcon /> },
       { text: 'Videos', link: '/videos', icon: <VideoSettings /> },
       { text: 'News', link: '/news', icon: <Newspaper /> },
