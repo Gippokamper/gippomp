@@ -9,7 +9,7 @@ import { useQuery } from 'react-query'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { GET_CATEGORIES, GET_CATEGORY } from '../category/queries'
-import CategoryDrawer from './CategoryDrawer'
+import InlineCategoryForm from './InlineCategoryForm'
 import ArticleEditor from './ArticleEditor'
 
 const eyebrowSx = {
@@ -37,14 +37,11 @@ function Content() {
   const catId = searchParams.get('cat')
   const articleId = searchParams.get('article')
 
-  const [drawer, setDrawer] = useState<{ open: boolean; editId?: number | null; parentId?: number | null }>({
-    open: false
-  })
+  const [addRoot, setAddRoot] = useState(false)
 
   const { data: allCats } = useQuery(['content-all-cats-nav'], () => GET_CATEGORIES({ perPage: 1000 }))
   const catList: any[] = useMemo(() => allCats?.data || [], [allCats])
 
-  // id -> kategoriya xaritasi + ota zanjiri (breadcrumb uchun)
   const map = useMemo(() => {
     const m: Record<number, any> = {}
     catList.forEach(c => (m[c.id] = c))
@@ -75,7 +72,6 @@ function Content() {
     setSearchParams(p)
   }
 
-  // ── Breadcrumb ──
   const renderCrumbs = () => {
     const chain = chainTo(catId ? Number(catId) : null)
     return (
@@ -111,7 +107,7 @@ function Content() {
     )
   }
 
-  // ── Maqola muharriri ──
+  // ── Maqola muharriri (3-ekran) ──
   if (articleId) {
     return (
       <Box>
@@ -130,22 +126,11 @@ function Content() {
   // ── 2-ekran: kategoriya ichi ──
   if (catId) {
     return (
-      <CategoryDetail
-        catId={Number(catId)}
-        nm={nm}
-        renderCrumbs={renderCrumbs}
-        eyebrowSx={eyebrowSx}
-        onOpenCat={goCat}
-        onOpenArticle={goArticle}
-        onAddSub={(parentId: number) => setDrawer({ open: true, parentId })}
-        onEditCat={(editId: number) => setDrawer({ open: true, editId })}
-        drawer={drawer}
-        setDrawer={setDrawer}
-      />
+      <CategoryDetail catId={Number(catId)} nm={nm} lng={lng} renderCrumbs={renderCrumbs} onOpenCat={goCat} onOpenArticle={goArticle} />
     )
   }
 
-  // ── 1-ekran: bosh (root kategoriyalar) ──
+  // ── 1-ekran: root kategoriyalar ──
   const roots = catList.filter(c => !(c.category_ids?.length > 0))
   const childCount = (id: number) => catList.filter(c => (c.category_ids || []).some((p: any) => p.id === id)).length
 
@@ -162,23 +147,21 @@ function Content() {
             Kategoriyaga kirib, ichidagi maqolalarni boshqaring.
           </Typography>
         </Box>
-        <Button variant='contained' startIcon={<AddIcon />} onClick={() => setDrawer({ open: true, parentId: null })}>
+        <Button variant='contained' startIcon={<AddIcon />} onClick={() => setAddRoot(v => !v)}>
           Yangi kategoriya
         </Button>
       </Box>
+
+      {addRoot && (
+        <InlineCategoryForm parentId={null} onDone={() => setAddRoot(false)} onCancel={() => setAddRoot(false)} />
+      )}
 
       {!allCats ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
         </Box>
       ) : (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
-            gap: 2
-          }}
-        >
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 2 }}>
           {roots.map(c => (
             <Paper
               key={c.id}
@@ -194,18 +177,7 @@ function Content() {
                 '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 30px rgba(18,27,45,.10)' }
               }}
             >
-              <Box
-                sx={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 2,
-                  bgcolor: 'rgba(77,175,0,.10)',
-                  color: 'primary.dark',
-                  display: 'grid',
-                  placeItems: 'center',
-                  mb: 1
-                }}
-              >
+              <Box sx={{ width: 38, height: 38, borderRadius: 2, bgcolor: 'rgba(77,175,0,.10)', color: 'primary.dark', display: 'grid', placeItems: 'center', mb: 1 }}>
                 <FolderOpenIcon fontSize='small' />
               </Box>
               <Typography sx={{ fontWeight: 700 }} noWrap>
@@ -217,32 +189,27 @@ function Content() {
               <ChevronRightIcon sx={{ position: 'absolute', top: 16, right: 14, color: 'text.disabled' }} />
             </Paper>
           ))}
-          {!roots.length && (
+          {!roots.length && !addRoot && (
             <Typography variant='body2' color='text.secondary'>
               Kategoriya yo`q — «Yangi kategoriya» bilan boshlang
             </Typography>
           )}
         </Box>
       )}
-
-      <CategoryDrawer
-        open={drawer.open}
-        editId={drawer.editId}
-        parentId={drawer.parentId}
-        onClose={() => setDrawer({ open: false })}
-        onSaved={() => {}}
-      />
     </Box>
   )
 }
 
-// ── 2-ekran komponenti ──
+// ── 2-ekran ──
 function CategoryDetail(props: any) {
-  const { catId, nm, renderCrumbs, eyebrowSx, onOpenCat, onOpenArticle, onAddSub, onEditCat, drawer, setDrawer } = props
+  const { catId, nm, renderCrumbs, onOpenCat, onOpenArticle } = props
   const { data, isLoading } = useQuery(['content-category', catId], () => GET_CATEGORY(String(catId)))
   const cat = data?.data
   const subs: any[] = cat?.child_category || []
   const arts: any[] = cat?.articles || []
+
+  const [addSub, setAddSub] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   return (
     <Box>
@@ -260,12 +227,21 @@ function CategoryDetail(props: any) {
         </Box>
         {cat && (
           <Tooltip title='Kategoriyani tahrirlash'>
-            <IconButton onClick={() => onEditCat(cat.id)}>
+            <IconButton onClick={() => setEditing(v => !v)} color={editing ? 'primary' : 'default'}>
               <EditOutlinedIcon />
             </IconButton>
           </Tooltip>
         )}
       </Box>
+
+      {editing && cat && (
+        <InlineCategoryForm
+          editId={cat.id}
+          initial={{ name: cat.name, sort: cat.category_ids?.length ? cat.category_sort : cat.sort, paid: cat.paid }}
+          onDone={() => setEditing(false)}
+          onCancel={() => setEditing(false)}
+        />
+      )}
 
       {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -273,16 +249,18 @@ function CategoryDetail(props: any) {
         </Box>
       ) : (
         <>
-          {/* Kichik kategoriyalar */}
           <SectionHead
             title='Kichik kategoriyalar'
             count={subs.length}
             action={
-              <Button size='small' startIcon={<AddIcon />} onClick={() => onAddSub(catId)}>
+              <Button size='small' startIcon={<AddIcon />} onClick={() => setAddSub(v => !v)}>
                 Kichik kategoriya
               </Button>
             }
           />
+          {addSub && (
+            <InlineCategoryForm parentId={catId} onDone={() => setAddSub(false)} onCancel={() => setAddSub(false)} />
+          )}
           <Paper elevation={0} sx={{ border: '1px solid rgba(18,27,45,.08)', borderRadius: 3, overflow: 'hidden', mb: 3 }}>
             {subs.length ? (
               subs.map((s: any) => (
@@ -301,7 +279,6 @@ function CategoryDetail(props: any) {
             )}
           </Paper>
 
-          {/* Maqolalar */}
           <SectionHead
             title='Maqolalar'
             count={arts.length}
@@ -330,14 +307,6 @@ function CategoryDetail(props: any) {
           </Paper>
         </>
       )}
-
-      <CategoryDrawer
-        open={drawer.open}
-        editId={drawer.editId}
-        parentId={drawer.parentId}
-        onClose={() => setDrawer({ open: false })}
-        onSaved={() => {}}
-      />
     </Box>
   )
 }
@@ -375,12 +344,7 @@ function Row({ icon, iconBg, title, chip, premium, onClick }: any) {
       <Typography sx={{ flex: 1, fontWeight: 700, fontSize: '.93rem' }} noWrap>
         {title}
       </Typography>
-      <Chip
-        size='small'
-        label={chip}
-        color={premium ? 'warning' : 'default'}
-        sx={{ fontWeight: 700 }}
-      />
+      <Chip size='small' label={chip} color={premium ? 'warning' : 'default'} sx={{ fontWeight: 700 }} />
       <ChevronRightIcon sx={{ color: 'text.disabled' }} />
     </Box>
   )

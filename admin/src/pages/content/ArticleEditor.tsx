@@ -13,24 +13,26 @@ import {
   Typography
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import { useEffect, useMemo, useState } from 'react'
+import NoteAddIcon from '@mui/icons-material/NoteAdd'
+import ImageIcon from '@mui/icons-material/Image'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { GET_ARTICLE } from '../articles/queries'
 import { CREATE_ARTICLES, UPDATE_ARTICLES } from '../articles/mutatuions'
+import { CREATE_CHAPTER } from '../chapter/mutatuions'
 import { GET_CATEGORIES } from '../category/queries'
+import MyEditor from '../../components/editor'
 import ChapterCard from './ChapterCard'
+import NoteImagePicker, { PickKind } from './NoteImagePicker'
 
 type Lang = 'uz' | 'ru' | 'en'
 const EMPTY = { uz: '', ru: '', en: '' }
 
 interface IProps {
-  // 'new' yoki maqola id
-  articleId: string
-  // yangi maqola qaysi kategoriya ichida yaratiladi
+  articleId: string // 'new' yoki id
   defaultCategoryId?: number | null
-  // maqola yaratilgach edit rejimiga o'tish uchun
   onCreated: (id: number) => void
 }
 
@@ -48,37 +50,34 @@ function ArticleEditor(props: IProps) {
   const [questions, setQuestions] = useState('')
   const [newChapters, setNewChapters] = useState<number[]>([])
 
+  // Yangi maqola uchun birinchi bo'lim (matn) — maqola bilan birga saqlanadi
+  const [firstTitle, setFirstTitle] = useState<any>({ ...EMPTY })
+  const [firstContent, setFirstContent] = useState<any>({ ...EMPTY })
+  const [picker, setPicker] = useState<PickKind | null>(null)
+  const insertRef = useRef<((c: string) => void) | null>(null)
+
   const { data: allCats } = useQuery(['content-all-cats'], () => GET_CATEGORIES({ perPage: 1000 }))
   const catList: any[] = allCats?.data || []
 
-  const { data: articleRes, isLoading } = useQuery(
-    ['content-article', props.articleId],
-    () => GET_ARTICLE(props.articleId),
-    { enabled: !isNew }
-  )
+  const { data: articleRes, isLoading } = useQuery(['content-article', props.articleId], () => GET_ARTICLE(props.articleId), {
+    enabled: !isNew
+  })
   const article = articleRes?.data
 
-  // Yangi maqola — kontekstdagi kategoriyani oldindan tanlaymiz
   useEffect(() => {
     if (isNew) {
-      setName({ ...EMPTY })
-      setSort('0')
-      setPaid(false)
-      setQuestions('')
       const def = catList.find(c => c.id === props.defaultCategoryId)
       setCategories(def ? [def] : [])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNew, props.defaultCategoryId, catList.length])
 
-  // Mavjud maqolani yuklaymiz
   useEffect(() => {
     if (!isNew && article) {
       setName({ ...EMPTY, ...(article.name || {}) })
       setPaid(!!article.paid)
       setSort(String(article.sort ?? '0'))
       setCategories(Array.isArray(article.category_ids) ? article.category_ids : [])
-      setQuestions('')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNew, article])
@@ -90,10 +89,45 @@ function ArticleEditor(props: IProps) {
     setNewChapters([])
   }
 
+  const buildPayload = () => {
+    const catIds = categories.map(c => c.id)
+    let sorts = String(sort)
+      .split(',')
+      .map(s => Number(s.trim()) || 0)
+    while (sorts.length < catIds.length) sorts.push(0)
+    sorts = sorts.slice(0, catIds.length)
+    const qids = questions
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+    return {
+      name,
+      category_ids: catIds,
+      sort: sorts,
+      paid: Number(paid),
+      blocks: qids.length ? [{ name, question_ids: qids, sort: 1 }] : []
+    }
+  }
+
   const { mutate: create, isLoading: creating } = useMutation(CREATE_ARTICLES, {
-    onSuccess: (res: any) => {
+    onSuccess: async (res: any) => {
       const id = res?.data?.id
-      toast.success('Maqola yaratildi')
+      // Birinchi bo'lim matni kiritilgan bo'lsa — maqola bilan birga yaratamiz
+      const hasTitle = Object.values(firstTitle).some(v => (v as string).trim())
+      const hasContent = Object.values(firstContent).some(v => (v as string).trim())
+      if (id && (hasTitle || hasContent)) {
+        try {
+          await CREATE_CHAPTER({
+            title: hasTitle ? firstTitle : name, // sarlavha bo'sh bo'lsa maqola nomi
+            description: firstContent,
+            article_ids: [id],
+            sort: [0]
+          })
+        } catch {
+          /* xato toast'i request.ts da chiqadi */
+        }
+      }
+      toast.success('Maqola saqlandi')
       if (id) props.onCreated(id)
     }
   })
@@ -104,37 +138,25 @@ function ArticleEditor(props: IProps) {
     }
   })
 
-  const saveArticle = () => {
+  const validate = () => {
     if (!Object.values(name).some(v => (v as string).trim())) {
       toast.error('Maqola nomini kiriting')
-      return
+      return false
     }
     if (!categories.length) {
       toast.error('Kamida bitta kategoriya tanlang')
-      return
+      return false
     }
-    const catIds = categories.map(c => c.id)
-    // sort — kategoriyalar soniga mos massiv
-    let sorts = String(sort)
-      .split(',')
-      .map(s => Number(s.trim()) || 0)
-    while (sorts.length < catIds.length) sorts.push(0)
-    sorts = sorts.slice(0, catIds.length)
+    return true
+  }
 
-    const qids = questions
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
-
-    const payload: any = {
-      name,
-      category_ids: catIds,
-      sort: sorts,
-      paid: Number(paid),
-      blocks: qids.length ? [{ name, question_ids: qids, sort: 1 }] : []
-    }
-    if (isNew) create(payload)
-    else update({ id: article.id, ...payload })
+  const saveNew = () => {
+    if (!validate()) return
+    create(buildPayload())
+  }
+  const saveExisting = () => {
+    if (!validate()) return
+    update({ id: article.id, ...buildPayload() })
   }
 
   if (!isNew && isLoading) {
@@ -151,7 +173,7 @@ function ArticleEditor(props: IProps) {
         {isNew ? 'Yangi maqola' : name.uz || 'Maqola'}
       </Typography>
       <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-        Maqola ma`lumoti va bo`limlar (matn) — shu ekranda.
+        {isNew ? 'Nom va matnni kiriting — bitta «Saqlash» bilan yaratiladi.' : 'Maqola ma`lumoti va bo`limlar (matn).'}
       </Typography>
 
       {/* ── Maqola meta ── */}
@@ -200,10 +222,7 @@ function ArticleEditor(props: IProps) {
             />
           </Grid>
           <Grid item xs={6} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
-            <FormControlLabel
-              control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />}
-              label='Premium'
-            />
+            <FormControlLabel control={<Switch checked={paid} onChange={e => setPaid(e.target.checked)} />} label='Premium' />
           </Grid>
           <Grid item xs={12} md={4}>
             <TextField
@@ -215,66 +234,96 @@ function ArticleEditor(props: IProps) {
               onChange={e => setQuestions(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12}>
-            <Button variant='contained' disabled={creating || updating} onClick={saveArticle}>
-              {creating || updating ? 'Saqlanmoqda...' : isNew ? 'Maqolani yaratish' : 'Maqolani saqlash'}
-            </Button>
-          </Grid>
+          {!isNew && (
+            <Grid item xs={12}>
+              <Button variant='contained' disabled={updating} onClick={saveExisting}>
+                {updating ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
+              </Button>
+            </Grid>
+          )}
         </Grid>
       </Paper>
 
-      {/* ── Bo'limlar ── */}
-      <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-          <Typography variant='subtitle2' color='text.secondary'>
-            Bo`limlar (matn){' '}
-            <Box component='span' sx={{ color: 'text.disabled' }}>
-              {chapters.length + newChapters.length}
+      {isNew ? (
+        /* ── Yangi maqola: birinchi bo'lim (matn) + bitta Saqlash ── */
+        <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, gap: 1 }}>
+            <Typography variant='subtitle2' color='text.secondary'>
+              Matn (birinchi bo`lim) — ixtiyoriy
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Button size='small' startIcon={<NoteAddIcon />} onClick={() => setPicker('note')}>
+                Eslatma
+              </Button>
+              <Button size='small' startIcon={<ImageIcon />} onClick={() => setPicker('image')}>
+                Rasm
+              </Button>
             </Box>
-          </Typography>
-          <Button
+          </Box>
+          <TextField
             size='small'
-            variant='contained'
-            startIcon={<AddIcon />}
-            disabled={isNew}
-            onClick={() => setNewChapters(prev => [...prev, Date.now()])}
-          >
-            Bo`lim
-          </Button>
-        </Box>
+            fullWidth
+            label={`Bo'lim sarlavhasi (${lang.toUpperCase()})`}
+            value={firstTitle[lang] || ''}
+            onChange={e => setFirstTitle({ ...firstTitle, [lang]: e.target.value })}
+            sx={{ mb: 1.5 }}
+          />
+          <MyEditor
+            key={lang}
+            value={firstContent[lang] || ''}
+            setValue={(e: string) => setFirstContent({ ...firstContent, [lang]: e })}
+            insertRef={insertRef}
+          />
+          <Box sx={{ mt: 2 }}>
+            <Button variant='contained' size='large' disabled={creating} onClick={saveNew}>
+              {creating ? 'Saqlanmoqda...' : 'Maqolani saqlash'}
+            </Button>
+          </Box>
 
-        {isNew ? (
-          <Typography variant='body2' color='text.secondary' sx={{ py: 2, textAlign: 'center' }}>
-            Avval maqolani saqlang — keyin bo`lim (matn) qo`shasiz.
-          </Typography>
-        ) : (
-          <>
-            {chapters.map((ch: any) => (
-              <ChapterCard
-                key={ch.id}
-                articleId={article.id}
-                chapter={ch}
-                onSaved={refetchArticle}
-                onRemoved={refetchArticle}
-              />
-            ))}
-            {newChapters.map(key => (
-              <ChapterCard
-                key={key}
-                articleId={article.id}
-                defaultOpen
-                onSaved={refetchArticle}
-                onRemoved={() => setNewChapters(prev => prev.filter(k => k !== key))}
-              />
-            ))}
-            {!chapters.length && !newChapters.length && (
-              <Typography variant='body2' color='text.secondary' sx={{ py: 2, textAlign: 'center' }}>
-                Bo`lim yo`q — «Bo`lim» tugmasi bilan matn qo`shing (ixtiyoriy)
-              </Typography>
-            )}
-          </>
-        )}
-      </Paper>
+          <NoteImagePicker
+            open={!!picker}
+            kind={picker || 'note'}
+            onClose={() => setPicker(null)}
+            onPick={token => {
+              if (insertRef.current) insertRef.current(token)
+              else setFirstContent({ ...firstContent, [lang]: (firstContent[lang] || '') + ' ' + token + ' ' })
+            }}
+          />
+        </Paper>
+      ) : (
+        /* ── Mavjud maqola: bo'limlar ro'yxati ── */
+        <Paper elevation={0} sx={{ p: 2.5, border: '1px solid rgba(18,27,45,.08)' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+            <Typography variant='subtitle2' color='text.secondary'>
+              Bo`limlar (matn){' '}
+              <Box component='span' sx={{ color: 'text.disabled' }}>
+                {chapters.length + newChapters.length}
+              </Box>
+            </Typography>
+            <Button size='small' variant='contained' startIcon={<AddIcon />} onClick={() => setNewChapters(prev => [...prev, Date.now()])}>
+              Bo`lim
+            </Button>
+          </Box>
+
+          {chapters.map((ch: any) => (
+            <ChapterCard key={ch.id} articleId={article.id} chapter={ch} onSaved={refetchArticle} onRemoved={refetchArticle} />
+          ))}
+          {newChapters.map(key => (
+            <ChapterCard
+              key={key}
+              articleId={article.id}
+              defaultOpen
+              onSaved={refetchArticle}
+              onRemoved={() => setNewChapters(prev => prev.filter(k => k !== key))}
+            />
+          ))}
+          {!chapters.length && !newChapters.length && (
+            <Typography variant='body2' color='text.secondary' sx={{ py: 2, textAlign: 'center' }}>
+              Bo`lim yo`q — «Bo`lim» tugmasi bilan matn qo`shing
+            </Typography>
+          )}
+        </Paper>
+      )}
     </Box>
   )
 }
